@@ -5,6 +5,13 @@
     <!--- Basic Page Needs
     ================================================== -->
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html" />
+    <meta http-equiv="author" content="Leonard Klausmann" />
+    <meta name="description" content="A single page application for Tweets" />
+    <meta name="keywords" content="OTH Regensburg, Course de Leastar" />
+    <meta name="robots" content="nofollow" />
+    <!-- Mobile Specific Setting -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Modern Web Application by Leonard Klausmann</title>
 
@@ -12,6 +19,9 @@
     ================================================== -->
     <link rel="css/stylesheet" href="mwa.css" type="text/css" media="screen" />
 
+    <!-- VCard
+    ================================================== -->
+    <link rel="profile" href="http://microformats.org/profile/hcard" />
 
 </head>
 
@@ -27,9 +37,9 @@
     <!-- Signup / Registration / Login
     ================================================== -->
     <section id="Account">
-                <h2>Signup</h2>
-                 <h2>Login</h2>
-                <h2>Edit Account Data</h2>
+        <h2>Signup</h2>
+        <h2>Login</h2>
+        <h2>Edit Account Data</h2>
     </section>
     <hr/>
 
@@ -105,9 +115,23 @@
 
 
     <footer>
-        <h2 class="hidden">Footer section</h2>
+        <hr/>
+        <address>
+            <p>Contact: <a href="mailtp:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></p>
+        </address>
+        <div class="vcard">
+            Card
+            <a rel="profile" href="http://microformats.org/profile/hcard"></a>:
+            <span class="fn">Leonard Klausmann</span>,
+            <span class="role">Student MI</span>,
+            <span class="org">OTH Regensburg</span>,
+            <span class="region">Bavaria</span>,
+            <span class="country-name">Germany</span>
+            <span class="email"><a href="mailtp:leonard1.klausmann@st.oth-regensburg.de"></a></span>
+            <p></p>
+        </div>
         <section id="copyright">
-            <h3>Copyright 2016 by <a>Leonard Klausmann</a>. All Rights Reserved.</h3>
+            <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
         </section>
     </footer>
 
