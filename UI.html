@@ -44,19 +44,44 @@
     <!-- Signup / Registration / Login
     ================================================== -->
     <section id="Account">
-      <hr/>
-      <fieldset>
+        <hr/>
+        <fieldset>
             <legend>Signup</legend>
+            <form action="Submit" method="POST">
+                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
+                />
+                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
+                />
+                <label>Username : <input type="text" name="username" placeholder="Type in a name ..." required />  </label><br
+                />
+                <input type="submit" name="subscribe" value="Create Account" />
+            </form>
         </fieldset>
         <hr/>
 
         <fieldset>
             <legend>Login</legend>
+            <form action="ValidateLogin" method="POST">
+                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
+                />
+                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
+                />
+                <input type="submit" name="login" value="Login" />
+            </form>
         </fieldset>
         <hr/>
 
         <fieldset>
             <legend>Edit Account Data</legend>
+            <form action="ChangeAccountData" method="POST">
+                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
+                />
+                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
+                />
+                <label>Username : <input type="text" name="username" placeholder="Type in a name ..." required />  </label><br
+                />
+                <input type="submit" name="update" value="Update Account" />
+            </form>
         </fieldset>
         <hr/>
     </section>
