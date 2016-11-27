@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <!--- Basic Page Needs
+    ================================================== -->
+    <meta charset="UTF-8" />
+
+    <title>Modern Web Application by Leonard Klausmann</title>
+
+    <!-- CSS
+    ================================================== -->
+    <link rel="css/stylesheet" href="mwa.css" type="text/css" media="screen" />
+
+
+</head>
+
+<body>
+    <header>
+        <h1>OTH Regensburg MI WiSe 16/17 Course - de Leastar</h1>
+        <h2>Building Modern Web Applications & Services using Node.js</h2>
+        <h2>Implemented as SPA</h2>
+        <p>(1) Front End Foundation</p>
+        <hr/>
+    </header>
+
+    <!-- Signup / Registration / Login
+    ================================================== -->
+    <section id="Account">
+                <h2>Signup</h2>
+                 <h2>Login</h2>
+                <h2>Edit Account Data</h2>
+    </section>
+    <hr/>
+
+    <section id="Tweet">
+        <h2 class="hidden">Messages</h2>
+        <p>Post a tweet</p>
+        <div class="PostTweet (limited to 140 characters)">
+            <form action="#">
+                <input type="text" name="message" value="Enter a message ..." />
+                <input type="text" name="password" value="Enter password ..." />
+                <input type="submit" name="sendMsg" class="button" value="Post" />
+            </form>
+        </div>
+    </section>
+
+    <section id="Viewing">
+        <h2 class="hidden">Tweet Viewer</h2>
+        <p>Tweet Viewer</p>
+        <nav>
+            <ul>
+                <li><a href="javascript:void(0)">Mine</a></li>
+                <li><a href="javascript:void(0)">Another user</a></li>
+                <li><a href="javascript:void(0)">All users</a></li>
+            </ul>
+        </nav>
+        <article>
+            <img src="img/some_icon.png" alt="Avatar" />
+            <h3>Content</h3>
+            <p>This is a tweet.</p>
+        </article>
+    </section>
+
+    <section id="Administration">
+        <h2 class="hidden">Admin Tools</h2>
+        <p>Admin Tools</p>
+        <nav>
+            <ul>
+                <li><a href="javascript:void(0)">Add user</a></li>
+                <li><a href="javascript:void(0)">Remove user</a></li>
+                <li><a href="javascript:void(0)">Cleanup tweets</a></li>
+            </ul>
+        </nav>
+    </section>
+
+    <section id="AdministrativeTasks">
+        <h2 class="hidden">Admin's Toolkit</h2>
+        <p>Admin's Toolkit</p>
+        <nav>
+            <div class="AddUser">
+                <form action="#">
+                    <input type="text" name="mail" value="Enter mail address ..." />
+                    <input type="text" name="password" value="Enter password ..." />
+                    <input type="text" name="username" value="Enter a user name ..." />
+                    <input type="submit" name="start_add_user" class="button" value="Add User" />
+                </form>
+            </div>
+            <div class="RemoveUser">
+                <form action="#">
+                    <input type="text" name="mail" value="Enter mail address ..." /> OR
+                    <input type="text" name="username" value="Enter a user name ..." />
+                    <input type="submit" name="start_remove_user" class="button" value="Remove User" />
+                </form>
+            </div>
+            <div class="DeleteTweets">
+                <form action="#">
+                    <input type="text" name="username" value="Enter a user name (* means all users) ..." />
+                    <input type="submit" name="start_cleanup" class="button" value="Delete Tweets" />
+                </form>
+            </div>
+
+        </nav>
+    </section>
+
+
+    <footer>
+        <h2 class="hidden">Footer section</h2>
+        <section id="copyright">
+            <h3>Copyright 2016 by <a>Leonard Klausmann</a>. All Rights Reserved.</h3>
+        </section>
+    </footer>
+
+</body>
+
+</html>
