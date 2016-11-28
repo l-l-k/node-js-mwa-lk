@@ -17,12 +17,17 @@
 
     <!-- CSS
     ================================================== -->
-    <link rel="css/stylesheet" href="mwa.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/mwa.css" type="text/css" media="screen" />
 
     <!-- VCard
     ================================================== -->
     <link rel="profile" href="http://microformats.org/profile/hcard" />
 
+    <!-- JavaScript
+    ================================================== -->
+    <!-- 
+        <script  src="js/nav.js" />
+    -->
 </head>
 
 <body>
@@ -31,21 +36,23 @@
             <abbr title="Medizinische Informatik">MI</abbr> WiSe 16/17 Course - de Leastar</h1>
         <h2>Building Modern Web Applications & Services using Node.js</h2>
         <h2>Implemented as <abbr title="Single Page Application">SPA</abbr></h2>
-        <p>(1) Front End Foundation</p>
+        <p class="hidden">(1) Front End Foundation</p>
     </header>
 
     <nav>
-        <input type="submit" name="start_login" value="Login" />
-        <input type="submit" name="start_registration" value="Signup" />
-        <input type="submit" name="start_edit_account" value="Edit Account" />
+        <a href="javascript:void(0)">Login</a> /
+        <a href="javascript:void(0)">Edit Account</a> /
+        <a href="javascript:void(0)">Signup</a> /
+        <a href="javascript:void(0)">Tweets</a> /
+        <a class="visible" href="javascript:void(0)">Admin Tools</a>
     </nav>
-
+    <hr/>
 
     <!-- Signup / Registration / Login
-    ================================================== -->
-    <section id="Account">
-        <hr/>
-        <fieldset>
+    ================================================== 
+    Control visibility via java script-->
+    <section class="visible" id="Account">
+        <fieldset class="hidden">
             <legend>Signup</legend>
             <form action="Submit" method="POST">
                 <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
@@ -57,9 +64,8 @@
                 <input type="submit" name="subscribe" value="Create Account" />
             </form>
         </fieldset>
-        <hr/>
 
-        <fieldset>
+        <fieldset class="visible">
             <legend>Login</legend>
             <form action="ValidateLogin" method="POST">
                 <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
@@ -69,9 +75,8 @@
                 <input type="submit" name="login" value="Login" />
             </form>
         </fieldset>
-        <hr/>
 
-        <fieldset>
+        <fieldset class="hidden">
             <legend>Edit Account Data</legend>
             <form action="ChangeAccountData" method="POST">
                 <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
@@ -86,35 +91,40 @@
         <hr/>
     </section>
 
+    <!-- Posting tweets
+    ================================================== -->
     <section id="Tweet">
         <h2 class="hidden">Messages</h2>
-        <p>Post a tweet</p>
+        <p class="visible">Post a tweet</p>
         <div class="PostTweet (limited to 140 characters)">
             <form action="#">
                 <input type="text" name="message" value="Enter a message ..." />
-                <input type="text" name="password" value="Enter password ..." />
                 <input type="submit" name="sendMsg" class="button" value="Post" />
             </form>
         </div>
     </section>
 
+    <!-- View tweet history
+    ================================================== -->
     <section id="Viewing">
-        <h2 class="hidden">Tweet Viewer</h2>
-        <p>Tweet Viewer</p>
-        <nav>
-            <ul>
-                <li><a href="javascript:void(0)">Mine</a></li>
-                <li><a href="javascript:void(0)">Another user</a></li>
-                <li><a href="javascript:void(0)">All users</a></li>
-            </ul>
-        </nav>
+        <h3 class="visible">Tweet Viewer</h3>
+        <p>View tweets of:
+            <input type="radio" name="filter" value="me" checked="checked" /> Me
+            <input type="radio" name="filter" value="Other" /> Other User
+            <input type="text" name="message" value="" placeholder="Type in username ..." />
+            <input type="radio" name="filter" value="All" /> All Users
+            <input type="submit" name="updateView" class="button" value="Update View" />
+        </p>
         <article>
             <img src="img/some_icon.png" alt="Avatar" />
             <h3>Content</h3>
             <p>This is a tweet.</p>
         </article>
     </section>
+        <hr/>
 
+    <!-- Administrative Tasks
+    ================================================== -->
     <section id="Administration">
         <h2 class="hidden">Admin Tools</h2>
         <p>Admin Tools</p>
@@ -156,7 +166,8 @@
         </nav>
     </section>
 
-
+    <!-- Footer : Contact, Copyright and VCard
+    ================================================== -->
     <footer>
         <hr/>
         <address>
