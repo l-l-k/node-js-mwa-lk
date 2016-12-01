@@ -18,7 +18,6 @@
     <!-- CSS
     ================================================== -->
     <link rel="stylesheet" href="css/mwa.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="css/tooltip.css" type="text/css" media="screen" />
 
     <!-- VCard
     ================================================== -->
@@ -45,7 +44,7 @@
         <a href="javascript:void(0)" class="internalLink">Edit Account</a> /
         <a href="javascript:void(0)" class="internalLink">Signup</a> /
         <a href="javascript:void(0)" class="internalLink">Tweets</a> /
-        <a href="javascript:void(0)"  class="visible internalLink">Admin Tools</a>
+        <a href="javascript:void(0)" class="visible internalLink">Admin Tools</a>
     </nav>
     <hr/>
 
@@ -53,6 +52,8 @@
     ================================================== 
     Control visibility via java script-->
     <section class="visible" id="Account">
+
+        <!-- Register as new user -->
         <fieldset id="signup" class="hidden">
             <legend>Signup</legend>
             <form action="Submit" method="POST">
@@ -72,6 +73,7 @@
             </form>
         </fieldset>
 
+        <!-- Login as registered user -->
         <fieldset id="login" class="visible">
             <legend>Login</legend>
             <form action="ValidateLogin" method="POST">
@@ -88,6 +90,7 @@
             </form>
         </fieldset>
 
+        <!-- Edit user data -->
         <fieldset id="settings" class="hidden">
             <legend>Edit Account Data</legend>
             <form action="ChangeAccountData" method="POST">
@@ -113,8 +116,8 @@
     ================================================== -->
     <section id="Tweet">
         <h2 class="hidden">Messages</h2>
-        <h3 class="visible"><a title="Maximal 140 Zeichen">Post a tweet</a></h3>
-        <div class="PostTweet (limited to 140 characters)">
+        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+        <div class="PostTweet">
             <form action="#">
                 <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
                 <label for="sendMsg" class="countdown" maxlength="3">140</label>
@@ -135,12 +138,74 @@
             <br />
             <input type="submit" name="updateView" class="button" value="Update View" />
         </p>
-        <article>
-            <img src="img/some_icon.png" alt="Avatar" />
-            <h3>Content</h3>
-            <p>This is a tweet.</p>
+            <p id="author">
+                <img src="img/bird.png" alt="Bird" width="100" height="100", align="middle"/>
+                Author : 
+            </p>
+        <article id="smallTable">
+            <table>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Message</th>
+                </tr>
+                <tr>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr class="even">
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr class="even">
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+            </table>
         </article>
-    </section>
+           <article id="wideTable">
+            <table>
+                <tr>
+                    <th>Author</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Message</th>
+                </tr>
+                <tr>
+                    <td>Leo</td>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr class="even">
+                    <td>Leo</td>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr>
+                    <td>Leo</td>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+                <tr class="even">
+                    <td>Leo</td>
+                    <td>01.12.2016</td>
+                    <td>18:48</td>
+                    <td>This message has not been tweeted</td>
+                </tr>
+            </table>
+        </article>
+ </section>
     <hr/>
 
     <!-- Administrative Tasks
@@ -148,7 +213,7 @@
     <section id="Administration" class="visible">
         <h2 class="visible">Admin Tools</h2>
         <nav>
-       <ul>
+            <ul>
                 <a href="javascript:void(0)" class="visible internalLink">Add user</a> /
                 <a href="javascript:void(0)" class="visible internalLink">Remove user</a> /
                 <a href="javascript:void(0)" class="visible internalLink">Cleanup tweets</a>
@@ -165,7 +230,7 @@
                 </div>
                 <div>
                     <label for="username" class="inputLabel">Username : </label>
-                    <input type="text" name="username"  class="inputField" placeholder="Username ..." required />
+                    <input type="text" name="username" class="inputField" placeholder="Username ..." required />
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password : </label>
@@ -192,7 +257,7 @@
             <legend>Delete Items</legend>
             <form action="CleanupTweets" method="POST">
                 <div>
-                    <label for="userID" class="inputLabel"<a title="Type in * to delete all users">User-ID :</a> </label>
+                    <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
                     <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
                 </div>
                 <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />

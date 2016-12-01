@@ -1,13 +1,9 @@
-a.internalLink {
-    text-decoration: none;
-    color: inherit;
-}
-a.internalLink:hover {
-    text-decoration: underline;
-    color: blue;
-}
-a.internalLink:active {
-	background-color: chocolate;
+body {
+				font-family:  Verdana, Arial, sans-serif;
+				color: #111111;}
+
+.hidden {
+    display: none;
 }
 
 form {
@@ -15,10 +11,6 @@ form {
     margin-left: 10px;
 }
 
-
-.hidden {
-    display: none;
-}
 
 div {
   border-bottom: 1px solid #efefef;
@@ -61,4 +53,40 @@ div {
 .radio1 {
     float: none;
     margin-left: 30px;
+}
+
+/* navigation */
+a.internalLink {
+    text-decoration: none;
+    color: inherit;
+}
+a.internalLink:hover {
+    text-decoration: underline;
+    color: blue;
+}
+a.internalLink:active {
+	background-color: chocolate;
+}
+
+/* data table */
+table {
+    width: 600px;
+}
+
+th, td {
+    padding: 7px 10px 10px 10px;
+}
+th {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 90%;
+    border-bottom: 2px solid #111111;
+    border-top: 1px solid #999;
+    text-align: left;
+}
+tr.even {
+    background-color: #efefef;
+}
+tr:hover {
+    background-color: #c3e6e5;
 }
