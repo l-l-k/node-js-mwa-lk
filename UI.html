@@ -55,12 +55,18 @@
         <fieldset class="hidden">
             <legend>Signup</legend>
             <form action="Submit" method="POST">
-                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
-                />
-                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
-                />
-                <label>Username : <input type="text" name="username" placeholder="Type in a name ..." required />  </label><br
-                />
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name :  </label>
+                    <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required />
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password :  </label>
+                    <input type="password" name="password" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                </div>
+                <div>
+                    <label for="username" class="inputLabel">Username : </label>
+                    <input type="text" name="username" placeholder="Type in a name ..." required />
+                </div>
                 <input type="submit" name="subscribe" value="Create Account" />
             </form>
         </fieldset>
@@ -68,11 +74,15 @@
         <fieldset class="visible">
             <legend>Login</legend>
             <form action="ValidateLogin" method="POST">
-                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
-                />
-                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
-                />
-                <input type="submit" name="login" value="Login" />
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name : </label>
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail adress ..." required />
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password : </label>
+                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                </div>
+                <input class="submit" type="submit" name="login" value="Login" />
             </form>
         </fieldset>
 
@@ -95,11 +105,12 @@
     ================================================== -->
     <section id="Tweet">
         <h2 class="hidden">Messages</h2>
-        <p class="visible">Post a tweet</p>
+        <h3 class="visible">Post a tweet</h3>
         <div class="PostTweet (limited to 140 characters)">
             <form action="#">
-                <input type="text" name="message" value="Enter a message ..." />
-                <input type="submit" name="sendMsg" class="button" value="Post" />
+                <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
+                 <label for="sendMsg" class="countdown" maxlength="3">140</label>
+               <input type="submit" name="sendMsg" class="button" value="Send" />
             </form>
         </div>
     </section>
@@ -107,12 +118,13 @@
     <!-- View tweet history
     ================================================== -->
     <section id="Viewing">
-        <h3 class="visible">Tweet Viewer</h3>
+        <h3 class="visible">Tweet History</h3>
         <p>View tweets of:
-            <input type="radio" name="filter" value="me" checked="checked" /> Me
-            <input type="radio" name="filter" value="Other" /> Other User
+            <input type="radio" class="radio1" name="filter" value="mMe" checked="checked" /> Me
+            <input type="radio" class="radio1" name="filter" value="other" /> Other User :
             <input type="text" name="message" value="" placeholder="Type in username ..." />
-            <input type="radio" name="filter" value="All" /> All Users
+            <input type="radio" class="radio1" name="filter" value="all" /> All Users
+            <br />
             <input type="submit" name="updateView" class="button" value="Update View" />
         </p>
         <article>
@@ -121,7 +133,7 @@
             <p>This is a tweet.</p>
         </article>
     </section>
-        <hr/>
+    <hr/>
 
     <!-- Administrative Tasks
     ================================================== -->
