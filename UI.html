@@ -18,6 +18,7 @@
     <!-- CSS
     ================================================== -->
     <link rel="stylesheet" href="css/mwa.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/tooltip.css" type="text/css" media="screen" />
 
     <!-- VCard
     ================================================== -->
@@ -40,11 +41,11 @@
     </header>
 
     <nav>
-        <a href="javascript:void(0)">Login</a> /
-        <a href="javascript:void(0)">Edit Account</a> /
-        <a href="javascript:void(0)">Signup</a> /
-        <a href="javascript:void(0)">Tweets</a> /
-        <a class="visible" href="javascript:void(0)">Admin Tools</a>
+        <a href="javascript:void(0)" class="internalLink">Login</a> /
+        <a href="javascript:void(0)" class="internalLink">Edit Account</a> /
+        <a href="javascript:void(0)" class="internalLink">Signup</a> /
+        <a href="javascript:void(0)" class="internalLink">Tweets</a> /
+        <a href="javascript:void(0)"  class="visible internalLink">Admin Tools</a>
     </nav>
     <hr/>
 
@@ -52,12 +53,12 @@
     ================================================== 
     Control visibility via java script-->
     <section class="visible" id="Account">
-        <fieldset class="hidden">
+        <fieldset id="signup" class="hidden">
             <legend>Signup</legend>
             <form action="Submit" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
-                    <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required />
+                    <input type="email" name="mailAddress" placeholder="Type in a valid mail address ..." required />
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :  </label>
@@ -67,11 +68,11 @@
                     <label for="username" class="inputLabel">Username : </label>
                     <input type="text" name="username" placeholder="Type in a name ..." required />
                 </div>
-                <input type="submit" name="subscribe" value="Create Account" />
+                <input class="submit" type="submit" name="subscribe" value="Create Account" />
             </form>
         </fieldset>
 
-        <fieldset class="visible">
+        <fieldset id="login" class="visible">
             <legend>Login</legend>
             <form action="ValidateLogin" method="POST">
                 <div>
@@ -80,22 +81,29 @@
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password : </label>
-                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33"
+                    />
                 </div>
                 <input class="submit" type="submit" name="login" value="Login" />
             </form>
         </fieldset>
 
-        <fieldset class="hidden">
+        <fieldset id="settings" class="hidden">
             <legend>Edit Account Data</legend>
             <form action="ChangeAccountData" method="POST">
-                <label>Login-Name : <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required /> </label><br
-                />
-                <label>Password : <input type="password" name="password" placeholder="Type in a password ..." required size = "8" maxlength="33"/>  </label><br
-                />
-                <label>Username : <input type="text" name="username" placeholder="Type in a name ..." required />  </label><br
-                />
-                <input type="submit" name="update" value="Update Account" />
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name :</label>
+                    <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required />
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password :</label>
+                    <input type="password" name="password" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                </div>
+                <div>
+                    <label for="username" class="inputLabel">Username :</label>
+                    <input type="text" name="username" placeholder="Type in a name ..." required />
+                </div>
+                <input class="submit" type="submit" name="update" value="Update Account" />
             </form>
         </fieldset>
         <hr/>
@@ -105,12 +113,12 @@
     ================================================== -->
     <section id="Tweet">
         <h2 class="hidden">Messages</h2>
-        <h3 class="visible">Post a tweet</h3>
+        <h3 class="visible"><a title="Maximal 140 Zeichen">Post a tweet</a></h3>
         <div class="PostTweet (limited to 140 characters)">
             <form action="#">
                 <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
-                 <label for="sendMsg" class="countdown" maxlength="3">140</label>
-               <input type="submit" name="sendMsg" class="button" value="Send" />
+                <label for="sendMsg" class="countdown" maxlength="3">140</label>
+                <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
             </form>
         </div>
     </section>
@@ -137,45 +145,60 @@
 
     <!-- Administrative Tasks
     ================================================== -->
-    <section id="Administration">
-        <h2 class="hidden">Admin Tools</h2>
-        <p>Admin Tools</p>
+    <section id="Administration" class="visible">
+        <h2 class="visible">Admin Tools</h2>
         <nav>
-            <ul>
-                <li><a href="javascript:void(0)">Add user</a></li>
-                <li><a href="javascript:void(0)">Remove user</a></li>
-                <li><a href="javascript:void(0)">Cleanup tweets</a></li>
+       <ul>
+                <a href="javascript:void(0)" class="visible internalLink">Add user</a> /
+                <a href="javascript:void(0)" class="visible internalLink">Remove user</a> /
+                <a href="javascript:void(0)" class="visible internalLink">Cleanup tweets</a>
             </ul>
         </nav>
-    </section>
 
-    <section id="AdministrativeTasks">
-        <h2 class="hidden">Admin's Toolkit</h2>
-        <p>Admin's Toolkit</p>
-        <nav>
-            <div class="AddUser">
-                <form action="#">
-                    <input type="text" name="mail" value="Enter mail address ..." />
-                    <input type="text" name="password" value="Enter password ..." />
-                    <input type="text" name="username" value="Enter a user name ..." />
-                    <input type="submit" name="start_add_user" class="button" value="Add User" />
-                </form>
-            </div>
-            <div class="RemoveUser">
-                <form action="#">
-                    <input type="text" name="mail" value="Enter mail address ..." /> OR
-                    <input type="text" name="username" value="Enter a user name ..." />
-                    <input type="submit" name="start_remove_user" class="button" value="Remove User" />
-                </form>
-            </div>
-            <div class="DeleteTweets">
-                <form action="#">
-                    <input type="text" name="username" value="Enter a user name (* means all users) ..." />
-                    <input type="submit" name="start_cleanup" class="button" value="Delete Tweets" />
-                </form>
-            </div>
+        <!-- Add a new user -->
+        <fieldset id="addUser" class="visible">
+            <legend>Add User</legend>
+            <form action="AddUser" method="POST">
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name : </label>
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
+                </div>
+                <div>
+                    <label for="username" class="inputLabel">Username : </label>
+                    <input type="text" name="username"  class="inputField" placeholder="Username ..." required />
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password : </label>
+                    <input type="password" name="password" class="inputField" placeholder="Password ..." required size="8" maxlength="33" />
+                </div>
+                <input class="submit" type="submit" name="subscribe" value="Create Account" />
+            </form>
+        </fieldset>
 
-        </nav>
+        <!-- Remove a user (and his tweets) -->
+        <fieldset id="removeUser" class="visible">
+            <legend>Remove User</legend>
+            <form action="RemoveUser" method="POST">
+                <div>
+                    <label for="userID" class="inputLabel">Login-Name : </label>
+                    <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                </div>
+                <input class="submit" type="submit" name="unsubscribe" value="Delete Account" />
+            </form>
+        </fieldset>
+
+        <!-- Delete tweets of any user -->
+        <fieldset id="cleanupTweets" class="visible">
+            <legend>Delete Items</legend>
+            <form action="CleanupTweets" method="POST">
+                <div>
+                    <label for="userID" class="inputLabel"<a title="Type in * to delete all users">User-ID :</a> </label>
+                    <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                </div>
+                <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
+            </form>
+        </fieldset>
+
     </section>
 
     <!-- Footer : Contact, Copyright and VCard
@@ -183,7 +206,7 @@
     <footer>
         <hr/>
         <address>
-            <p>Contact: <a href="mailtp:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></p>
+            <p>Contact: <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></p>
         </address>
         <div class="vcard">
             Card
@@ -193,7 +216,7 @@
             <span class="org">OTH Regensburg</span>,
             <span class="region">Bavaria</span>,
             <span class="country-name">Germany</span>
-            <span class="email"><a href="mailtp:leonard1.klausmann@st.oth-regensburg.de"></a></span>
+            <span class="email"><a href="mailto:leonard1.klausmann@st.oth-regensburg.de"></a></span>
             <p></p>
         </div>
         <section id="copyright">

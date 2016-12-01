@@ -1,3 +1,15 @@
+a.internalLink {
+    text-decoration: none;
+    color: inherit;
+}
+a.internalLink:hover {
+    text-decoration: underline;
+    color: blue;
+}
+a.internalLink:active {
+	background-color: chocolate;
+}
+
 form {
     display: inline-block;
     margin-left: 10px;
