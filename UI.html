@@ -25,9 +25,7 @@
 
     <!-- JavaScript
     ================================================== -->
-    <!-- 
-        <script  src="js/nav.js" />
-    -->
+    <!-- goto end of page  -->
 </head>
 
 <body>
@@ -40,18 +38,18 @@
     </header>
 
     <nav>
-        <a href="javascript:void(0)" class="internalLink">Login</a> /
-        <a href="javascript:void(0)" class="internalLink">Edit Account</a> /
-        <a href="javascript:void(0)" class="internalLink">Signup</a> /
-        <a href="javascript:void(0)" class="internalLink">Tweets</a> /
-        <a href="javascript:void(0)" class="visible internalLink">Admin Tools</a>
+        <a href="javascript:activateLogin()" class="internalLink">Login</a> /
+        <a href="javascript:activateUserData()" class="internalLink">Edit Account</a> /
+        <a href="javascript:activateSignup()" class="internalLink">Signup</a> /
+        <a href="javascript:activateTweetMode()" class="internalLink">Tweets</a> /
+        <a href="javascript:activateAdminMode()" class="visible internalLink" id="adminLink">Admin Tools</a>
     </nav>
     <hr/>
 
     <!-- Signup / Registration / Login
     ================================================== 
     Control visibility via java script-->
-    <section class="visible" id="Account">
+    <section id="account">
 
         <!-- Register as new user -->
         <fieldset id="signup" class="hidden">
@@ -68,6 +66,7 @@
                 <div>
                     <label for="username" class="inputLabel">Username : </label>
                     <input type="text" name="username" placeholder="Type in a name ..." required />
+                    <div id="idHint" class="warning">Name already exists. Please retry.</div>
                 </div>
                 <input class="submit" type="submit" name="subscribe" value="Create Account" />
             </form>
@@ -91,7 +90,7 @@
         </fieldset>
 
         <!-- Edit user data -->
-        <fieldset id="settings" class="hidden">
+        <fieldset id="userdata" class="hidden">
             <legend>Edit Account Data</legend>
             <form action="ChangeAccountData" method="POST">
                 <div>
@@ -112,38 +111,43 @@
         <hr/>
     </section>
 
-    <!-- Posting tweets
+    <!-- Tweets
     ================================================== -->
-    <section id="Tweet">
-        <h2 class="hidden">Messages</h2>
-        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-        <div class="PostTweet">
-            <form action="#">
-                <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
-                <label for="sendMsg" class="countdown" maxlength="3">140</label>
-                <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
-            </form>
-        </div>
+    <section id="emptyPage">
+        <img src="img/bird.png" alt="Bird" width="300" height="300" , align="middle" />
     </section>
 
-    <!-- View tweet history
+    <section id="tweets">
+        <!-- Posting tweets
     ================================================== -->
-    <section id="Viewing">
-        <h3 class="visible">Tweet History</h3>
-        <p>View tweets of:
-            <input type="radio" class="radio1" name="filter" value="mMe" checked="checked" /> Me
-            <input type="radio" class="radio1" name="filter" value="other" /> Other User :
-            <input type="text" name="message" value="" placeholder="Type in username ..." />
-            <input type="radio" class="radio1" name="filter" value="all" /> All Users
-            <br />
-            <input type="submit" name="updateView" class="button" value="Update View" />
-        </p>
-            <p id="author">
-                <img src="img/bird.png" alt="Bird" width="100" height="100", align="middle"/>
-                Author : 
+        <article id="currentTweet">
+            <h2 class="hidden">Messages</h2>
+            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+            <div class="PostTweet">
+                <form action="#">
+                    <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
+                    <label for="sendMsg" class="countdown" maxlength="3">140</label>
+                    <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
+                </form>
+            </div>
+        </article>
+
+        <!-- View tweet history
+    ================================================== -->
+        <article id="tweetHistory">
+            <h3 class="visible">Tweet History</h3>
+            <p>View tweets of:
+                <input type="radio" class="radio1" name="filter" value="mMe" checked="checked" /> Me
+                <input type="radio" class="radio1" name="filter" value="other" /> Other User :
+                <input type="text" name="message" value="" placeholder="Type in username ..." />
+                <input type="radio" class="radio1" name="filter" value="all" /> All Users
+                <br />
+                <input type="submit" name="updateView" class="button" value="Update View" />
             </p>
-        <article id="smallTable">
-            <table>
+            <p id="author">
+                <img src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" /> Author :
+            </p>
+            <table id="smallTable">
                 <tr>
                     <th>Day</th>
                     <th>Time</th>
@@ -170,9 +174,7 @@
                     <td>This message has not been tweeted</td>
                 </tr>
             </table>
-        </article>
-           <article id="wideTable">
-            <table>
+            <table id="wideTable">
                 <tr>
                     <th>Author</th>
                     <th>Day</th>
@@ -205,12 +207,12 @@
                 </tr>
             </table>
         </article>
- </section>
-    <hr/>
+     <hr/>
+   </section>
 
     <!-- Administrative Tasks
     ================================================== -->
-    <section id="Administration" class="visible">
+    <section id="administration" class="visible">
         <h2 class="visible">Admin Tools</h2>
         <nav>
             <ul>
@@ -259,17 +261,33 @@
                 <div>
                     <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
                     <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                    <div id="feedbackToUserID"></div>
                 </div>
                 <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
             </form>
         </fieldset>
 
-    </section>
+        <!-- Statistic / Summary of user accounts -->
+        <fieldset id="statistics" class="visible">
+            <legend>Select Period for Statistic</legend>
+            <form action="AccountSummary" method="POST">
+                <div>
+                    <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
+                    <input type="date" name="startDate" class="inputField" required />
+                    <label for="endDate" class="inputLabel" <a title="Select last day of time span to analyse">To :</a> </label>
+                    <input type="date" name="endDate" class="inputField" required />
+                    <div id="feedbackToAccountSummary"></div>
+                </div>
+                <input class="submit" type="submit" name="accountSummary" value="Retrieve Summary" />
+            </form>
+        </fieldset>
+
+          <hr/>
+  </section>
 
     <!-- Footer : Contact, Copyright and VCard
     ================================================== -->
     <footer>
-        <hr/>
         <address>
             <p>Contact: <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></p>
         </address>
@@ -289,6 +307,13 @@
         </section>
     </footer>
 
+    <!-- JavaScript: 
+    At this time the DOM content has already been loaded,
+    so we must not wait until the load event gets finished
+    ================================================== -->
+    <script type="text/javascript" src="js/invoke.js"></script>
+    <!--  <script type="text/javascript" src="js/nav.js"></script>;
+   -->
 </body>
 
 </html>

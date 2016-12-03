@@ -1,6 +1,8 @@
 body {
-				font-family:  Verdana, Arial, sans-serif;
+				font-family:  Arial, Verdana, sans-serif;
 				color: #111111;}
+.visible {
+  visibility: visible;}
 
 .hidden {
     display: none;
@@ -38,6 +40,14 @@ div {
     padding-left: 10px;
 }
 
+/* Character Counter */
+#charactersLeft {
+  color: #fff;
+  font-size: 24px;}
+#lastKey {
+  color: #fff;
+  margin-top: 10px;}
+
 .countdown {
     width: 30px;
     text-align: left;
@@ -54,6 +64,12 @@ div {
     float: none;
     margin-left: 30px;
 }
+
+/* warnngs and hints */
+#packageHint, #termsHint {
+  background-color: chocolate;
+  color: #fff;
+  text-shadow: -1px 1px 2px #000;}
 
 /* navigation */
 a.internalLink {
