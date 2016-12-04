@@ -21,29 +21,6 @@ var activeFieldset;
 var activeElement;
 
 //=============================================================
-function setup() {
-    // hide navigation to admin-tools
-    var elAdminLink = document.getElementById('adminLink');
-    elAdminLink.className = 'hidden';
-
-    // Hide Sections
-    elAccountSection.className = 'hidden';
-    elEmptyPageSection.className = 'notHidden';
-    elTweetSection.className = 'hidden';
-    elAdminSection.className = 'hidden';
-
-    // Hide all fieldsets in section account (Registration and  Login)
-    elSignup.className = 'hidden';
-    elLogin.className = 'hidden';
-    elUserData.className = 'hidden';
-
-    // Hide all fieldsets in section administration
-    elAddUser.className = 'hidden';
-    elRemoveUser.className = 'hidden';
-    elCleanupTweets.className = 'hidden';
-    elStatistics.className = 'hidden';
-}
-
 function activateSection(sectionID) {
     activeElement = activeSection;
     activateElement(sections, sectionID);
@@ -88,8 +65,12 @@ function activateElement(elements, elementID) {
 
 function tryEnableAdminMode() {
     // TODO check if user is admin
+    var isAdmin = true;
 
     // TODO enable admin-link if required
+    if (isAdmin) {
+activateAdminMode();
+    }
 }
 
 function activateTweetSection() {
@@ -120,6 +101,22 @@ function activateLogin() {
 function activateUserData() {
     activateAccountSection();
     activateFieldset('userdata');
+}
+
+function activateAddUser() {
+    activateFieldset('addUser');
+}
+
+function activateRemoveUser() {
+    activateFieldset('removeUser');
+}
+
+function activateCleanupTweets() {
+    activateFieldset('cleanupTweets');
+}
+
+function activateAdmSummary() {
+    activateFieldset('statistics');
 }
 
 function activateAdminMode() {

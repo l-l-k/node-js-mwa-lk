@@ -5,7 +5,7 @@ var elSignupForm = document.getElementById('signup')
 
 // validateSignupInput
 
-function validateSignupInput(event) {
+function validateInput(event) {
     //elSignupForm.                        
     //TODO Send data to server
 
@@ -16,7 +16,17 @@ function validateSignupInput(event) {
             break;
         case 'userdata':
             break;
-    }
+
+            // ADMIN Tasks
+         case 'addUser':
+            break;
+        case 'removeUser':
+            break;
+        case 'cleanupTweets':
+            break;
+        case 'statistics':
+            break;
+   }
 
     try {
 
@@ -59,5 +69,5 @@ function validateUsername(isValidName) {
 
 // Event handler
 //=============================================================
-elSignupForm.addEventListener('submit', validateSignupInput, false);
+elSignupForm.addEventListener('submit', validateInput, false);
 //elSelectPackage.addEventListener('change', packageHint, false);

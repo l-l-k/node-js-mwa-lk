@@ -31,7 +31,7 @@
 <body>
     <header>
         <h1><abbr title="Ostbayerische Technische Hochschule">OTH</abbr> Regensburg
-            <abbr title="Medizinische Informatik">MI</abbr> WiSe 16/17 Course - de Leastar</h1>
+            <abbr title="Medizinische Informatik">IM</abbr> WiSe 16/17 Course - de Leastar</h1>
         <h2>Building Modern Web Applications & Services using Node.js</h2>
         <h2>Implemented as <abbr title="Single Page Application">SPA</abbr></h2>
         <p class="hidden">(1) Front End Foundation</p>
@@ -125,11 +125,17 @@
         <article id="currentTweet">
             <h2 class="hidden">Messages</h2>
             <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-            <div class="PostTweet">
+            <div class="postTweet">
                 <form action="#">
-                    <input type="text" name="message" class="tweet" maxlength="140" placeholder="Enter a message ..." />
-                    <label for="sendMsg" class="countdown" maxlength="3">140</label>
-                    <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
+                    <div>
+                    <textarea name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..." /></textarea>
+                    <label for="message" class="countdown" maxlength="3">140</label>
+                        <input type="image" id='camera' src="img/photo.svg" alt="Add Picture" width="20" height="20" />
+                    </div>
+                    <div id="attachedImage" class='hidden'></div>
+                    <div>
+                        <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
+                    </div>
                 </form>
             </div>
         </article>
@@ -218,9 +224,10 @@
         <h2 class="visible">Admin Tools</h2>
         <nav>
             <ul>
-                <a href="javascript:void(0)" class="visible internalLink">Add user</a> /
-                <a href="javascript:void(0)" class="visible internalLink">Remove user</a> /
-                <a href="javascript:void(0)" class="visible internalLink">Cleanup tweets</a>
+                <a href="javascript:activateAddUser(0)" class="visible internalLink">Add user</a> /
+                <a href="javascript:activateRemoveUser(0)" class="visible internalLink">Remove user</a> /
+                <a href="javascript:activateCleanupTweets(0)" class="visible internalLink">Cleanup tweets</a> /
+                <a href="javascript:activateAdmSummary(0)" class="visible internalLink">Statistic</a>
             </ul>
         </nav>
 
@@ -276,6 +283,8 @@
                 <div>
                     <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
                     <input type="date" name="startDate" class="inputField" required />
+                </div>
+                <div>
                     <label for="endDate" class="inputLabel" <a title="Select last day of time span to analyse">To :</a> </label>
                     <input type="date" name="endDate" class="inputField" required />
                     <div id="feedbackToAccountSummary"></div>
@@ -297,7 +306,7 @@
             Card
             <a rel="profile" href="http://microformats.org/profile/hcard"></a>:
             <span class="fn">Leonard Klausmann</span>,
-            <span class="role">Student MI</span>,
+            <span class="role">Student IM</span>,
             <span class="org">OTH Regensburg</span>,
             <span class="region">Bavaria</span>,
             <span class="country-name">Germany</span>
@@ -314,11 +323,11 @@
     so we must not wait until the load event gets finished
     ================================================== -->
     <!-- process code now
+     -->
     <script type="text/javascript" src="js/setup.js"></script>
-    -->
     <!-- code related to events -->
     <script type="text/javascript" src="js/navigation.js"></script>
-    <script type="text/javascript" src="js/mwa.js"></script>
+    <script type="text/javascript" src="js/input_validation.js"></script>
     <!--  -->
 </body>
 

@@ -15,9 +15,9 @@ var elTweetSection = document.getElementById('tweets');
 var elEmptyPageSection = document.getElementById('emptyPage')
 
 //=============================================================
-    // hide navigation to admin-tools
+    // disable navigation to admin-tools
     var elAdminLink = document.getElementById('adminLink');
-    elAdminLink.className = 'hidden';
+    //elAdminLink.className = 'hidden';
 
     // Hide Sections
     elAccountSection.className = 'hidden';
