@@ -52,12 +52,14 @@
     <section id="account">
 
         <!-- Register as new user -->
-        <fieldset id="signup" class="hidden">
+        <fieldset id="signup" class="visible">
             <legend>Signup</legend>
             <form action="Submit" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
-                    <input type="email" name="mailAddress" placeholder="Type in a valid mail address ..." required />
+                    <input id="mailAddress" type="email" name="mailAddress" placeholder="Type in a valid mail address ..." required />
+                    <div id="feedback11" class='hidden'>
+                    </div>
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :  </label>
@@ -65,10 +67,10 @@
                 </div>
                 <div>
                     <label for="username" class="inputLabel">Username : </label>
-                    <input type="text" name="username" placeholder="Type in a name ..." required />
-                    <div id="idHint" class="warning">Name already exists. Please retry.</div>
+                    <input id="username" type="text" name="username" placeholder="Type in a name ..." required />
+                    <div id="feedback13" class='hidden'></div>
                 </div>
-                <input class="submit" type="submit" name="subscribe" value="Create Account" />
+                <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
             </form>
         </fieldset>
 
@@ -90,7 +92,7 @@
         </fieldset>
 
         <!-- Edit user data -->
-        <fieldset id="userdata" class="hidden">
+        <fieldset id="userdata" class="visible">
             <legend>Edit Account Data</legend>
             <form action="ChangeAccountData" method="POST">
                 <div>
@@ -207,8 +209,8 @@
                 </tr>
             </table>
         </article>
-     <hr/>
-   </section>
+        <hr/>
+    </section>
 
     <!-- Administrative Tasks
     ================================================== -->
@@ -282,8 +284,8 @@
             </form>
         </fieldset>
 
-          <hr/>
-  </section>
+        <hr/>
+    </section>
 
     <!-- Footer : Contact, Copyright and VCard
     ================================================== -->
@@ -311,9 +313,13 @@
     At this time the DOM content has already been loaded,
     so we must not wait until the load event gets finished
     ================================================== -->
-    <script type="text/javascript" src="js/invoke.js"></script>
-    <!--  <script type="text/javascript" src="js/nav.js"></script>;
-   -->
+    <!-- process code now
+    <script type="text/javascript" src="js/setup.js"></script>
+    -->
+    <!-- code related to events -->
+    <script type="text/javascript" src="js/navigation.js"></script>
+    <script type="text/javascript" src="js/mwa.js"></script>
+    <!--  -->
 </body>
 
 </html>

@@ -1,3 +1,4 @@
+/* navigation support */
 // Registration and  Login
 var elSignup = document.getElementById('signup');
 var elLogin = document.getElementById('login');
@@ -12,7 +13,7 @@ var elAdminSection = document.getElementById('administration');
 // Tweets
 var elTweetSection = document.getElementById('tweets');
 var elEmptyPageSection = document.getElementById('emptyPage')
-
+// other global variables
 var sections = [elAccountSection, elEmptyPageSection, elTweetSection, elAdminSection]
 var activeSection;
 var fieldsets = [elSignup, elLogin, elUserData, elAddUser, elRemoveUser, elCleanupTweets, elStatistics]
@@ -103,35 +104,30 @@ function activateAdminSection() {
     activateSection('administration');
 }
 
-// Event handler
+// Event handlers connectod to page-navigation
 //=============================================================
 
 function activateSignup() {
     activateAccountSection();
     activateFieldset('signup');
-   // window.location.href = undefined;
 }
 
 function activateLogin() {
     activateAccountSection();
     activateFieldset('login');
-   // window.location.href = undefined;
 }
 
 function activateUserData() {
     activateAccountSection();
     activateFieldset('userdata');
-   // window.location.href = undefined;
 }
 
 function activateAdminMode() {
     activateAdminSection();
-   // window.location.href = undefined;
 }
 
 function activateTweetMode() {
     activateTweetSection();
-   // window.location.href = undefined;
 }
 
 
@@ -142,5 +138,3 @@ document.addEventListener('DOMContentloaded', setup, false);
 // call invoke after loading the page
 document.addEventListener('load', setup, false);
 
-//elForm.addEventListener('submit', checkTerms, false);
-//elSelectPackage.addEventListener('change', packageHint, false);
