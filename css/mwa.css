@@ -125,3 +125,8 @@ tr.even {
 tr:hover {
     background-color: #c3e6e5;
 }
+
+footer {
+    font-size: 80%;
+    background-color: mediumaquamarine;
+}

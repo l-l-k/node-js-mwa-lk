@@ -8,33 +8,62 @@ var elSignupForm = document.getElementById('signup')
 function validateInput(event) {
     //elSignupForm.                        
     //TODO Send data to server
+    var thisForm = event.originalTarget
+    var mailAddress;
+    var pw;
+    var username;
 
-    switch (this.id) {
-        case 'signup':
-            break;
-        case 'login':
-            break;
-        case 'userdata':
+    switch (thisForm) {
+        case document.forms.signup:
+            mailAddress = thisForm.elements.mailAddress;
+            pw = thisForm.elements.mailAddress;
+            username = thisForm.elements.username;
             break;
 
-            // ADMIN Tasks
-         case 'addUser':
+        case document.forms.login:
+            mailAddress = thisForm.elements.mailAddress;
+            pw = thisForm.elements.mailAddress;
             break;
-        case 'removeUser':
+
+        case document.forms.userdata:
+            mailAddress = thisForm.elements.mailAddress;
+            pw = thisForm.elements.mailAddress;
+            username = thisForm.elements.username;
             break;
-        case 'cleanupTweets':
+
+        // ADMIN Tasks
+        case document.forms.addUser:
+            mailAddress = thisForm.elements.mailAddress;
+            pw = thisForm.elements.mailAddress;
+            username = thisForm.elements.username;
             break;
-        case 'statistics':
+
+        case document.forms.removeUser:
+            mailAddress = thisForm.elements.mailAddress;
+            username = thisForm.elements.username;
             break;
-   }
+
+        case document.forms.cleanupTweets:
+            mailAddress = thisForm.elements.mailAddress;
+            username = thisForm.elements.username;
+            break;
+
+        case document.forms.statistics:
+            break;
+    }
 
     try {
 
-        var mailAddressExists = true;
-        validateMailAddress(mailAddressExists);
+        if (!mailAddress == null) {
+            var mailAddressExists = true;
+            validateNewMailAddress(mailAddressExists);
+        }
 
-        var isValidName = false;
-        validateUsername(isValidName);
+        if (!username == null) {
+            var isValidName = false;
+            validateNewUsername(isValidName);
+        }
+
     } catch (e) {
         var err = e.name + ' ' + e.message;
     } finally {
@@ -46,7 +75,7 @@ function validateInput(event) {
     }
 }
 
-function validateMailAddress(mailAddressExists) {
+function validateNewMailAddress(mailAddressExists) {
     var elFeedback = document.getElementById('feedback11')
     if (mailAddressExists) {
         elFeedback.className = 'warning';
@@ -56,7 +85,7 @@ function validateMailAddress(mailAddressExists) {
     }
 }
 
-function validateUsername(isValidName) {
+function validateNewUsername(isValidName) {
     var elFeedback = document.getElementById('feedback13')
     if (!isValidName) {
         elFeedback.className = 'warning';

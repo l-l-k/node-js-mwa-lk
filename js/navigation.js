@@ -131,7 +131,7 @@ function activateTweetMode() {
 // Event handler
 //=============================================================
 // call invoke while loading the page
-document.addEventListener('DOMContentloaded', setup, false);
+//document.addEventListener('DOMContentloaded', setup, false);
 // call invoke after loading the page
-document.addEventListener('load', setup, false);
+//document.addEventListener('load', setup, false);
 

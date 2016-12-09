@@ -54,7 +54,7 @@
         <!-- Register as new user -->
         <fieldset id="signup" class="visible">
             <legend>Signup</legend>
-            <form action="Submit" method="POST">
+            <form name="signup" action="Submit" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
                     <input id="mailAddress" type="email" name="mailAddress" placeholder="Type in a valid mail address ..." required />
@@ -77,7 +77,7 @@
         <!-- Login as registered user -->
         <fieldset id="login" class="visible">
             <legend>Login</legend>
-            <form action="ValidateLogin" method="POST">
+            <form name="login" action="ValidateLogin" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail adress ..." required />
@@ -94,7 +94,7 @@
         <!-- Edit user data -->
         <fieldset id="userdata" class="visible">
             <legend>Edit Account Data</legend>
-            <form action="ChangeAccountData" method="POST">
+            <form name="userdata" action="ChangeAccountData" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :</label>
                     <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required />
@@ -128,8 +128,8 @@
             <div class="postTweet">
                 <form action="#">
                     <div>
-                    <textarea name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..." /></textarea>
-                    <label for="message" class="countdown" maxlength="3">140</label>
+                        <textarea name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..." /></textarea>
+                        <label for="message" class="countdown" maxlength="3">140</label>
                         <input type="image" id='camera' src="img/photo.svg" alt="Add Picture" width="20" height="20" />
                     </div>
                     <div id="attachedImage" class='hidden'></div>
@@ -299,21 +299,31 @@
     <!-- Footer : Contact, Copyright and VCard
     ================================================== -->
     <footer>
-        <address>
-            <p>Contact: <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></p>
-        </address>
-        <div class="vcard">
-            Card
-            <a rel="profile" href="http://microformats.org/profile/hcard"></a>:
-            <span class="fn">Leonard Klausmann</span>,
-            <span class="role">Student IM</span>,
-            <span class="org">OTH Regensburg</span>,
-            <span class="region">Bavaria</span>,
-            <span class="country-name">Germany</span>
-            <span class="email"><a href="mailto:leonard1.klausmann@st.oth-regensburg.de"></a></span>
-            <p></p>
+        <div>
+            <p>
+                <address>
+                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="top" /> Contact: <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
+                </address>
+            </p>
         </div>
-        <section id="copyright">
+        <span id="vcard" class="hidden">
+            <div class="vcard">
+                <a rel="profile " href="http://microformats.org/profile/hcard "></a>
+                <span class="fn n ">
+                    <span class="given-name ">Leonard</span>
+                    <span class="family-name ">Klausmann</span>
+                </span>
+                <p />
+                <span class="role ">Student IM</span>,
+                <span class="org "><a href="https://www.oth-regensburg.de/">OTH Regensburg</a></span>
+                <p />
+                <span class="region ">Bavaria</span>,
+                <span class="country-name ">Germany</span>
+                <p />
+                <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+            </div>
+        </span>
+        <section id="copyright ">
             <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
         </section>
     </footer>
@@ -324,10 +334,11 @@
     ================================================== -->
     <!-- process code now
      -->
-    <script type="text/javascript" src="js/setup.js"></script>
+    <script type="text/javascript " src="js/setup.js "></script>
     <!-- code related to events -->
-    <script type="text/javascript" src="js/navigation.js"></script>
-    <script type="text/javascript" src="js/input_validation.js"></script>
+    <script type="text/javascript " src="js/navigation.js "></script>
+    <script type="text/javascript " src="js/input_validation.js "></script>
+    <script type="text/javascript " src="js/vcard.js "></script>
     <!--  -->
 </body>
 
