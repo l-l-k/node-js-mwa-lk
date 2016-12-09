@@ -41,6 +41,7 @@ div {
 }
 
 .postTweet {
+    border:none;
     width: 440px;
     text-align: left;
 }
@@ -53,13 +54,6 @@ div {
   color: #fff;
   margin-top: 10px;}
 
-.countdown {
-    width: 30px;
-    text-align: left;
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
 .submit {
     text-align: right;
     margin-left: 120px;
@@ -70,7 +64,7 @@ div {
     margin-left: 30px;
 }
 
-.camera {
+#camera {
     /*
     background-image: url('../img/caution.svg');
     background-repeat: no-repeat;
@@ -78,7 +72,7 @@ div {
     background-size: 20px 20px;
      padding-left: 125px; 
    */
-    position: 100px  center; 
+    position: 280px  center; 
 }
 
 /* warnings */
@@ -102,6 +96,20 @@ a.internalLink:hover {
 a.internalLink:active {
 	background-color: chocolate;
 }
+
+/* hint referring to textaerea */
+#charCounter {font-size: 80%;}
+#charCounter.warn b, #charCounter.error b {
+  border-radius: 16px;
+  padding-top: 4px;
+  width: 32px;
+  height: 28px;
+  display: inline-block;
+  font-weight: normal;
+  text-align: center;
+}
+.warn b {color: #ffff66; background-color: #333;}
+.error b {color: #ff9966; background-color: #000;}
 
 /* data table */
 table {

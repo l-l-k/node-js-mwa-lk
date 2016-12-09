@@ -122,23 +122,30 @@
     <section id="tweets">
         <!-- Posting tweets
     ================================================== -->
-        <article id="currentTweet">
-            <h2 class="hidden">Messages</h2>
-            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-            <div class="postTweet">
-                <form action="#">
-                    <div>
-                        <textarea name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..." /></textarea>
-                        <label for="message" class="countdown" maxlength="3">140</label>
-                        <input type="image" id='camera' src="img/photo.svg" alt="Add Picture" width="20" height="20" />
-                    </div>
-                    <div id="attachedImage" class='hidden'></div>
-                    <div>
-                        <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
-                    </div>
-                </form>
+        <h2 class="hidden">Messages</h2>
+        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+        <form id="currentTweet" action="#">
+            <fieldset class="postTweet">
+                <!--
+                <legend><a title="Limited to 140 characters"> Next tweet </a></legend>
+               -->
+                <div>
+                    <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
+                    /></textarea>
+                    <span id="charCounter"></span>
+                    <br />
+                    <!-- use an (photo-) icon instead default file selection -->
+                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a title="You may add a picture"></a>
+                    </img>
+                    <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+                </div>
+                <div id="attachedImage" class='hidden'></div>
+                <div>
+                    <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
+                </div>
+            </fieldset>
             </div>
-        </article>
+        </form>
 
         <!-- View tweet history
     ================================================== -->
@@ -302,7 +309,8 @@
         <div>
             <p>
                 <address>
-                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="top" /> Contact: <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
+                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="top" alt="Card" /> Contact:
+                    <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
                 </address>
             </p>
         </div>
@@ -311,17 +319,17 @@
                 <a rel="profile " href="http://microformats.org/profile/hcard "></a>
                 <span class="fn n ">
                     <span class="given-name ">Leonard</span>
-                    <span class="family-name ">Klausmann</span>
-                </span>
-                <p />
-                <span class="role ">Student IM</span>,
-                <span class="org "><a href="https://www.oth-regensburg.de/">OTH Regensburg</a></span>
-                <p />
-                <span class="region ">Bavaria</span>,
-                <span class="country-name ">Germany</span>
-                <p />
-                <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
-            </div>
+        <span class="family-name ">Klausmann</span>
+        </span>
+        <p />
+        <span class="role ">Student IM</span>,
+        <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
+        <p />
+        <span class="region ">Bavaria</span>,
+        <span class="country-name ">Germany</span>
+        <p />
+        <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+        </div>
         </span>
         <section id="copyright ">
             <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
@@ -338,6 +346,8 @@
     <!-- code related to events -->
     <script type="text/javascript " src="js/navigation.js "></script>
     <script type="text/javascript " src="js/input_validation.js "></script>
+    <script type="text/javascript " src="js/tweet.js "></script>
+    <script type="text/javascript " src="js/textLengthObserver.js "></script>
     <script type="text/javascript " src="js/vcard.js "></script>
     <!--  -->
 </body>
