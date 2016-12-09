@@ -17,7 +17,7 @@ function updateCounter(e) {
     hint.innerHTML = txt;
 }
 
-function hideCountere(e) {
+function hideCounter(e) {
     var txtField = e.target || e.srcElement;
     var count = txtField.value.length;
     if (count <= limit) {             

@@ -126,20 +126,20 @@
         <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
         <form id="currentTweet" action="#">
             <fieldset class="postTweet">
-                <!--
-                <legend><a title="Limited to 140 characters"> Next tweet </a></legend>
-               -->
                 <div>
                     <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
                     /></textarea>
                     <span id="charCounter"></span>
                     <br />
                     <!-- use an (photo-) icon instead default file selection -->
-                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a title="You may add a picture"></a>
+                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
+                        title="You may add a picture"></a>
                     </img>
                     <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
                 </div>
-                <div id="attachedImage" class='hidden'></div>
+                <div id="attachedImage" class='preview'>
+                    <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
+                </div>
                 <div>
                     <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
                 </div>
@@ -342,13 +342,13 @@
     ================================================== -->
     <!-- process code now
      -->
-    <script type="text/javascript " src="js/setup.js "></script>
+    <script type="text/javascript " src="js/setup.js"></script>
     <!-- code related to events -->
-    <script type="text/javascript " src="js/navigation.js "></script>
-    <script type="text/javascript " src="js/input_validation.js "></script>
-    <script type="text/javascript " src="js/tweet.js "></script>
-    <script type="text/javascript " src="js/textLengthObserver.js "></script>
-    <script type="text/javascript " src="js/vcard.js "></script>
+    <script type="text/javascript " src="js/navigation.js"></script>
+    <script type="text/javascript " src="js/input_validation.js"></script>
+    <script type="text/javascript " src="js/tweet.js"></script>
+    <script type="text/javascript " src="js/textLengthObserver.js"></script>
+    <script type="text/javascript " src="js/vcard.js"></script>
     <!--  -->
 </body>
 

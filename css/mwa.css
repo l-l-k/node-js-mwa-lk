@@ -111,6 +111,13 @@ a.internalLink:active {
 .warn b {color: #ffff66; background-color: #333;}
 .error b {color: #ff9966; background-color: #000;}
 
+/* attached image */
+.attachedImage .preview {
+    width: 300px; 
+    height: auto;
+    border: 1px solid #000;
+}
+
 /* data table */
 table {
     width: 600px;
