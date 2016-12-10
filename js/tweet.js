@@ -1,5 +1,6 @@
 var fileSelectorProxy, fileSelector;
-var uploadCommand;
+var uploadCommandProxy, uploadCommand;
+var wasteBasket;
 
 // ______________________________________________________
 // Image related to current tweet
@@ -15,8 +16,6 @@ function evaluateFileDialog(e) {
     var selectedFiles = e.target.files;
     if (selectedFiles.length > 0) {
         addImage(selectedFiles[0]);
-    } else {
-        removeImage();
     }
 }
 
@@ -26,13 +25,13 @@ function addImage(selectedFile) {
     reader.onload = (function (selectedImage) {
         return function (e) {
             // create preview.
-               var img = document.getElementById('preview');
-              img.className = 'preview';
+            var img = document.getElementById('preview');
+            img.className = 'preview';
             img.src = e.target.result;
             img.title = selectedImage.name;
-// insert preview
-                var preview = document.getElementById('attachedImage');
-     preview.className = "preview";
+            // insert preview
+            var preview = document.getElementById('attachedImage');
+            preview.className = "preview";
             preview.insertBefore(img, null);
         };
     })(selectedFile);
@@ -41,7 +40,7 @@ function addImage(selectedFile) {
 }
 
 
-function removeImage() {
+function detachImage() {
     var preview = document.getElementById('attachedImage');
     preview.innerHTML = '';
     preview.className = 'hidden';
@@ -49,7 +48,30 @@ function removeImage() {
 
 // ______________________________________________________
 // Uplod Data - text, image and meta data
-function uploadTweet() {
+
+function getUserID() {
+    var id;
+
+    return id;
+}
+
+function uploadTweet(e) {
+    var activeForm = document.forms.defineTweet;
+    var msg = activeForm.elements.message
+    var img = document.getElementById('preview');
+    console.log(msg.value);
+    console.log(img.currentSrc.substring(0, 10));
+
+    var now = new date();
+    var record = {
+        id: getUserID,
+        day: now.getFullYear + "-" + now.getMonth + "-" + now.getDate,
+        time: now.getFullYear + "-" + now.getMonth + "-" + now.getDate,,
+        msg: activeForm.elements.message.value,
+        img: img.currentSrc
+    }
+    console.log(msg.value);
+    console.log(img.currentSrc.substring(0, 10));
 
 }
 
@@ -57,11 +79,18 @@ function uploadTweet() {
 // ______________________________________________________
 // Event Handler
 
-uploadCommand = document.getElementById('send');
-uploadCommand.addEventListener('submit', uploadTweet, false);
+// submit by image-click
+uploadCommand = document.getElementById('sendMsg');
+uploadCommand.addEventListener('click', uploadTweet, false);
 
+// add a picture
 fileSelectorProxy = document.getElementById('camera');
 fileSelectorProxy.addEventListener('click', selectFile, false);
 
 fileSelector = document.getElementById('addPicture');
 fileSelector.addEventListener('change', evaluateFileDialog, false);
+
+// detach a picture
+wasteBasket = document.getElementById('detach');
+wasteBasket.addEventListener('click', detachImage, false);
+

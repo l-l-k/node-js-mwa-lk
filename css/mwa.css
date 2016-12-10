@@ -36,6 +36,66 @@ div {
 	border: 1px solid #e7c157;
 }
 
+
+.submit {
+    text-align: right;
+    margin-left: 120px;
+}
+
+/* warnings */
+.warning {
+    background-image: url('../img/caution.svg');
+    background-repeat: no-repeat;
+    background-position: 100px top;
+    background-size: 20px 20px;
+    padding-left: 125px; 
+}
+
+/* _______________________________________ */
+/* navigation */
+a.internalLink {
+    text-decoration: none;
+    color: inherit;
+}
+a.internalLink:hover {
+    text-decoration: underline;
+    color: blue;
+}
+a.internalLink:active {
+	background-color: chocolate;
+}
+
+/* _____________ tweet section __________________________ */
+/* message in textaerea */
+.tweet {
+    font-size: 120%;
+width: 440px;
+}
+/* hint referring to textaerea */
+#charCounter {font-size: 80%;}
+#charCounter.warn b, #charCounter.error b {
+  border-radius: 16px;
+  padding-top: 4px;
+  width: 32px;
+  height: 28px;
+  display: inline-block;
+  font-weight: normal;
+  text-align: center;
+}
+.warn b {color: #ffff66; background-color: #333;}
+.error b {color: #ff9966; background-color: #000;}
+
+/* attached image */
+#camera {
+    position: 280px  center; 
+}
+
+.attachedImage .preview {
+    width: 300px; 
+    height: auto;
+    border: 1px solid #000;
+}
+
 .tweetDefinition {
     width: 440px;
     text-align: left;
@@ -62,70 +122,12 @@ div {
   color: #fff;
   margin-top: 10px;}
 
-.submit {
-    text-align: right;
-    margin-left: 120px;
-}
-
 .radio1 {
     float: none;
     margin-left: 30px;
     font-size: 80%;
 }
 
-#camera {
-    /*
-    background-image: url('../img/caution.svg');
-    background-repeat: no-repeat;
-    background-position: 100px top;
-    background-size: 20px 20px;
-     padding-left: 125px; 
-   */
-    position: 280px  center; 
-}
-
-/* warnings */
-.warning {
-    background-image: url('../img/caution.svg');
-    background-repeat: no-repeat;
-    background-position: 100px top;
-    background-size: 20px 20px;
-    padding-left: 125px; 
-}
-
-/* navigation */
-a.internalLink {
-    text-decoration: none;
-    color: inherit;
-}
-a.internalLink:hover {
-    text-decoration: underline;
-    color: blue;
-}
-a.internalLink:active {
-	background-color: chocolate;
-}
-
-/* hint referring to textaerea */
-#charCounter {font-size: 80%;}
-#charCounter.warn b, #charCounter.error b {
-  border-radius: 16px;
-  padding-top: 4px;
-  width: 32px;
-  height: 28px;
-  display: inline-block;
-  font-weight: normal;
-  text-align: center;
-}
-.warn b {color: #ffff66; background-color: #333;}
-.error b {color: #ff9966; background-color: #000;}
-
-/* attached image */
-.attachedImage .preview {
-    width: 300px; 
-    height: auto;
-    border: 1px solid #000;
-}
 
 /* data table */
 table {

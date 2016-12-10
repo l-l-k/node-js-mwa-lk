@@ -1,3 +1,5 @@
+/* Global Variables */
+
 /* navigation support */
 // Registration and  Login
 var elSignup = document.getElementById('signup');

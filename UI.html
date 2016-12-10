@@ -79,7 +79,7 @@
         <!-- Login as registered user -->
         <fieldset id="login" class="visible">
             <legend>Login</legend>
-            <form name="login" action="ValidateLogin" method="POST">
+            <form name="login" action="#" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
@@ -128,7 +128,7 @@
         <section id="tweetDefinition" class="visible">
             <h2 class="hidden">Messages</h2>
             <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-            <form id="defineTweet" action="#">
+            <form id="defineTweet" action="#" method="POST">
                 <fieldset class="postTweet">
                     <legend></legend>
                     <div>
@@ -141,14 +141,17 @@
                             title="You may add a picture"></a>
                         </img>
                         <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+                        <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
+                            title="Detach picture"></a>
+                        </img>
                     </div>
                     <div id="attachedImage" class='preview'>
                         <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
                     </div>
-                    <div>
-                        <img src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" />
-                        <input id="sendMsg" type="submit" name="sendMsg" class="button" value="Tweet" />
-                    </div>
+                    <span>
+                        <img id="sendMsg" src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" <a id="removeFile" href="#"
+                            title="Send message"></a>
+                    </span>
                 </fieldset>
                 </div>
             </form>
@@ -167,7 +170,7 @@
                     <label for="r2"> Tweets of user : </label>
                     <input type="text" name="author" class="inputField" value="" placeholder="Type in username ..." />
                     <br />
-                    <input type="radio" class="radio1" id="r3" name="filter" value="all" /> 
+                    <input type="radio" class="radio1" id="r3" name="filter" value="all" />
                     <label for="r3"> All Users</label><br />
                     <br />
                     <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
@@ -252,7 +255,7 @@
         <!-- Add a new user -->
         <fieldset id="addUser" class="visible">
             <legend>Add User</legend>
-            <form action="AddUser" method="POST">
+            <form action="#" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
@@ -272,7 +275,7 @@
         <!-- Remove a user (and his tweets) -->
         <fieldset id="removeUser" class="visible">
             <legend>Remove User</legend>
-            <form action="RemoveUser" method="POST">
+            <form action="#" method="POST">
                 <div>
                     <label for="userID" class="inputLabel">Login-Name : </label>
                     <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
@@ -284,7 +287,7 @@
         <!-- Delete tweets of any user -->
         <fieldset id="cleanupTweets" class="visible">
             <legend>Delete Items</legend>
-            <form action="CleanupTweets" method="POST">
+            <form action="#" method="POST">
                 <div>
                     <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
                     <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
@@ -297,7 +300,7 @@
         <!-- Statistic / Summary of user accounts -->
         <fieldset id="statistics" class="visible">
             <legend>Select Period for Statistic</legend>
-            <form action="AccountSummary" method="POST">
+            <form action="#" method="POST">
                 <div>
                     <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
                     <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
@@ -359,7 +362,9 @@
     <script type="text/javascript " src="js/input_validation.js"></script>
     <script type="text/javascript " src="js/tweet.js"></script>
     <script type="text/javascript " src="js/textLengthObserver.js"></script>
+    <!--  
     <script type="text/javascript " src="js/tweetAuthor.js"></script>
+    -->
     <script type="text/javascript " src="js/vcard.js"></script>
     <!--  -->
 </body>
