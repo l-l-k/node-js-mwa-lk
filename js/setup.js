@@ -15,25 +15,25 @@ var elTweetSection = document.getElementById('tweets');
 var elEmptyPageSection = document.getElementById('emptyPage')
 
 //=============================================================
-    // disable navigation to admin-tools
-    var elAdminLink = document.getElementById('adminLink');
-    //elAdminLink.className = 'hidden';
+// disable navigation to admin-tools
+var elAdminLink = document.getElementById('adminLink');
+//elAdminLink.className = 'hidden';
 
-    // Hide Sections
-    elAccountSection.className = 'hidden';
-    elEmptyPageSection.className = 'notHidden';
-    elTweetSection.className = 'hidden';
-    elAdminSection.className = 'hidden';
+// Hide Sections
+elAccountSection.className = 'hidden';
+elEmptyPageSection.className = 'notHidden';
+elTweetSection.className = 'hidden';
+elAdminSection.className = 'hidden';
 
-    // Hide all fieldsets in section account (Registration and  Login)
-    elSignup.className = 'hidden';
-    elLogin.className = 'hidden';
-    elUserData.className = 'hidden';
+// Hide all fieldsets in section account (Registration and  Login)
+elSignup.className = 'hidden';
+elLogin.className = 'hidden';
+elUserData.className = 'hidden';
 
-    // Hide all fieldsets in section administration
-    elAddUser.className = 'hidden';
-    elRemoveUser.className = 'hidden';
-    elCleanupTweets.className = 'hidden';
-    elStatistics.className = 'hidden';
+// Hide all fieldsets in section administration
+elAddUser.className = 'hidden';
+elRemoveUser.className = 'hidden';
+elCleanupTweets.className = 'hidden';
+elStatistics.className = 'hidden';
 
 

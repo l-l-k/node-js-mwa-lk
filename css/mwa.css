@@ -32,16 +32,24 @@ div {
     width: 250px;
     text-align: left;
     padding-left: 10px;
+    background-color: #fffbf0;
+	border: 1px solid #e7c157;
 }
 
-.tweets {
+.tweetDefinition {
     width: 440px;
     text-align: left;
     padding-left: 10px;
 }
 
 .postTweet {
-    border:none;
+    border: none;
+    width: 440px;
+    text-align: left;
+}
+
+.filterTweets {
+    border: none;
     width: 440px;
     text-align: left;
 }
@@ -62,6 +70,7 @@ div {
 .radio1 {
     float: none;
     margin-left: 30px;
+    font-size: 80%;
 }
 
 #camera {

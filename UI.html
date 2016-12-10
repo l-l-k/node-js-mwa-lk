@@ -116,7 +116,7 @@
         <hr/>
     </section>
 
-    <!-- Tweets
+    <!-- Tweets-Logo
     ================================================== -->
     <section id="emptyPage">
         <img src="img/bird.png" alt="Bird" width="300" height="300" , align="middle" />
@@ -125,46 +125,54 @@
     <section id="tweets">
         <!-- Posting tweets
     ================================================== -->
-        <h2 class="hidden">Messages</h2>
-        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-        <form id="currentTweet" action="#">
-            <fieldset class="postTweet">
-                <div>
-                    <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
-                    /></textarea>
-                    <span id="charCounter"></span>
-                    <br />
-                    <!-- use an (photo-) icon instead default file selection -->
-                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
-                        title="You may add a picture"></a>
-                    </img>
-                    <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+        <section id="tweetDefinition" class="visible">
+            <h2 class="hidden">Messages</h2>
+            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+            <form id="defineTweet" action="#">
+                <fieldset class="postTweet">
+                    <legend></legend>
+                    <div>
+                        <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
+                        /></textarea>
+                        <span id="charCounter"></span>
+                        <br />
+                        <!-- use an (photo-) icon instead default file selection -->
+                        <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
+                            title="You may add a picture"></a>
+                        </img>
+                        <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+                    </div>
+                    <div id="attachedImage" class='preview'>
+                        <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
+                    </div>
+                    <div>
+                        <img src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" />
+                        <input id="sendMsg" type="submit" name="sendMsg" class="button" value="Tweet" />
+                    </div>
+                </fieldset>
                 </div>
-                <div id="attachedImage" class='preview'>
-                    <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
-                </div>
-                <div>
-                    <input id="send" type="submit" name="sendMsg" class="button" value="Send" />
-                </div>
-            </fieldset>
-            </div>
-        </form>
+            </form>
+        </section>
 
         <!-- View tweet history
     ================================================== -->
-        <article id="tweetHistory">
+        <section id="tweetHistory" class="visible">
             <h3 class="visible">Tweet History</h3>
-            <p>View tweets of:
-                <input type="radio" class="radio1" name="filter" value="mMe" checked="checked" /> Me
-                <input type="radio" class="radio1" name="filter" value="other" /> Other User :
-                <input type="text" name="message" value="" placeholder="Type in username ..." />
-                <input type="radio" class="radio1" name="filter" value="all" /> All Users
-                <br />
-                <input type="submit" name="updateView" class="button" value="Update View" />
-            </p>
-            <p id="author">
-                <img src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" /> Author :
-            </p>
+            <form id="tweetAuthor" action="js/tweetAuthor.js">
+                <fieldset class="filterTweets">
+                    <legend></legend>
+                    <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
+                    <label for="r1"> My tweets</label><br />
+                    <input type="radio" class="radio1" id="r2" name="filter" value="other" />
+                    <label for="r2"> Tweets of user : </label>
+                    <input type="text" name="author" class="inputField" value="" placeholder="Type in username ..." />
+                    <br />
+                    <input type="radio" class="radio1" id="r3" name="filter" value="all" /> 
+                    <label for="r3"> All Users</label><br />
+                    <br />
+                    <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
+                </fieldset>
+            </form>
             <table id="smallTable">
                 <tr>
                     <th>Day</th>
@@ -224,8 +232,8 @@
                     <td>This message has not been tweeted</td>
                 </tr>
             </table>
-        </article>
-        <hr/>
+            <hr/>
+        </section>
     </section>
 
     <!-- Administrative Tasks
@@ -322,17 +330,18 @@
                 <a rel="profile " href="http://microformats.org/profile/hcard "></a>
                 <span class="fn n">
                     <span class="given-name ">Leonard</span>
-                    <span class="family-name ">Klausmann</span>
-                </span>
-                <p />
-                <span class="role ">Student IM</span>,
-                <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
-                <p />
-                <span class="region ">Bavaria</span>,
-                <span class="country-name ">Germany</span>
-                <p />
-                <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
-                </div>        </span>
+        <span class="family-name ">Klausmann</span>
+        </span>
+        <p />
+        <span class="role ">Student IM</span>,
+        <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
+        <p />
+        <span class="region ">Bavaria</span>,
+        <span class="country-name ">Germany</span>
+        <p />
+        <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+        </div>
+        </span>
         <section id="copyright ">
             <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
         </section>
@@ -350,6 +359,7 @@
     <script type="text/javascript " src="js/input_validation.js"></script>
     <script type="text/javascript " src="js/tweet.js"></script>
     <script type="text/javascript " src="js/textLengthObserver.js"></script>
+    <script type="text/javascript " src="js/tweetAuthor.js"></script>
     <script type="text/javascript " src="js/vcard.js"></script>
     <!--  -->
 </body>
