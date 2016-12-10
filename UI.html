@@ -57,17 +57,19 @@
             <form name="signup" action="Submit" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
-                    <input id="mailAddress" type="email" name="mailAddress" placeholder="Type in a valid mail address ..." required />
+                    <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..."
+                        required />
                     <div id="feedback11" class='hidden'>
                     </div>
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :  </label>
-                    <input type="password" name="password" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33"
+                    />
                 </div>
                 <div>
                     <label for="username" class="inputLabel">Username : </label>
-                    <input id="username" type="text" name="username" placeholder="Type in a name ..." required />
+                    <input id="username" type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
                     <div id="feedback13" class='hidden'></div>
                 </div>
                 <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
@@ -80,11 +82,11 @@
             <form name="login" action="ValidateLogin" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
-                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail adress ..." required />
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password : </label>
-                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33"
+                    <input type="password" name="password" class="inputField" placeholder="Type in your password ..." required size="8" maxlength="33"
                     />
                 </div>
                 <input class="submit" type="submit" name="login" value="Login" />
@@ -97,15 +99,16 @@
             <form name="userdata" action="ChangeAccountData" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :</label>
-                    <input type="email" name="mailAddress" placeholder="Type in a valid mail adress ..." required />
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :</label>
-                    <input type="password" name="password" placeholder="Type in a password ..." required size="8" maxlength="33" />
+                    <input type="password" name="password" class="inputField" placeholder="Type in a new password ..." required size="8" maxlength="33"
+                    />
                 </div>
                 <div>
                     <label for="username" class="inputLabel">Username :</label>
-                    <input type="text" name="username" placeholder="Type in a name ..." required />
+                    <input type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
                 </div>
                 <input class="submit" type="submit" name="update" value="Update Account" />
             </form>
@@ -289,11 +292,11 @@
             <form action="AccountSummary" method="POST">
                 <div>
                     <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
-                    <input type="date" name="startDate" class="inputField" required />
+                    <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
                 </div>
                 <div>
                     <label for="endDate" class="inputLabel" <a title="Select last day of time span to analyse">To :</a> </label>
-                    <input type="date" name="endDate" class="inputField" required />
+                    <input type="date" name="endDate" class="inputField" placeholder="2000-12-31" maxlength="10" required />
                     <div id="feedbackToAccountSummary"></div>
                 </div>
                 <input class="submit" type="submit" name="accountSummary" value="Retrieve Summary" />
@@ -307,9 +310,9 @@
     ================================================== -->
     <footer>
         <div>
-            <p>
+            <p class="contact">
                 <address>
-                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="top" alt="Card" /> Contact:
+                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="bottom" alt="Card" /> Contact:
                     <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
                 </address>
             </p>
@@ -317,20 +320,19 @@
         <span id="vcard" class="hidden">
             <div class="vcard">
                 <a rel="profile " href="http://microformats.org/profile/hcard "></a>
-                <span class="fn n ">
+                <span class="fn n">
                     <span class="given-name ">Leonard</span>
-        <span class="family-name ">Klausmann</span>
-        </span>
-        <p />
-        <span class="role ">Student IM</span>,
-        <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
-        <p />
-        <span class="region ">Bavaria</span>,
-        <span class="country-name ">Germany</span>
-        <p />
-        <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
-        </div>
-        </span>
+                    <span class="family-name ">Klausmann</span>
+                </span>
+                <p />
+                <span class="role ">Student IM</span>,
+                <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
+                <p />
+                <span class="region ">Bavaria</span>,
+                <span class="country-name ">Germany</span>
+                <p />
+                <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+                </div>        </span>
         <section id="copyright ">
             <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
         </section>

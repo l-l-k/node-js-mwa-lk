@@ -29,7 +29,7 @@ div {
 }
 
 .inputField {
-    width: 200px;
+    width: 250px;
     text-align: left;
     padding-left: 10px;
 }
@@ -141,7 +141,12 @@ tr:hover {
     background-color: #c3e6e5;
 }
 
+/* footer */
 footer {
     font-size: 80%;
     background-color: mediumaquamarine;
+}
+
+.contact {
+    padding-top: 10px;
 }
