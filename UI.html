@@ -59,8 +59,7 @@
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
                     <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..."
                         required />
-                    <div id="feedback11" class='hidden'>
-                    </div>
+                    <div id="feedbackAddressExists" class='hidden'></div>
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :  </label>
@@ -70,7 +69,7 @@
                 <div>
                     <label for="username" class="inputLabel">Username : </label>
                     <input id="username" type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
-                    <div id="feedback13" class='hidden'></div>
+                    <div id="feedbackUsernameExists" class='hidden'></div>
                 </div>
                 <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
             </form>
@@ -83,11 +82,13 @@
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
+                    <div id="feedbackAddressUnknown" class='hidden'></div>
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password : </label>
                     <input type="password" name="password" class="inputField" placeholder="Type in your password ..." required size="8" maxlength="33"
                     />
+                    <div id="feedbackPasswordUnknown" class='hidden'></div>
                 </div>
                 <input class="submit" type="submit" name="login" value="Login" />
             </form>
@@ -141,232 +142,235 @@
                             title="You may add a picture"></a>
                         </img>
                         <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
-                        <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
-                            title="Detach picture"></a>
-                        </img>
-                    </div>
-                    <div id="attachedImage" class='preview'>
-                        <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
-                    </div>
-                    <span>
+<img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
+    title="Detach picture"></a>
+</img>
+</div>
+<div id="attachedImage" class='preview'>
+    <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
+</div>
+<span>
                         <img id="sendMsg" src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" <a id="removeFile" href="#"
                             title="Send message"></a>
                     </span>
-                </fieldset>
-                </div>
-            </form>
-        </section>
+</fieldset>
+</div>
+</form>
+</section>
 
-        <!-- View tweet history
+<!-- View tweet history
     ================================================== -->
-        <section id="tweetHistory" class="visible">
-            <h3 class="visible">Tweet History</h3>
-            <form id="tweetAuthor" action="js/tweetAuthor.js">
-                <fieldset class="filterTweets">
-                    <legend></legend>
-                    <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
-                    <label for="r1"> My tweets</label><br />
-                    <input type="radio" class="radio1" id="r2" name="filter" value="other" />
-                    <label for="r2"> Tweets of user : </label>
-                    <input type="text" name="author" class="inputField" value="" placeholder="Type in username ..." />
-                    <br />
-                    <input type="radio" class="radio1" id="r3" name="filter" value="all" />
-                    <label for="r3"> All Users</label><br />
-                    <br />
-                    <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
-                </fieldset>
-            </form>
-            <table id="smallTable">
-                <tr>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Message</th>
-                </tr>
-                <tr>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr class="even">
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr class="even">
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-            </table>
-            <table id="wideTable">
-                <tr>
-                    <th>Author</th>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Message</th>
-                </tr>
-                <tr>
-                    <td>Leo</td>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr class="even">
-                    <td>Leo</td>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr>
-                    <td>Leo</td>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-                <tr class="even">
-                    <td>Leo</td>
-                    <td>01.12.2016</td>
-                    <td>18:48</td>
-                    <td>This message has not been tweeted</td>
-                </tr>
-            </table>
-            <hr/>
-        </section>
-    </section>
+<section id="tweetHistory" class="visible">
+    <h3 class="visible">Tweet History</h3>
+    <form id="tweetAuthor" action="js/tweetAuthor.js">
+        <fieldset class="filterTweets">
+            <legend></legend>
+            <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
+            <label for="r1"> My tweets</label><br />
+            <input type="radio" class="radio1" id="r2" name="filter" value="other" />
+            <label for="r2"> Tweets of user : </label>
+            <input type="text" name="author" class="inputField" value="" placeholder="Type in username ..." />
+            <br />
+            <input type="radio" class="radio1" id="r3" name="filter" value="all" />
+            <label for="r3"> All Users</label><br />
+            <br />
+            <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
+        </fieldset>
+    </form>
+    <table id="smallTable">
+        <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Message</th>
+        </tr>
+        <tr>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr class="even">
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr class="even">
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+    </table>
+    <table id="wideTable">
+        <tr>
+            <th>Author</th>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Message</th>
+        </tr>
+        <tr>
+            <td>Leo</td>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr class="even">
+            <td>Leo</td>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr>
+            <td>Leo</td>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+        <tr class="even">
+            <td>Leo</td>
+            <td>01.12.2016</td>
+            <td>18:48</td>
+            <td>This message has not been tweeted</td>
+        </tr>
+    </table>
+    <hr/>
+</section>
+</section>
 
-    <!-- Administrative Tasks
+<!-- Administrative Tasks
     ================================================== -->
-    <section id="administration" class="visible">
-        <h2 class="visible">Admin Tools</h2>
-        <nav>
-            <ul>
-                <a href="javascript:activateAddUser(0)" class="visible internalLink">Add user</a> /
-                <a href="javascript:activateRemoveUser(0)" class="visible internalLink">Remove user</a> /
-                <a href="javascript:activateCleanupTweets(0)" class="visible internalLink">Cleanup tweets</a> /
-                <a href="javascript:activateAdmSummary(0)" class="visible internalLink">Statistic</a>
-            </ul>
-        </nav>
+<section id="administration" class="visible">
+    <h2 class="visible">Admin Tools</h2>
+    <nav>
+        <ul>
+            <a href="javascript:activateAddUser(0)" class="visible internalLink">Add user</a> /
+            <a href="javascript:activateRemoveUser(0)" class="visible internalLink">Remove user</a> /
+            <a href="javascript:activateCleanupTweets(0)" class="visible internalLink">Cleanup tweets</a> /
+            <a href="javascript:activateAdmSummary(0)" class="visible internalLink">Statistic</a>
+        </ul>
+    </nav>
 
-        <!-- Add a new user -->
-        <fieldset id="addUser" class="visible">
-            <legend>Add User</legend>
-            <form action="#" method="POST">
-                <div>
-                    <label for="mailAddress" class="inputLabel">Login-Name : </label>
-                    <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
-                </div>
-                <div>
-                    <label for="username" class="inputLabel">Username : </label>
-                    <input type="text" name="username" class="inputField" placeholder="Username ..." required />
-                </div>
-                <div>
-                    <label for="password" class="inputLabel">Password : </label>
-                    <input type="password" name="password" class="inputField" placeholder="Password ..." required size="8" maxlength="33" />
-                </div>
-                <input class="submit" type="submit" name="subscribe" value="Create Account" />
-            </form>
-        </fieldset>
+    <!-- Add a new user -->
+    <fieldset id="addUser" class="visible">
+        <legend>Add User</legend>
+        <form action="#" method="POST">
+            <div>
+                <label for="mailAddress" class="inputLabel">Login-Name : </label>
+                <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
+            </div>
+            <div>
+                <label for="username" class="inputLabel">Username : </label>
+                <input type="text" name="username" class="inputField" placeholder="Username ..." required />
+            </div>
+            <div>
+                <label for="password" class="inputLabel">Password : </label>
+                <input type="password" name="password" class="inputField" placeholder="Password ..." required size="8" maxlength="33" />
+            </div>
+            <input class="submit" type="submit" name="subscribe" value="Create Account" />
+        </form>
+    </fieldset>
 
-        <!-- Remove a user (and his tweets) -->
-        <fieldset id="removeUser" class="visible">
-            <legend>Remove User</legend>
-            <form action="#" method="POST">
-                <div>
-                    <label for="userID" class="inputLabel">Login-Name : </label>
-                    <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
-                </div>
-                <input class="submit" type="submit" name="unsubscribe" value="Delete Account" />
-            </form>
-        </fieldset>
+    <!-- Remove a user (and his tweets) -->
+    <fieldset id="removeUser" class="visible">
+        <legend>Remove User</legend>
+        <form action="#" method="POST">
+            <div>
+                <label for="userID" class="inputLabel">Login-Name : </label>
+                <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+            </div>
+            <input class="submit" type="submit" name="unsubscribe" value="Delete Account" />
+        </form>
+    </fieldset>
 
-        <!-- Delete tweets of any user -->
-        <fieldset id="cleanupTweets" class="visible">
-            <legend>Delete Items</legend>
-            <form action="#" method="POST">
-                <div>
-                    <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
-                    <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
-                    <div id="feedbackToUserID"></div>
-                </div>
-                <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
-            </form>
-        </fieldset>
+    <!-- Delete tweets of any user -->
+    <fieldset id="cleanupTweets" class="visible">
+        <legend>Delete Items</legend>
+        <form action="#" method="POST">
+            <div>
+                <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
+                <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                <div id="feedbackToUserID"></div>
+            </div>
+            <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
+        </form>
+    </fieldset>
 
-        <!-- Statistic / Summary of user accounts -->
-        <fieldset id="statistics" class="visible">
-            <legend>Select Period for Statistic</legend>
-            <form action="#" method="POST">
-                <div>
-                    <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
-                    <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
-                </div>
-                <div>
-                    <label for="endDate" class="inputLabel" <a title="Select last day of time span to analyse">To :</a> </label>
-                    <input type="date" name="endDate" class="inputField" placeholder="2000-12-31" maxlength="10" required />
-                    <div id="feedbackToAccountSummary"></div>
-                </div>
-                <input class="submit" type="submit" name="accountSummary" value="Retrieve Summary" />
-            </form>
-        </fieldset>
+    <!-- Statistic / Summary of user accounts -->
+    <fieldset id="statistics" class="visible">
+        <legend>Select Period for Statistic</legend>
+        <form action="#" method="POST">
+            <div>
+                <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
+                <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
+            </div>
+            <div>
+                <label for="endDate" class="inputLabel" <a title="Select last day of time span to analyse">To :</a> </label>
+                <input type="date" name="endDate" class="inputField" placeholder="2000-12-31" maxlength="10" required />
+                <div id="feedbackToAccountSummary"></div>
+            </div>
+            <input class="submit" type="submit" name="accountSummary" value="Retrieve Summary" />
+        </form>
+    </fieldset>
 
-        <hr/>
-    </section>
+    <hr/>
+</section>
 
-    <!-- Footer : Contact, Copyright and VCard
+<!-- Footer : Contact, Copyright and VCard
     ================================================== -->
-    <footer>
-        <div>
-            <p class="contact">
-                <address>
-                    <input id="hcard" type="image" src="img/microformat_hcard.png " align="bottom" alt="Card" /> Contact:
-                    <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
-                </address>
-            </p>
-        </div>
-        <span id="vcard" class="hidden">
+<footer>
+    <div>
+        <p class="contact">
+            <address>
+                <input id="hcard" type="image" src="img/microformat_hcard.png " align="bottom" alt="Card" /> Contact:
+                <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
+            </address>
+        </p>
+    </div>
+    <span id="vcard" class="hidden">
             <div class="vcard">
                 <a rel="profile " href="http://microformats.org/profile/hcard "></a>
                 <span class="fn n">
                     <span class="given-name ">Leonard</span>
-        <span class="family-name ">Klausmann</span>
-        </span>
-        <p />
-        <span class="role ">Student IM</span>,
-        <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
-        <p />
-        <span class="region ">Bavaria</span>,
-        <span class="country-name ">Germany</span>
-        <p />
-        <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
-        </div>
-        </span>
-        <section id="copyright ">
-            <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
-        </section>
-    </footer>
+    <span class="family-name ">Klausmann</span>
+    </span>
+    <p />
+    <span class="role ">Student IM</span>,
+    <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
+    <p />
+    <span class="region ">Bavaria</span>,
+    <span class="country-name ">Germany</span>
+    <p />
+    <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+    </div>
+    </span>
+    <section id="copyright ">
+        <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
+    </section>
+</footer>
 
-    <!-- JavaScript: 
+<!-- JavaScript: 
     At this time the DOM content has already been loaded,
     so we must not wait until the load event gets finished
     ================================================== -->
-    <!-- process code now
+<!-- process code now
      -->
-    <script type="text/javascript " src="js/setup.js"></script>
-    <!-- code related to events -->
-    <script type="text/javascript " src="js/navigation.js"></script>
-    <script type="text/javascript " src="js/input_validation.js"></script>
-    <script type="text/javascript " src="js/tweet.js"></script>
-    <script type="text/javascript " src="js/textLengthObserver.js"></script>
-    <!--  
+<script type="text/javascript " src="js/toolkit.js"></script>
+<script type="text/javascript " src="js/setup.js"></script>
+<script type="text/javascript " src="js/mwa-objects.js"></script>
+<!-- code related to events -->
+<script type="text/javascript " src="js/localStorage.js"></script>
+<script type="text/javascript " src="js/navigation.js"></script>
+<script type="text/javascript " src="js/inputProcessor.js"></script>
+<script type="text/javascript " src="js/tweet.js"></script>
+<script type="text/javascript " src="js/textLengthObserver.js"></script>
+<!--  
     <script type="text/javascript " src="js/tweetAuthor.js"></script>
     -->
-    <script type="text/javascript " src="js/vcard.js"></script>
-    <!--  -->
+<script type="text/javascript " src="js/vcard.js"></script>
+<!--  -->
 </body>
 
 </html>

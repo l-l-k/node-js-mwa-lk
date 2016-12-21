@@ -65,7 +65,7 @@ function uploadTweet(e) {
     var now = new date();
     var record = {
         id: getUserID,
-        day: now.getFullYear + "-" + now.getMonth + "-" + now.getDate,
+        day: getDay,
         time: now.getFullYear + "-" + now.getMonth + "-" + now.getDate,,
         msg: activeForm.elements.message.value,
         img: img.currentSrc

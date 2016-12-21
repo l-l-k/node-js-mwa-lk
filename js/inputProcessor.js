@@ -1,185 +1,244 @@
 /* data request support */
 // global variables
-var currentUser;
+var activeUser;
 var activeFieldset;
-
-function member(mail, password, name) {
-    this.mailAddress = mail;
-    this.password = password;
-    this.name = name;
-    this.id = mail + name; // TODO get id from server
-}
+var activeForm;
 
 function validateInput(event) {
-    //elSignupForm.                        
     //TODO Send data to server
-    var activeForm = event.currentTarget;
-    activeFieldset = thisForm.parentElement;
-
-    switch (activeForm) {
-        case document.forms.signup:
-            var newUser = new user(
-                activeForm.elements.mailAddress,
-                activeForm.elements.password,
-                activeForm.elements.username)
-            validateSignup(newUser);
-            break;
-
-        case document.forms.login:
-            var loginUser = new user(
-                activeForm.elements.mailAddress,
-                activeForm.elements.password,
-                "")
-            validateLogin(loginUser);
-            break;
-
-        case document.forms.userdata:
-            var settings = new user(
-                activeForm.elements.mailAddress,
-                activeForm.elements.password,
-                activeForm.elements.username)
-            validateSettingChanges(settings);
-            break;
-
-        // ADMIN Tasks
-        case document.forms.addUser:
-            var newUser = new user(
-                activeForm.elements.mailAddress,
-                activeForm.elements.password,
-                activeForm.elements.username)
-            validateSignup(newUser);
-            break;
-
-        case document.forms.removeUser:
-            removeUser(activeForm.elements.userID);
-            break;
-
-        case document.forms.cleanupTweets:
-            removeTweets(activeForm.elements.userID);
-            break;
-
-        case document.forms.statistics:
-            var firstDay = activeForm.elements.startDate;
-            var lastDay = activeForm.elements.endDate;
-            getAccountSummary(firstDay, lastDay)
-            break;
-    }
+    var isValidInput = false;
+    activeForm = event.currentTarget;
+    activeFieldset = activeForm.parentElement;
 
     try {
+        switch (activeForm) {
+            case document.forms.signup:
+                var newUser = new temporaryUserData(
+                    activeForm.elements.mailAddress,
+                    activeForm.elements.password,
+                    activeForm.elements.username)
+                isValidInput = validateSignup(newUser);
+                break;
 
-        if (!mailAddress == null) {
-            var mailAddressExists = true;
-            validateNewMailAddress(mailAddressExists);
-        }
+            case document.forms.login:
+                var loginUser = new temporaryUserData(
+                    activeForm.elements.mailAddress,
+                    activeForm.elements.password,
+                    "")
+                isValidInput = validateLogin(loginUser);
+                break;
 
-        if (!username == null) {
-            var isValidName = false;
-            validateNewUsername(isValidName);
+            case document.forms.userdata:
+                var settings = new temporaryUserData(
+                    activeForm.elements.mailAddress,
+                    activeForm.elements.password,
+                    activeForm.elements.username)
+                isValidInput = validateSettingChanges(settings);
+                break;
+
+            // ADMIN Tasks
+            case document.forms.addUser:
+                var newUser = new temporaryUserData(
+                    activeForm.elements.mailAddress,
+                    activeForm.elements.password,
+                    activeForm.elements.username)
+                isValidInput = validateSignup(newUser);
+                break;
+
+            case document.forms.removeUser:
+                removeUser(activeForm.elements.userID);
+                break;
+
+            case document.forms.cleanupTweets:
+                removeTweets(activeForm.elements.userID);
+                break;
+
+            case document.forms.statistics:
+                var firstDay = activeForm.elements.startDate;
+                var lastDay = activeForm.elements.endDate;
+                getAccountSummary(firstDay, lastDay)
+                break;
         }
 
     } catch (e) {
         var err = e.name + ' ' + e.message;
+        alert(err);
+        isValidInput=false;
+
     } finally {
 
     }
 
-    if ((!isValidName) || (mailAddressExists)) {
+    if (!isValidInput) {
         event.preventDefault(); // Don't submit form
     }
 }
 
-function validateSignup(user) {
+function validateSignup(temporaryUser) {
+    // try retrieving user data from storage
+    var existingUser = retrieveUserDataByMailAddress(temporaryUser);
+
+    var addressExists = existingUser.mailAddress == null || existingUser.mailAddress == "";
+    displayMailAddressHint(addressExists);
+
+    // ask server if name exists
+    var nameExists = findUserName(temporaryUser.username);
+    displayUsernameHint(nameExists);
+
     var isValidUser =
-        doesMailAddressExist(user) &&
-        doesUsernameExist(user) &&
-        isValidPassord(user);
+        !addressExists &&
+        !nameExists &&
+        isValidPassword(temporaryUser.password);
 
     if (isValidUser) {
-        // TODO : Create userID
-        // Workaround : Create random number between 1 and 10
-        var randomNum = Math.floor((Math.random() * 10) + 1);
-        newUser.id = randomNum;
-        currentUser = newUser;
-        thisFieldset.className = 'hidden';
+        // append user to storage
+        var newUser = appendUser(temporaryUser);
+
+        // TODO : send activation mail
+
+        // Welcome-Message
+        var feedback = document.getElementById('feedbackSignup')
+        if (!isValidPW) {
+            elFeedback.className = 'info';
+            elFeedback.innerHTML = 'Welcome ' + newUser.username + '<br />' + "You may login now";
+        } else {
+            elFeedback.className = 'hidden';
+        }
     }
+
+    return isValidUser;
 }
 
-function validateLogin(user) {
-    var isValidUser =
-        doesMailAddressExist(user) &&
-        isValidPassord(user);
+function validateLogin(temporaryUser) {
+    // try retrieving user data from storage
+    var existingUser = retrieveUserDataByMailAddress(temporaryUser);
 
+    var addressExists = existingUser.mailAddress != null && existingUser.mailAddress.length > 0;
+    displayMailAddressHint(addressExists);
+
+    var pwExists = temporaryUser.password == existingUser.password;
+    displayPasswordHint(pwExists);
+
+    var isValidUser = addressExists && pwExists
     if (isValidUser) {
-        // TODO : retrieve other user data from storage
-        currentUser = newUser;
-        thisFieldset.className = 'hidden';
+        activeUser = existingUser;
+        setCurrentUser(activeUser.id);
+        activeFieldset.className = 'hidden';
     }
 }
 
-function validateSettingChanges(settings) {
-    var isValidUser =
-        doesMailAddressExist(user) &&
-        doesUsernameExist(user) &&
-        isValidPassord(user);
+function validateSettingChanges(temporaryUser) {
+    // compare with current user and database
+    var hasChanges = false;
+    var storeSettings = false;
 
-    if (isValidUser) {
-        // TODO : compare with current user
-        var randomNum = Math.floor((Math.random() * 10) + 1);
-        newUser.id = randomNum;
-        currentUser = newUser;
-        thisFieldset.className = 'hidden';
+    // mail address
+    var isValidAddress = true;
+    var addressExists = false;
+    if (activeUser.mailAddress != temporaryUser.mailAddress) {
+        // ask server if name exists
+        var addressExists = findMailAddress(temporaryUser.mailAddress);
+        displayMailAddressHint(addressExists);
+        isValidAddress = !addressExists;
+        hasChanges = true;
+    }
+
+    // username 
+    var isValidName = true;
+    var nameExists = false;
+    if (activeUser.username != temporaryUser.username) {
+        // ask server if name exists
+        var nameExists = findUserName(temporaryUser.username);
+        displayUsernameHint(nameExists);
+        isValidName = !nameExists;
+        hasChanges = true;
+    }
+
+    // password
+    var isValidPW = true;
+    // If real world app: get pw from server (don't store it in memory)
+    if (activeUser.password != temporaryUser.password) {
+        isValidPW = isValidPassword(user);
+        hasChanges = true;
+    }
+
+    storeSettings = hasChanges && isValidPW && isValidName && isValidAddress
+
+    if (storeSettings) {
+        updateUser(temporaryUser)
+        activeUser = temporaryUser;
+        // TODO update displayed tweet timeline
+        activeFieldset.className = 'hidden';
     }
 }
 
-function doesMailAddressExist(user) {
-    var mailAddressExists = true;
+function displayMailAddressHint(mailAddressExists) {
+    // Update dialog
+    switch (activeForm) {
+        case document.forms.signup:
+            var elFeedback = document.getElementById('feedbackAddressExists')
+            if (mailAddressExists) {
+                elFeedback.className = 'warning';
+                elFeedback.innerHTML = 'Address already exists.' + '<br />' + 'Edit Account to change password or username.';
+            } else {
+                elFeedback.className = 'hidden';
+            }
 
-    // TODO check if address exists
-
-    var elFeedback = document.getElementById('feedback11')
-    if (mailAddressExists) {
-        elFeedback.className = 'warning';
-        elFeedback.innerHTML = 'Address already exists.' + '<br />' + 'Edit Account to change password or username.';
-    } else {
-        elFeedback.className = 'hidden';
+        case document.forms.login:
+            var elFeedback = document.getElementById('feedbackAddressUnknown')
+            if (mailAddressExists) {
+                elFeedback.className = 'warning';
+                elFeedback.innerHTML = 'Mail-Address unknown.' + '<br />';
+            } else {
+                elFeedback.className = 'hidden';
+            }
     }
 
-    return !mailAddressExists;
+    return mailAddressExists;
 }
 
-function doesUsernameExist(user) {
-    var nameExists = true;
-
-    // TODO check if name exists
-
-    var elFeedback = document.getElementById('feedback13')
+function displayUsernameHint(nameExists) {
+    // Update dialog
+    var elFeedback = document.getElementById('feedbackUsernameExists')
     if (nameExists) {
         elFeedback.className = 'warning';
         elFeedback.innerHTML = 'Name already exists. Please choose another.';
     } else {
         elFeedback.className = 'hidden';
     }
-
-    return !nameExists;
 }
 
-function isValidPassord(user) {
-    var isValidPW = false;
+function displayPasswordHint(isValidPW) {
+    var elFeedback = document.getElementById('feedbackPasswordUnknown')
+    if (!isValidPW) {
+        elFeedback.className = 'warning';
+        elFeedback.innerHTML = 'Password is not valid.' + '<br />';
+    } else {
+        elFeedback.className = 'hidden';
+    }
+}
 
 
-    return isValidPW;
+function isValidPassword() {
+    // TODO validate PW-Security
+    return true;
+}
+
+function setCurrentUser(activeUser) {
+    currentUser.id = activeUser.userID;
+    currentUser.isAdmin = determineUserStatus(currentUser.id)
 }
 
 function removeUser(userID) {
-
+ //TODO : Admin-Task removeUser
 }
 
 function removeTweets(userID) {
-
+ //TODO : Admin-Task removeTweets
 }
 
 function getAccountSummary(firstDay, lastDay) {
-
+ //TODO : Admin-Task getAccountSummary
 }
 
 // Event handler

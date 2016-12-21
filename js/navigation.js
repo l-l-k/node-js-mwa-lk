@@ -1,18 +1,4 @@
 /* navigation support */
-// Registration and  Login
-var elSignup = document.getElementById('signup');
-var elLogin = document.getElementById('login');
-var elUserData = document.getElementById('userdata');
-var elAccountSection = document.getElementById('account');
-// Administration
-var elAddUser = document.getElementById('addUser');
-var elRemoveUser = document.getElementById('removeUser');
-var elCleanupTweets = document.getElementById('cleanupTweets');
-var elStatistics = document.getElementById('statistics');
-var elAdminSection = document.getElementById('administration');
-// Tweets
-var elTweetSection = document.getElementById('tweets');
-var elEmptyPageSection = document.getElementById('emptyPage')
 // other global variables
 var sections = [elAccountSection, elEmptyPageSection, elTweetSection, elAdminSection]
 var activeSection;
@@ -96,11 +82,13 @@ function activateSignup() {
 function activateLogin() {
     activateAccountSection();
     activateFieldset('login');
+    prepareLoginForm();
 }
 
 function activateUserData() {
     activateAccountSection();
     activateFieldset('userdata');
+    prepareSettingsForm();
 }
 
 function activateAddUser() {
