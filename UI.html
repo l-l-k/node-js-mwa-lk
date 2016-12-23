@@ -72,6 +72,7 @@
                     <div id="feedbackUsernameExists" class='hidden'></div>
                 </div>
                 <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
+                <div id="feedbackSignup" class='hidden'></div>
             </form>
         </fieldset>
 
@@ -126,47 +127,49 @@
     <section id="tweets">
         <!-- Posting tweets
     ================================================== -->
-        <section id="tweetDefinition" class="visible">
-            <h2 class="hidden">Messages</h2>
-            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-            <form id="defineTweet" action="#" method="POST">
-                <fieldset class="postTweet">
-                    <legend></legend>
-                    <div>
-                        <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
-                        /></textarea>
-                        <span id="charCounter"></span>
-                        <br />
-                        <!-- use an (photo-) icon instead default file selection -->
-                        <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
-                            title="You may add a picture"></a>
-                        </img>
-                        <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
-<img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
-    title="Detach picture"></a>
-</img>
-</div>
-<div id="attachedImage" class='preview'>
-    <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
-</div>
-<span>
-                        <img id="sendMsg" src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" <a id="removeFile" href="#"
-                            title="Send message"></a>
+    <section id="tweetDefinition" class="visible">
+        <h2 class="hidden">Messages</h2>
+        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+        <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
+            <fieldset class="postTweet">
+                <legend></legend>
+                <div>
+                    <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
+                    /></textarea>
+                    <span id="charCounter"></span>
+                    <br />
+                    <!-- use an icon instead default file selection -->
+                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
+                        title="You may add a picture"></a>
+                    </img>
+                    <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+                    <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
+                        title="Detach picture"></a>
+                    </img>
+                </div>
+                    <div id="attachedImage" class='preview'>
+                        <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
+                    </div>
+                    <span>
+                    <img id="sendMsg" src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" <a id="removeFile" href="#"
+                        title="Send message"></a>
                     </span>
-</fieldset>
-</div>
-</form>
-</section>
+                    <!-- 
+                </div>
+                -->
+            </fieldset>
+        </form>
+    </section>
 
 <!-- View tweet history
     ================================================== -->
 <section id="tweetHistory" class="visible">
     <h3 class="visible">Tweet History</h3>
-    <form id="tweetAuthor" action="js/tweetAuthor.js">
+    <form id="tweetAuthor" name="tweetAuthor" action="js/tweetAuthor.js">
         <fieldset class="filterTweets">
             <legend></legend>
             <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
-            <label for="r1"> My tweets</label><br />
+            <label for="r1" id="labelR1" name="labelR1"> My tweets</label><br />
             <input type="radio" class="radio1" id="r2" name="filter" value="other" />
             <label for="r2"> Tweets of user : </label>
             <input type="text" name="author" class="inputField" value="" placeholder="Type in username ..." />
@@ -256,14 +259,16 @@
     <!-- Add a new user -->
     <fieldset id="addUser" class="visible">
         <legend>Add User</legend>
-        <form action="#" method="POST">
+        <form name="addUser" action="#" method="POST">
             <div>
                 <label for="mailAddress" class="inputLabel">Login-Name : </label>
                 <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
+                <div id="feedbackAddressAlreadyExists" class='hidden'></div>
             </div>
             <div>
                 <label for="username" class="inputLabel">Username : </label>
                 <input type="text" name="username" class="inputField" placeholder="Username ..." required />
+                <div id="feedbackUsernameAlreadyExists" class='hidden'></div>
             </div>
             <div>
                 <label for="password" class="inputLabel">Password : </label>
@@ -276,10 +281,11 @@
     <!-- Remove a user (and his tweets) -->
     <fieldset id="removeUser" class="visible">
         <legend>Remove User</legend>
-        <form action="#" method="POST">
+        <form name="removeUser" action="#" method="POST">
             <div>
                 <label for="userID" class="inputLabel">Login-Name : </label>
                 <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                <div id="feedbackUserDoesntExist" class='hidden'></div>
             </div>
             <input class="submit" type="submit" name="unsubscribe" value="Delete Account" />
         </form>
@@ -288,7 +294,7 @@
     <!-- Delete tweets of any user -->
     <fieldset id="cleanupTweets" class="visible">
         <legend>Delete Items</legend>
-        <form action="#" method="POST">
+        <form name="cleanupTweets" action="#" method="POST">
             <div>
                 <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
                 <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
@@ -301,7 +307,7 @@
     <!-- Statistic / Summary of user accounts -->
     <fieldset id="statistics" class="visible">
         <legend>Select Period for Statistic</legend>
-        <form action="#" method="POST">
+        <form name="statistics" action="#" method="POST">
             <div>
                 <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
                 <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
@@ -324,29 +330,29 @@
     <div>
         <p class="contact">
             <address>
-                <input id="hcard" type="image" src="img/microformat_hcard.png " align="bottom" alt="Card" /> Contact:
+                <input id="hcard" type="image" src="img/microformat_hcard.png" align="bottom" alt="Card" /> Contact:
                 <a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a>
             </address>
         </p>
     </div>
     <span id="vcard" class="hidden">
             <div class="vcard">
-                <a rel="profile " href="http://microformats.org/profile/hcard "></a>
+                <a rel="profile" href="http://microformats.org/profile/hcard"></a>
                 <span class="fn n">
-                    <span class="given-name ">Leonard</span>
-    <span class="family-name ">Klausmann</span>
+                    <span class="given-name">Leonard</span>
+    <span class="family-name">Klausmann</span>
     </span>
     <p />
-    <span class="role ">Student IM</span>,
-    <span class="org "><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
+    <span class="role">Student IM</span>,
+    <span class="org"><a href="https://www.oth-regensburg.de/" taregt="_blank">OTH Regensburg</a></span>
     <p />
-    <span class="region ">Bavaria</span>,
-    <span class="country-name ">Germany</span>
+    <span class="region">Bavaria</span>,
+    <span class="country-name">Germany</span>
     <p />
-    <span class="email "><a href="mailto:leonard1.klausmann@st.oth-regensburg.de ">Leonard@OTH Regensburg</a></span>
+    <span class="email"><a href="mailto:leonard1.klausmann@st.oth-regensburg.de">Leonard@OTH Regensburg</a></span>
     </div>
     </span>
-    <section id="copyright ">
+    <section id="copyright">
         <div>&copy; Copyright 2016 by Leonard Klausmann. All Rights Reserved.</div>
     </section>
 </footer>
@@ -357,19 +363,21 @@
     ================================================== -->
 <!-- process code now
      -->
-<script type="text/javascript " src="js/toolkit.js"></script>
-<script type="text/javascript " src="js/setup.js"></script>
-<script type="text/javascript " src="js/mwa-objects.js"></script>
+<script type="text/javascript" src="js/toolkit.js"></script>
+<script type="text/javascript" src="js/setup.js"></script>
+<script type="text/javascript" src="js/mwa-objects.js"></script>
+<script type="text/javascript" src="js/localStorage.js"></script>
+<script type="text/javascript" src="js/dbReaderLS.js"></script>
+<script type="text/javascript" src="js/dbWriterLS.js"></script>
 <!-- code related to events -->
-<script type="text/javascript " src="js/localStorage.js"></script>
-<script type="text/javascript " src="js/navigation.js"></script>
-<script type="text/javascript " src="js/inputProcessor.js"></script>
-<script type="text/javascript " src="js/tweet.js"></script>
-<script type="text/javascript " src="js/textLengthObserver.js"></script>
+<script type="text/javascript" src="js/navigation.js"></script>
+<script type="text/javascript" src="js/inputProcessor.js"></script>
+<script type="text/javascript" src="js/tweet.js"></script>
+<script type="text/javascript" src="js/textLengthObserver.js"></script>
 <!--  
-    <script type="text/javascript " src="js/tweetAuthor.js"></script>
+    <script type="text/javascript" src="js/tweetAuthor.js"></script>
     -->
-<script type="text/javascript " src="js/vcard.js"></script>
+<script type="text/javascript" src="js/vcard.js"></script>
 <!--  -->
 </body>
 

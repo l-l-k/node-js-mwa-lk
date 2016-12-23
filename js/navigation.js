@@ -50,17 +50,22 @@ function activateElement(elements, elementID) {
 }
 
 function tryEnableAdminMode() {
-    // TODO check if user is admin
-    var isAdmin = true;
-
-    // TODO enable admin-link if required
-    if (isAdmin) {
-activateAdminMode();
+    // enable admin-link if required
+    if (activeUser == null) {
+        alert("Please login first.");
+    } else {
+        if (currentUser.isAdmin) {
+            activateAdminMode();
+        }
     }
 }
 
 function activateTweetSection() {
-    activateSection('tweets');
+    if (activeUser == null) {
+        alert("Please login first.");
+    } else {
+        activateSection('tweets');
+    }
 }
 
 function activateAccountSection() {
@@ -77,18 +82,27 @@ function activateAdminSection() {
 function activateSignup() {
     activateAccountSection();
     activateFieldset('signup');
+    var feedback = document.getElementById('feedbackSignup');
+    feedback.className = 'hidden';
 }
 
 function activateLogin() {
     activateAccountSection();
     activateFieldset('login');
-    prepareLoginForm();
+    var loginForm = document.forms.login;
+    loginForm.elements.mailAddress.value = lastUser.mailAddress;
 }
 
 function activateUserData() {
-    activateAccountSection();
-    activateFieldset('userdata');
-    prepareSettingsForm();
+    if (activeUser == null) {
+        alert("Please login first.");
+    } else {
+        activateAccountSection();
+        activateFieldset('userdata');
+        var settingsForm = document.forms.userdata;
+        settingsForm.elements.mailAddress.value = activeUser.mailAddress;
+        settingsForm.elements.username.value = activeUser.username;
+    }
 }
 
 function activateAddUser() {

@@ -37,5 +37,3 @@ elAddUser.className = 'hidden';
 elRemoveUser.className = 'hidden';
 elCleanupTweets.className = 'hidden';
 elStatistics.className = 'hidden';
-
-
