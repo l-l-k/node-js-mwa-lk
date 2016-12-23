@@ -35,7 +35,7 @@ function validateInput(event) {
                     "")
                 success = validateLogin(loginUser);
                 if (success) {
-                    // Change label text 'My tweet'
+                    // Change label text 'My tweets'
                     document.getElementById("labelR1").innerHTML = "My tweets (" + activeUser.username + ")";
                     if (!currentUser.isAdmin) {
                         activateTweetMode();
@@ -50,7 +50,7 @@ function validateInput(event) {
                     activeForm.elements.username.value)
                 success = validateSettingChanges(settings);
                 if (success) {
-                    // Change label text 'My tweet'
+                    // Change label text 'My tweets'
                     document.getElementById("labelR1").innerHTML = "My tweets (" + activeUser.username + ")";
                     if (!currentUser.isAdmin) {
                         activateTweetMode();
@@ -71,11 +71,19 @@ function validateInput(event) {
                 break;
 
             case document.forms.removeUser:
-                removeUser(activeForm.elements.userID.value);
+                if (removeUser(activeForm.elements.userID.value)) {
+                    alert("User successfully deleted.")
+                } else {
+                    alert("User already exists.")
+                }
                 break;
 
             case document.forms.cleanupTweets:
-                removeTweets(activeForm.elements.userID.value);
+                if (removeTweets(activeForm.elements.userID.value)) {
+                    alert("Tweets successfully deleted.")
+                } else {
+                    alert("Removing tweets failed.")
+                }
                 break;
 
             case document.forms.statistics:
@@ -284,15 +292,19 @@ function removeUser(mailAddress) {
     if (userExists) {
         var user = retrieveUserDataByMailAddress(mailAddress);
         // First remove user's tweets ...
-        if (removeUserTweets(user.id)) {
+        if (deleteUserTweets(user.id)) {
             // ... then remove user
-            removeUser(user);
+            userExists = !deleteUser(user);
         }
     }
+    return userExists;
 }
 
 function removeTweets(userID) {
     //TODO : Admin-Task removeTweets
+    var tweetsRemoved = false;
+
+    return tweetsRemoved;
 }
 
 function getAccountSummary(firstDay, lastDay) {

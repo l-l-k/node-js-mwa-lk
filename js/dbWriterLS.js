@@ -32,15 +32,21 @@ function updateUser(temporaryUser, userID) {
     return success;
 }
 
-function removeUser(user) {
+function deleteUser(user) {
+    var success = false;
     var index = knownUsers.indexOf(user);
     if (index >= 0) {
         knownUsers.splice(index, 1); // Remove 1 element 
+        success = true;
     }
+    return success;
 }
 
-function removeUserTweets(userID) {
-        // TODO : Remove user's tweets
+function deleteUserTweets(userID) {
+    var tweetsDeleted = true;
+    // TODO : Remove user's tweets
+
+    return tweetsDeleted;
 }
 
 function storeUserdataLocal(settings) {
