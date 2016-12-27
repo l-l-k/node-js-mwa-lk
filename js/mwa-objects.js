@@ -22,10 +22,16 @@ function currentUser(userID, isAdmin) {
     this.isAdmin = isAdmin;
 }
 
-function tweetRecord(userID, message, picture) {
+function temporaryTweetRecord(userID, message, picture) {
     this.userID = userID;
-    this.day = getDay();
-    this.time = getTime();
+    this.message = message;
+    this.attachment = picture;
+}
+
+function tweetRecord(userID, day, time, message, picture) {
+    this.userID = userID;
+    this.day = day;
+    this.time = time;
     this.message = message;
     this.attachment = picture;
 }

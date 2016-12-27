@@ -42,21 +42,29 @@ function deleteUser(user) {
     return success;
 }
 
-function deleteUserTweets(userID) {
-    var tweetsDeleted = true;
-    // TODO : Remove user's tweets
-
-    return tweetsDeleted;
-}
-
-function storeUserdataLocal(settings) {
-    var userdata = userRecord();
-    if (window.localstorage) {
-        localStorage.setItem('currentUser', JSON.stringify(userdata));
-    }
-}
-
 
 // =================================================== 
 // Handling tweets
 
+function deleteSelectedTweets(userID, selectedItems) {
+    // TODO : Remove some of user's tweets
+    var before = availableTweets.length;
+    
+    return (availableTweets.length < before );
+}
+
+function deleteUserTweets(userID) {
+    // TODO : Remove user's tweets
+    var before = availableTweets.length;
+    
+    return (availableTweets.length < before );
+}
+
+function uploadTweet(newTweet) {
+    var before = localStorage.getItem(availableTweetsKey).length;
+
+    availableTweets.push(newTweet);
+    localStorage.setItem(availableTweetsKey, JSON.stringify(availableTweets));
+
+    return (localStorage.getItem(availableTweetsKey).length == before + 1);
+}

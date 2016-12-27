@@ -16,6 +16,17 @@ function retrieveUserDataByID(userID) {
     return existingUser;
 }
 
+function retrieveUserDataByName(username) {
+    comparativeValue = username;
+    var existingUser = userRecord;
+    var index = knownUsers.findIndex(equalsUsername);
+    if (index >= 0) {
+        existingUser = knownUsers[index];
+    }
+
+    return existingUser;
+}
+
 function retrieveUserDataByMailAddress(mailAddress) {
     comparativeValue = mailAddress;
     var existingUser = userRecord;
@@ -64,7 +75,23 @@ function equalsMailAddress(user) {
 // Handling tweets
 
 function restoreTweets() {
-    currentMessage = JSON.parse(localStorage.getItem(currentMessageKey));
+    currentTweet = JSON.parse(localStorage.getItem(currentMessageKey));
     lastDisplayedMessages = JSON.parse(localStorage.getItem(lastDisplayedMessagesKey));
+}
+
+function equalsTweetAuthor(tweet) {
+    return tweet.userID == comparativeValue;
+}
+
+function getSubsetOfTweets(filter) {
+    var results = messageRow;
+    if (filter == "*") {
+        results = availableTweets;
+    } else {
+        comparativeValue = filter;
+        results = availableTweets.filter(equalsTweetAuthor);
+    }
+
+    return results;
 }
 

@@ -14,3 +14,7 @@ function getTime() {
     var now = new Date();
     return now.getHours + ":" + now.getMinutes + ":" + now.getSeconds;
 }
+
+function isEven(number) {
+    return (number % 2) == 0;
+}  

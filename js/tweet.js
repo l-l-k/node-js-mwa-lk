@@ -49,30 +49,23 @@ function detachImage() {
 // ______________________________________________________
 // Uplod Data - text, image and meta data
 
-function getUserID() {
-    var id;
-
-    return id;
-}
-
-function uploadTweet(e) {
-    var activeForm = document.forms.defineTweet;
-    var msg = activeForm.elements.message
+function publishTweet(e) {
+    var msg = document.forms.defineTweet.elements.message.value.trim();
     var img = document.getElementById('preview');
     console.log(msg.value);
     console.log(img.currentSrc.substring(0, 10));
 
-    var now = new date();
-    var record = {
-        id: getUserID,
-        day: getDay,
-        time: now.getFullYear + "-" + now.getMonth + "-" + now.getDate,,
-        msg: activeForm.elements.message.value,
-        img: img.currentSrc
-    }
-    console.log(msg.value);
-    console.log(img.currentSrc.substring(0, 10));
+    var newTweet = tweetRecord(
+        activeUser.id,
+        getDay(),
+        getTime(),
+        msg,
+        img.currentSrc
+    );
 
+    if (!uploadTweet(newTweet)) {
+        alert("Publishing tweet failed. Please try again.");
+    }
 }
 
 
@@ -81,7 +74,7 @@ function uploadTweet(e) {
 
 // submit by image-click
 uploadCommand = document.getElementById('sendMsg');
-uploadCommand.addEventListener('click', uploadTweet, false);
+uploadCommand.addEventListener('click', publishTweet, false);
 
 // add a picture
 fileSelectorProxy = document.getElementById('camera');

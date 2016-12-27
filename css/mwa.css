@@ -74,6 +74,15 @@ a.internalLink:active {
 	background-color: chocolate;
 }
 
+/* _____________ disabled elements __________________________ */
+/*fieldset:disabled {
+    background: gainsboro; 
+}*/
+fieldset[value]:disabled {
+    color: whitesmoke;
+}
+
+
 /* _____________ tweet section __________________________ */
 /* message in textaerea */
 .tweet {
@@ -139,6 +148,9 @@ width: 440px;
 
 
 /* data table */
+fieldset.tweetsTable {
+    border: none;
+}
 table {
     width: 600px;
 }
@@ -154,13 +166,19 @@ th {
     border-top: 1px solid #999;
     text-align: left;
 }
+td {
+    font-size: 70%;
+}
 tr.even {
     background-color: #efefef;
 }
 tr:hover {
     background-color: #c3e6e5;
 }
-
+.selected {
+    background-color: brown;
+    color: #FFF;
+}
 /* footer */
 footer {
     font-size: 80%;

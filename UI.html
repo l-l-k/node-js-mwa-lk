@@ -127,45 +127,42 @@
     <section id="tweets">
         <!-- Posting tweets
     ================================================== -->
-    <section id="tweetDefinition" class="visible">
-        <h2 class="hidden">Messages</h2>
-        <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-        <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
-            <fieldset class="postTweet">
-                <legend></legend>
-                <div>
-                    <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
-                    /></textarea>
-                    <span id="charCounter"></span>
-                    <br />
-                    <!-- use an icon instead default file selection -->
-                    <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
-                        title="You may add a picture"></a>
-                    </img>
-                    <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
-                    <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
-                        title="Detach picture"></a>
-                    </img>
-                </div>
-                    <div id="attachedImage" class='preview'>
-                        <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
-                    </div>
-                    <span>
+        <section id="tweetDefinition" class="visible">
+            <h2 class="hidden">Messages</h2>
+            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+            <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
+                <fieldset class="postTweet">
+                    <legend></legend>
+                    <div>
+                        <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
+                        /></textarea>
+                        <span id="charCounter"></span>
+                        <br />
+                        <!-- use an icon instead default file selection -->
+                        <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
+                            title="You may add a picture"></a>
+                        </img>
+                        <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+<img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
+    title="Detach picture"></a>
+</img>
+</div>
+<div id="attachedImage" class='preview'>
+    <img id="preview" src="" alt="" class="preview" width='440px' height='auto' />
+</div>
+<span>
                     <img id="sendMsg" src="img/bird.png" alt="Bird" width="40" height="40" , align="middle" <a id="removeFile" href="#"
-                        title="Send message"></a>
-                    </span>
-                    <!-- 
-                </div>
-                -->
-            </fieldset>
-        </form>
-    </section>
+                    title="Send message"></a>
+                </span>
+</fieldset>
+</form>
+</section>
 
 <!-- View tweet history
-    ================================================== -->
+        ================================================== -->
 <section id="tweetHistory" class="visible">
     <h3 class="visible">Tweet History</h3>
-    <form id="tweetAuthor" name="tweetAuthor" action="js/tweetAuthor.js">
+    <form id="tweetAuthor" name="tweetAuthor" action="#">
         <fieldset class="filterTweets">
             <legend></legend>
             <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
@@ -178,67 +175,26 @@
             <label for="r3"> All Users</label><br />
             <br />
             <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
+            <!--
+            <input id="deleteSelectedRows" type="submit" name="deleteSelectedRows" class="button" value="Delete selected tweets" />
+            <input id="deleteAll" type="submit" name="deleteAll" class="button" value="Delete all my tweets" />
+            -->
         </fieldset>
     </form>
-    <table id="smallTable">
-        <tr>
-            <th>Day</th>
-            <th>Time</th>
-            <th>Message</th>
-        </tr>
-        <tr>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr class="even">
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr class="even">
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-    </table>
-    <table id="wideTable">
-        <tr>
-            <th>Author</th>
-            <th>Day</th>
-            <th>Time</th>
-            <th>Message</th>
-        </tr>
-        <tr>
-            <td>Leo</td>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr class="even">
-            <td>Leo</td>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr>
-            <td>Leo</td>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-        <tr class="even">
-            <td>Leo</td>
-            <td>01.12.2016</td>
-            <td>18:48</td>
-            <td>This message has not been tweeted</td>
-        </tr>
-    </table>
+    <fieldset id="tweetsTable" class="tweetsTable" disabled="enabled" border="none">
+        <legend></legend>
+        <table id="extractedTweets">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </fieldset>
     <hr/>
 </section>
 </section>
@@ -297,7 +253,7 @@
         <form name="cleanupTweets" action="#" method="POST">
             <div>
                 <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
-                <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                <input type="email" name="userID" class="inputField" placeholder="Mail address ..." required />
                 <div id="feedbackToUserID"></div>
             </div>
             <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
@@ -373,6 +329,7 @@
 <script type="text/javascript" src="js/navigation.js"></script>
 <script type="text/javascript" src="js/inputProcessor.js"></script>
 <script type="text/javascript" src="js/tweet.js"></script>
+<script type="text/javascript" src="js/tweetsTable.js"></script>
 <script type="text/javascript" src="js/textLengthObserver.js"></script>
 <!--  
     <script type="text/javascript" src="js/tweetAuthor.js"></script>
