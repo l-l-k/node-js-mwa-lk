@@ -49,15 +49,23 @@ function deleteUser(user) {
 function deleteSelectedTweets(userID, selectedItems) {
     // TODO : Remove some of user's tweets
     var before = availableTweets.length;
+
+    alert("Should delete " + selectedItems.length + " records");
+    resetSelectionRange();
+    deselectAll();
     
-    return (availableTweets.length < before );
+    return (availableTweets.length < before);
 }
 
 function deleteUserTweets(userID) {
     // TODO : Remove user's tweets
     var before = availableTweets.length;
-    
-    return (availableTweets.length < before );
+
+    alert("Should delete all records of user " + userID);
+    resetSelectionRange();
+    deselectAll();
+
+    return (availableTweets.length < before);
 }
 
 function uploadTweet(newTweet) {

@@ -3,7 +3,12 @@ var tableType = "small";
 var updatingTweetHistoryRequested = false;
 var visibleTweets = new Array();
 var tweetsTableContainer, tweetsTable;
-var currentRows;
+var selectionRange = [-1, -1];
+var selectedFilterOption;
+
+function resetSelectionRange() {
+    selectionRange = [-1, -1];
+}
 
 function updateTableSettings(selectedOption) {
 
@@ -60,6 +65,8 @@ function updateTable(existingTable) {
 
         existingTable.appendChild(header);
         existingTable.appendChild(body);
+
+        resetSelectionRange;
 
     } catch (e) {
         var err = e.name + ' ' + e.message;
@@ -137,12 +144,18 @@ function updateView() {
         var options = document.forms.tweetAuthor.elements.filter;
         for (var i = [0]; i < options.length; i++) {
             if (options[i].checked) {
-                updateTableSettings(options[i]);
+                selectedFilterOption = options[i];
+                updateTableSettings(selectedFilterOption);
                 tweetsTableContainer = document.getElementById("tweetsTable")
                 tweetsTable = document.getElementById("extractedTweets")
                 break;
             }
         }
+    }
+
+    if (selectedFilterOption.value=="other") {
+        // regard changed user-id
+        updateTableSettings(selectedFilterOption); 
     }
 
     // cleanup existing content of table
@@ -159,7 +172,8 @@ function updateView() {
 
 function filterChanged(e) {
     if (e.currentTarget.checked) {
-        updateTableSettings(e.currentTarget);
+        selectedFilterOption = e.currentTarget;
+        updateTableSettings(selectedFilterOption);
         tweetsTableContainer = document.getElementById("tweetsTable")
         tweetsTable = document.getElementById("extractedTweets");
     }
@@ -170,38 +184,35 @@ function tblClicked(e) {
     var selectedTable = e.currentTarget;
     var selectedColumn = e.target;
     var currentRow = e.target.parentNode;
-    var nameOfRegion =  e.target.parentNode.parentNode.nodeName;
-    var selectedRegion;
+    var nameOfRegion = e.target.parentNode.parentNode.nodeName;
     var selectedRows = [];
-    var startIndex = -1;
-    var indexes = [0, 0];
+    var startIndex = selectionRange[0];
 
     switch (nameOfRegion) {
         case 'THEAD':
-            selectedRegion = selectedTable.children[0];
             // TODO : switch sort order
             break;
         case 'TBODY':
-            selectedRegion = selectedTable.children[1];
-            selectedRows = selectedRegion.getElementsByClassName('selected');
+            // highlight selected rows
+            selectedRows = getSelectedRows(selectedTable);
 
             if (selectedRows.length == 0) {
                 currentRow.classList.toggle('selected');
-                startIndex = currentRow.rowIndex;
+                selectionRange[0] = currentRow.rowIndex; // startIndex
             } else {
+                // append row to selection list
                 if (e.ctrlKey) {
                     currentRow.classList.toggle('selected');
                 }
-                if ((event.shiftKey) && (startIndex >= 0)) {
-                    endIndex = currentRow.rowIndex;
-                    if (currentRow.rowIndex > startIndex) {
-                        indexes[0] = startIndex;
-                        indexes[1] = currentRow.rowIndex;
-                    } else if (currentRow.rowIndex < startIndex) {
-                        indexes[0] = currentRow.rowIndex;
-                        indexes[1] = startIndex;
-                    } else {
+                // create selection list as region
+                if ((e.shiftKey) && (startIndex >= 0)) {
+                    if (currentRow.rowIndex == startIndex) {
                         currentRow.classList.toggle('selected');
+                    } else {
+                        selectionRange[1] = currentRow.rowIndex;
+                        var region = selectedTable.getElementsByTagName("TBODY")[0];
+                        var allRows = region.getElementsByTagName("tr");
+                        selectFromTo(selectionRange, allRows);
                     }
                 }
             }
@@ -209,10 +220,11 @@ function tblClicked(e) {
 }
 
 function deleteCurrentRows() {
-    if (tweetsTableContainer == null) {
+    if ((tweetsTableContainer == null) || (tweetsTable == null)) {
         alert("No items selected");
     } else {
-        var selectedItems = getSelectedItems;
+        var selectedRows = getSelectedRows(tweetsTable);
+        var selectedItems = getSelectedItems(selectedRows);
         if (deleteSelectedTweets(activeUser.id, selectedItems)) {
             updateTable(tweetsTable);
         }
@@ -225,15 +237,51 @@ function deleteAllTweets() {
     }
 }
 
-function getSelectedItems() {
-    var selectedTable = e;
-    var currentRows = selectedTable.getElementsByTagName('tr').getElementsByClassName('selected');
+function getSelectedRows(table) {
+    var region = table.getElementsByTagName("TBODY")[0];
+    var selectedRows = region.getElementsByClassName('selected');
+    return selectedRows;
+}
+
+function getSelectedItems(selectedRows) {
     var selectedItems = [];
-    for (i = 0; i < currentRows.length; i++) {
-        selectedItems = currentRows[i];
+    var dayIndex = 0;
+    if (tableType != 'small') {
+        dayIndex = 1;
+    }
+    var timeIndex = dayIndex + 1;
+    var day, time;
+
+    for (i = 0; i < selectedRows.length; i++) {
+        day = selectedRows[i].children[dayIndex].innerText;
+        time = selectedRows[i].children[timeIndex].innerText;
+        selectedItems[i] = tweetRecord(activeUser.id, day, time, "", "");
     }
 
     return selectedItems;
+}
+
+function selectFromTo(range, rows) {
+    var firstIndex = range[0] - 1;
+    var lastIndex = range[1] - 1;
+
+    if (firstIndex > lastIndex) {
+        firstIndex = range[1] - 1;
+        lastIndex = range[0] - 1;
+    }
+
+    for (i = firstIndex; i <= lastIndex; i++) {
+        rows[i].classList.toggle('selected', true);
+    }
+}
+
+function deselectAll() {
+    var region = tweetsTable.getElementsByTagName("TBODY")[0];
+    var allRows = region.getElementsByTagName("tr");
+
+    for (i = 0; i < allRows.length; i++) {
+        rows[i].classList.toggle('selected', false);
+    }
 }
 
 function historyButtonClicked(e) {
@@ -243,7 +291,7 @@ function historyButtonClicked(e) {
             updateView();
             break;
 
-        case 'deletecurrentRows':
+        case 'deleteSelectedRows':
             deleteCurrentRows();
             break;
 

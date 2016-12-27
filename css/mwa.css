@@ -175,10 +175,15 @@ tr.even {
 tr:hover {
     background-color: #c3e6e5;
 }
-.selected {
-    background-color: brown;
+tr.selected {
+    background-color: #acbad9;
     color: #FFF;
 }
+tr.even.selected {
+    background-color: #acbad1;
+    color: #FFF;
+}
+
 /* footer */
 footer {
     font-size: 80%;
