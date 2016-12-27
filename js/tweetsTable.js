@@ -3,7 +3,7 @@ var tableType = "small";
 var updatingTweetHistoryRequested = false;
 var visibleTweets = new Array();
 var tweetsTableContainer, tweetsTable;
-var selectedRows;
+var currentRows;
 
 function updateTableSettings(selectedOption) {
 
@@ -60,8 +60,6 @@ function updateTable(existingTable) {
 
         existingTable.appendChild(header);
         existingTable.appendChild(body);
-        // emptyTable.setAttribute("id", tweetsTable.id);
-
 
     } catch (e) {
         var err = e.name + ' ' + e.message;
@@ -133,7 +131,7 @@ function populateTable(tweetsToDisplay, indexOfFirstTweetProperty, amountOfColum
     return body;
 }
 
-function viewUpdateRequested(event) {
+function updateView() {
     // ensure access to table
     if (tweetsTableContainer == null) {
         var options = document.forms.tweetAuthor.elements.filter;
@@ -148,56 +146,69 @@ function viewUpdateRequested(event) {
     }
 
     // cleanup existing content of table
-    tweetsTableContainer.disabled = false;
-    tweetsTableContainer.setAttribute('disabled', 'disabled');
+    tweetsTableContainer.disabled = true;
 
     // add new content
     updateTable(tweetsTable);
     // tweetsTable.parentNode.insertBefore(updateTable(), tweetsTable);
     tweetsTableContainer.disabled = false;
     tweetsTable.addEventListener('click', tblClicked, false);
-    /*    var rows = tweetsTable.getElementsByTagName('tr');
-        for (i = 0; i < rows.length; i++) {
-            rows[i].onclick = rowClicked;
-        }
-    */
+
     updatingTweetHistoryRequested = false;
-    // Don't reload form
-    event.preventDefault();
-    event.stopPropagation();
-    setTimeout(function () { }, 1500);
 }
 
 function filterChanged(e) {
     if (e.currentTarget.checked) {
         updateTableSettings(e.currentTarget);
         tweetsTableContainer = document.getElementById("tweetsTable")
-        tweetsTableContainer.setAttribute('disabled', 'disabled');
         tweetsTable = document.getElementById("extractedTweets");
     }
 }
 
 
 function tblClicked(e) {
-    var selectedTable = e;
+    var selectedTable = e.currentTarget;
     var selectedColumn = e.target;
-    var selectedRow = e.target.parentNode;
-    var selectedRegion = e.target.parentNode.parentNode.nodeName;
+    var currentRow = e.target.parentNode;
+    var nameOfRegion =  e.target.parentNode.parentNode.nodeName;
+    var selectedRegion;
+    var selectedRows = [];
+    var startIndex = -1;
+    var indexes = [0, 0];
 
-    switch (selectedRegion) {
+    switch (nameOfRegion) {
         case 'THEAD':
+            selectedRegion = selectedTable.children[0];
             // TODO : switch sort order
             break;
         case 'TBODY':
-            if (selectedRow.className == 'selected') {
-                selectedRow.className = ''
+            selectedRegion = selectedTable.children[1];
+            selectedRows = selectedRegion.getElementsByClassName('selected');
+
+            if (selectedRows.length == 0) {
+                currentRow.classList.toggle('selected');
+                startIndex = currentRow.rowIndex;
             } else {
-                selectedRow.className = 'selected';
+                if (e.ctrlKey) {
+                    currentRow.classList.toggle('selected');
+                }
+                if ((event.shiftKey) && (startIndex >= 0)) {
+                    endIndex = currentRow.rowIndex;
+                    if (currentRow.rowIndex > startIndex) {
+                        indexes[0] = startIndex;
+                        indexes[1] = currentRow.rowIndex;
+                    } else if (currentRow.rowIndex < startIndex) {
+                        indexes[0] = currentRow.rowIndex;
+                        indexes[1] = startIndex;
+                    } else {
+                        currentRow.classList.toggle('selected');
+                    }
+                }
             }
     }
 }
 
-function deleteSelectedRows(e) {
+function deleteCurrentRows() {
     if (tweetsTableContainer == null) {
         alert("No items selected");
     } else {
@@ -208,7 +219,7 @@ function deleteSelectedRows(e) {
     }
 }
 
-function deleteAllTweets(e) {
+function deleteAllTweets() {
     if (deleteUserTweets(activeUser.id)) {
         updateTable(tweetsTable);
     }
@@ -216,22 +227,38 @@ function deleteAllTweets(e) {
 
 function getSelectedItems() {
     var selectedTable = e;
-    var selectedRows = selectedTable.getElementsByTagName('tr').getElementsByClassName('selected');
+    var currentRows = selectedTable.getElementsByTagName('tr').getElementsByClassName('selected');
     var selectedItems = [];
-    for (i = 0; i < selectedRows.length; i++) {
-        selectedItems = selectedRows[i];
+    for (i = 0; i < currentRows.length; i++) {
+        selectedItems = currentRows[i];
     }
 
     return selectedItems;
 }
 
+function historyButtonClicked(e) {
+    var clickedButton = e.explicitOriginalTarget
+    switch (clickedButton.id) {
+        case 'updateView':
+            updateView();
+            break;
+
+        case 'deletecurrentRows':
+            deleteCurrentRows();
+            break;
+
+        case 'deleteAll':
+            deleteAllTweets();
+            break;
+    }
+
+    // Don't reload form
+    e.preventDefault();
+    e.stopPropagation();
+    setTimeout(function () { }, 1500);
+}
 // _____________________________________________________
 // event handler 
-document.forms..getElementById('updateView').addEventListener('submit', viewUpdateRequested, false);
-//document.forms.tweetAuthor.getElementById('deleteSelectedRows').addEventListener('submit', deleteSelectedTweets, false);
-//document.forms.tweetAuthor.getElementById('deleteAll').addEventListener('submit', deleteAllTweets, false);
-
-//document.getElementById("extractedTweets").addEventListener("click", tblClicked, false);
 
 (function () {
     var options = document.forms.tweetAuthor.elements.filter;
@@ -241,10 +268,7 @@ document.forms..getElementById('updateView').addEventListener('submit', viewUpda
         option.addEventListener('click', filterChanged, false);
     }
 
-/*    var btnUpdate = document.forms.tweetAuthor.elements.updateView;
-    btnUpdate.addEventListener('submit', viewUpdateRequested, false);
-    var btnDelSome = document.forms.tweetAuthor.elements.deleteSelectedRows;
-    btnDelSome.addEventListener('submit', deleteSelectedRows, false);
-    var btnDelAll = document.forms.tweetAuthor.elements.deleteAll;
-    btnDelAll.addEventListener('submit', deleteAllTweets, false);
-*/} ());
+    var frm = document.forms.tweetAuthor
+    frm.addEventListener('submit', historyButtonClicked, false);
+
+} ());
