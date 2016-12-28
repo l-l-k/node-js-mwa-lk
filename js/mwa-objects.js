@@ -37,7 +37,7 @@ function tweetRecord(userID, day, time, message, picture) {
 }
 
 function messageRow(username, day, time, message, picture) {
-    this.user = username;
+    this.username = username;
     this.day = day;
     this.time = time;
     this.message = message;

@@ -1,7 +1,3 @@
-var fileSelectorProxy, fileSelector;
-var uploadCommandProxy, uploadCommand;
-var wasteBasket;
-
 // ______________________________________________________
 // Image related to current tweet
 function selectFile(e) {
@@ -9,7 +5,7 @@ function selectFile(e) {
     if (openFileDialog) {
         openFileDialog.click();
     }
-    e.preventDefault(); // prevent navigation to "#"
+    e.preventDefault(); // prevent reload
 }
 
 function evaluateFileDialog(e) {
@@ -63,7 +59,10 @@ function publishTweet(e) {
         img.currentSrc
     );
 
-    if (!uploadTweet(newTweet)) {
+    if (uploadTweet(newTweet)) {
+        // TODO : update timeline if user is listed in current timeline
+        tableUpdateRequested = true;
+    } else {
         alert("Publishing tweet failed. Please try again.");
     }
 }
@@ -72,18 +71,22 @@ function publishTweet(e) {
 // ______________________________________________________
 // Event Handler
 
-// submit by image-click
-uploadCommand = document.getElementById('sendMsg');
-uploadCommand.addEventListener('click', publishTweet, false);
+(function () {
 
-// add a picture
-fileSelectorProxy = document.getElementById('camera');
-fileSelectorProxy.addEventListener('click', selectFile, false);
+    // submit by image-click
+    var uploadCommand = document.getElementById('sendMsg');
+    uploadCommand.addEventListener('click', publishTweet, false);
 
-fileSelector = document.getElementById('addPicture');
-fileSelector.addEventListener('change', evaluateFileDialog, false);
+    // add a picture
+    var fileSelectorProxy = document.getElementById('camera');
+    fileSelectorProxy.addEventListener('click', selectFile, false);
 
-// detach a picture
-wasteBasket = document.getElementById('detach');
-wasteBasket.addEventListener('click', detachImage, false);
+    var fileSelector = document.getElementById('addPicture');
+    fileSelector.addEventListener('change', evaluateFileDialog, false);
 
+    // detach a picture
+    var wasteBasket = document.getElementById('detach');
+    wasteBasket.addEventListener('click', detachImage, false);
+
+
+} ());

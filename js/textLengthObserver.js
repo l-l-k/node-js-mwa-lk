@@ -1,11 +1,10 @@
 
-var msg; // <textarea> element
-var hint= document.getElementById('charCounter');
-var limit=140;
+var maxTextLength = 140;
 
 function updateCounter(e) {
+    var hint = document.getElementById('charCounter');
     var txtField = e.target || e.srcElement;
-    var count = limit - txtField.value.length;
+    var count = maxTextLength - txtField.value.length;
     if (count < 0) {
         hint.className = 'error';
     } else if (count < 11) {
@@ -18,15 +17,23 @@ function updateCounter(e) {
 }
 
 function hideCounter(e) {
+    var hint = document.getElementById('charCounter');
     var txtField = e.target || e.srcElement;
     var count = txtField.value.length;
-    if (count <= limit) {             
-      hint.className = 'hidden';             
+    if (count <= maxTextLength) {
+        hint.className = 'hidden';
     }
 }
 
-msg = document.getElementById('message');
-msg.addEventListener('focus', updateCounter, false);
-msg.addEventListener('input', updateCounter, false);
+// _____________________________________________________
+// event handler 
 
-msg.addEventListener('blur', hideCounter, false);
+(function () {
+    // <textarea> element
+    var msg = document.getElementById('message'); 
+
+    msg.addEventListener('focus', updateCounter, false);
+    msg.addEventListener('input', updateCounter, false);
+
+    msg.addEventListener('blur', hideCounter, false);
+} ());

@@ -78,14 +78,6 @@ function validateInput(event) {
                 }
                 break;
 
-            case document.forms.cleanupTweets:
-                if (removeTweets(activeForm.elements.userID.value)) {
-                    alert("Tweets successfully deleted.")
-                } else {
-                    alert("Removing tweets failed.")
-                }
-                break;
-
             case document.forms.statistics:
                 var firstDay = activeForm.elements.startDate.value;
                 var lastDay = activeForm.elements.endDate.value;
@@ -199,7 +191,8 @@ function validateSettingChanges(temporaryUser) {
             // update displayed tweet timeline ?
             if (hasUsernameChanged) {
                 // TODO : improve performace by checking if user is listed in current timeline
-                updatingTweetHistoryRequested = true;
+                // TODO : update timeline
+                tableUpdateRequested = true;
             }
             activeFieldset.className = 'hidden';
         }
@@ -300,13 +293,6 @@ function removeUser(mailAddress) {
     return userExists;
 }
 
-function removeTweets(userID) {
-    //TODO : Admin-Task removeTweets
-    var tweetsRemoved = false;
-
-    return tweetsRemoved;
-}
-
 function getAccountSummary(firstDay, lastDay) {
     //TODO : Admin-Task getAccountSummary
 }
@@ -318,5 +304,4 @@ document.forms.login.addEventListener('submit', validateInput, false);
 document.forms.userdata.addEventListener('submit', validateInput, false);
 document.forms.addUser.addEventListener('submit', validateInput, false);
 document.forms.removeUser.addEventListener('submit', validateInput, false);
-document.forms.cleanupTweets.addEventListener('submit', validateInput, false);
 document.forms.statistics.addEventListener('submit', validateInput, false);

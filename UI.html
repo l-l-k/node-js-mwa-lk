@@ -250,12 +250,31 @@
         <legend>Delete Items</legend>
         <form name="cleanupTweets" action="#" method="POST">
             <div>
+                <input type="radio" class="radio1" id="r11" name="adminFilter" value="all" checked="checked" />
+                <label for="r11" id="labelR11" name="labelAdmR1"> All tweets</label>
+                <br />
+                <input type="radio" class="radio1" id="r12" name="adminFilter" value="some" />
+                <label for="r12" id="labelR12" name="labelAdmR12"> Selected tweets</label>
+                <br />
+                <br />
                 <label for="userID" class="inputLabel" <a title="Type in * to delete all users">User-ID :</a> </label>
                 <input type="email" name="userID" class="inputField" placeholder="Mail address ..." required />
                 <div id="feedbackToUserID"></div>
             </div>
-            <input class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
+            <input id="findTweets" class="submit" type="submit" name="findTweets" value="Find Tweets" />
+            <input id ="cleanupTweets" class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
         </form>
+        <table id="userRelatedTweets">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </fieldset>
 
     <!-- Statistic / Summary of user accounts -->
@@ -327,7 +346,9 @@
 <script type="text/javascript" src="js/navigation.js"></script>
 <script type="text/javascript" src="js/inputProcessor.js"></script>
 <script type="text/javascript" src="js/tweet.js"></script>
-<script type="text/javascript" src="js/tweetsTable.js"></script>
+<script type="text/javascript" src="js/tweetTable.js"></script>
+<script type="text/javascript" src="js/tweetViewing.js"></script>
+<script type="text/javascript" src="js/tweetAdministration.js"></script>
 <script type="text/javascript" src="js/textLengthObserver.js"></script>
 <!--  
     <script type="text/javascript" src="js/tweetAuthor.js"></script>

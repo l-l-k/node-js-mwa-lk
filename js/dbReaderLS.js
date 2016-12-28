@@ -83,8 +83,32 @@ function equalsTweetAuthor(tweet) {
     return tweet.userID == comparativeValue;
 }
 
-function getSubsetOfTweets(filter) {
-    var results = messageRow;
+function getSubsetOfTweetsByUsername(filter) {
+    var results = new Array; // of  tweetRecord objects
+    if (filter == "*") {
+        results = availableTweets;
+    } else {
+        var user = retrieveUserDataByName(filter);
+        results = getSubsetOfTweetsByID(user.id);
+    }
+
+    return results;
+}
+
+function getSubsetOfTweetsByMailAddress(filter) {
+    var results = new Array; // of  tweetRecord objects
+    if (filter == "*") {
+        results = availableTweets;
+    } else {
+        var user = retrieveUserDataByMailAddress(filter);
+        results = getSubsetOfTweetsByID(user.id);
+    }
+
+    return results;
+}
+
+function getSubsetOfTweetsByID(filter) {
+    var results = new Array; // of  tweetRecord objects
     if (filter == "*") {
         results = availableTweets;
     } else {
@@ -94,4 +118,3 @@ function getSubsetOfTweets(filter) {
 
     return results;
 }
-
