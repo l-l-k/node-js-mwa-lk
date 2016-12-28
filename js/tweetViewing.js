@@ -1,6 +1,5 @@
 var tweetFilter;
-var visibleTweets = new Array(); // of tweetRecord objects
-var tweetsTableContainer, tweetsTable;
+var tweetsTable;
 var selectedFilterOption;
 
 function resetSelectionRange() {
@@ -39,19 +38,22 @@ function updateTableSettings(selectedOption) {
             tweetFilter = "*";
             tableType = "wide";
             break;
+
+        case 'none':
+            tweetsTable.className = 'hidden';
+            break;
     }
     activeFilter = tweetFilter;
 }
 
 function updateUserView() {
     // ensure access to table
-    if (tweetsTableContainer == null) {
+    if (tweetsTable == null) {
         var options = document.forms.tweetAuthor.elements.filter;
         for (var i = [0]; i < options.length; i++) {
             if (options[i].checked) {
                 selectedFilterOption = options[i];
                 updateTableSettings(selectedFilterOption);
-                tweetsTableContainer = document.getElementById("tweetsTable")
                 tweetsTable = document.getElementById("extractedTweets")
                 break;
             }
@@ -63,23 +65,21 @@ function updateUserView() {
         updateTableSettings(selectedFilterOption);
     }
 
-    // cleanup existing content of table
-    tweetsTableContainer.disabled = true;
+    // hide table while updating
+    tweetsTable.className = 'hidden';
 
     // add new content
     var tweets = getSubsetOfTweetsByID(tweetFilter);
     updateTable(tweetsTable, tweets);
-    // tweetsTable.parentNode.insertBefore(updateTable(), tweetsTable);
-    tweetsTableContainer.disabled = false;
-    tweetsTable.addEventListener('click', tblClicked, false);
 
+    tweetsTable.className = 'notHidden';
+    tweetsTable.addEventListener('click', tblClicked, false);
 }
 
 function filterChanged(e) {
     if (e.currentTarget.checked) {
         selectedFilterOption = e.currentTarget;
         updateTableSettings(selectedFilterOption);
-        tweetsTableContainer = document.getElementById("tweetsTable")
         tweetsTable = document.getElementById("extractedTweets");
         activeTable = tweetsTable;
     }
@@ -87,9 +87,10 @@ function filterChanged(e) {
 
 function historyButtonClicked(e) {
     activeTable = tweetsTable;
-    var clickedButton = e.explicitOriginalTarget
+    var clickedButton = e.explicitOriginalTarget;
     switch (clickedButton.id) {
         case 'updateView':
+            tweetsTable.className = 'notHidden';
             updateUserView();
             break;
 

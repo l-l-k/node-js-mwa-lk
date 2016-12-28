@@ -173,26 +173,25 @@
             <br />
             <input type="radio" class="radio1" id="r3" name="filter" value="all" />
             <label for="r3"> All Users</label><br />
+            <input type="radio" class="radio1" id="r4" name="filter" value="none" />
+            <label for="r4"> None</label><br />
             <br />
             <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
             <input id="deleteSelectedRows" type="submit" name="deleteSelectedRows" class="button" value="Delete selected tweets" />
             <input id="deleteAll" type="submit" name="deleteAll" class="button" value="Delete all my tweets" />
         </fieldset>
     </form>
-    <fieldset id="tweetsTable" class="tweetsTable" disabled="enabled" border="none">
-        <legend></legend>
-        <table id="extractedTweets">
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Message</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </fieldset>
+    <table id="extractedTweets">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
     <hr/>
 </section>
 </section>
@@ -262,7 +261,7 @@
                 <div id="feedbackToUserID"></div>
             </div>
             <input id="findTweets" class="submit" type="submit" name="findTweets" value="Find Tweets" />
-            <input id ="cleanupTweets" class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
+            <input id="cleanupTweets" class="submit" type="submit" name="cleanupTweets" value="Delete Tweets" />
         </form>
         <table id="userRelatedTweets">
             <thead>
