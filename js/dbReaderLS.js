@@ -118,3 +118,24 @@ function getSubsetOfTweetsByID(filter) {
 
     return results;
 }
+
+// =================================================== 
+// Statistical queries
+
+function getTweetsInPeriod(startDate, endDate) {
+    var results = [];
+    var tweet = tweetRecord;
+    var datum = "";
+    var day;
+
+    for (var i = [0]; i < availableTweets.length; i++) {
+        tweet = availableTweets[i];
+        datum = tweet.day.split("-");
+        day = new Date(datum[0], datum[1], datum[2]);
+        if ((day >= startDate) && (day <= endDate)) {
+            results.push(tweet);
+        }
+    }
+
+    return results;
+}

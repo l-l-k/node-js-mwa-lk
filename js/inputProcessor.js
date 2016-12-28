@@ -77,12 +77,6 @@ function validateInput(event) {
                     alert("User already exists.")
                 }
                 break;
-
-            case document.forms.statistics:
-                var firstDay = activeForm.elements.startDate.value;
-                var lastDay = activeForm.elements.endDate.value;
-                getAccountSummary(firstDay, lastDay)
-                break;
         }
 
     } catch (e) {
@@ -291,10 +285,6 @@ function removeUser(mailAddress) {
         }
     }
     return userExists;
-}
-
-function getAccountSummary(firstDay, lastDay) {
-    //TODO : Admin-Task getAccountSummary
 }
 
 // Event handler
