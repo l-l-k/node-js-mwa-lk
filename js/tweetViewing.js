@@ -40,6 +40,7 @@ function updateTableSettings(selectedOption) {
             break;
 
         case 'none':
+            tweetFilter="";
             tweetsTable.className = 'hidden';
             break;
     }
@@ -48,7 +49,7 @@ function updateTableSettings(selectedOption) {
 
 function updateUserView() {
     // ensure access to table
-    if (tweetsTable == null) {
+    if (tweetFilter == null) {
         var options = document.forms.tweetAuthor.elements.filter;
         for (var i = [0]; i < options.length; i++) {
             if (options[i].checked) {

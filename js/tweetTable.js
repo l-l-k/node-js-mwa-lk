@@ -113,7 +113,10 @@ function tblClicked(e) {
             // highlight selected rows
             selectedRows = getSelectedRows(selectedTable);
 
-            if (selectedRows.length == 0) {
+            if (selectionRange[0] <0) {
+           if (selectedRows.length > 0) { 
+               deselectAll();
+           }
                 currentRow.classList.toggle('selected');
                 selectionRange[0] = currentRow.rowIndex; // startIndex
             } else {
@@ -131,6 +134,7 @@ function tblClicked(e) {
                         var allRows = region.getElementsByTagName("tr");
                         selectFromTo(selectionRange, allRows);
                     }
+                    resetSelectionRange();
                 }
             }
     }
@@ -145,8 +149,18 @@ function selectFromTo(range, rows) {
         lastIndex = range[0] - 1;
     }
 
-    for (i = firstIndex; i <= lastIndex; i++) {
-        rows[i].classList.toggle('selected', true);
+    for (i = 0; i < rows.length; i++) {
+        switch (true) {
+            case (i < firstIndex):
+                rows[i].classList.toggle('selected', false);
+                break;
+            case (i > lastIndex):
+                rows[i].classList.toggle('selected', false);
+                break;
+            default:
+                rows[i].classList.toggle('selected', true);
+                break;
+        }
     }
 }
 
@@ -164,7 +178,7 @@ function deleteSelectedRows(userID) {
         alert("No items selected");
     } else {
         var selectedRows = getSelectedRows(activeTable);
-        var selectedItems = getSelectedItems(selectedRows,userID);
+        var selectedItems = getSelectedItems(selectedRows, userID);
         if (deleteSelectedTweets(userID, selectedItems)) {
             var tweets = getSubsetOfTweetsByID(userID);
             updateTable(activeTable, tweets);
