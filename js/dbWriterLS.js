@@ -1,78 +1,122 @@
-// using local storage 
+function localStorageWriter() {
+    // Private properties
+    var ls = new localStorageInitialisation();
+    var availableTweets = importAvailableTweets();
+    var knownUsers = importKnownUsers();
+    var comparativeValue;
 
-// =================================================== 
-// Managing users
-
-function appendUser(temporaryUser) {
-    var newUser = new userRecord(
-        temporaryUser.mailAddress,
-        temporaryUser.password,
-        temporaryUser.username);
-
-    // TODO : append user to storage
-    knownUsers.push(newUser);
-    localStorage.setItem(knownUsersKey, JSON.stringify(knownUsers));
-
-    return newUser;
-}
-
-function updateUser(temporaryUser, userID) {
-    var success = false;
-    var existingUser = retrieveUserDataByID(userID);
-
-    //  update settings of current user
-    if (existingUser != null) {
-        existingUser.mailAddress = temporaryUser.mailAddress;
-        existingUser.username = temporaryUser.username;
-        existingUser.password = temporaryUser.password;
-        success = true;
-        localStorage.setItem(knownUsersKey, JSON.stringify(knownUsers));
+    // Private methods
+    function importAvailableTweets() {
+        return JSON.parse(localStorage.getItem(ls.availableTweetsKey));
     }
 
-    return success;
-}
-
-function deleteUser(user) {
-    var success = false;
-    var index = knownUsers.indexOf(user);
-    if (index >= 0) {
-        knownUsers.splice(index, 1); // Remove 1 element 
-        success = true;
+    function importKnownUsers() {
+        return JSON.parse(localStorage.getItem(ls.knownUsersKey));
     }
-    return success;
-}
+
+    function equalsTweetAuthor(tweet) {
+        return tweet.userID == comparativeValue;
+    }
+
+    // =================================================== 
+    // Public methods
+    var writer = {
+        // Managing users
+
+        appendUser: function (temporaryUser) {
+            var newUser = new userRecord(
+                temporaryUser.mailAddress,
+                temporaryUser.password,
+                temporaryUser.username);
+
+            // TODO : append user to storage
+            knownUsers.push(newUser);
+            localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
+
+            return newUser;
+        },
+
+        updateUser: function (temporaryUser, userID) {
+            var success = false;
+            var existingUser = storageReader.retrieveUserDataByID(userID);
+
+            //  update settings of current user
+            if (existingUser != null) {
+                existingUser.mailAddress = temporaryUser.mailAddress;
+                existingUser.username = temporaryUser.username;
+                existingUser.password = temporaryUser.password;
+                success = true;
+                localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
+            }
+
+            return success;
+        },
+
+        deleteUser: function (user) {
+            var success = false;
+            var index = knownUsers.indexOf(user);
+            if (index >= 0) {
+                knownUsers.splice(index, 1); // Remove 1 element 
+                success = true;
+            }
+            return success;
+        },
 
 
-// =================================================== 
-// Handling tweets
+        // =================================================== 
+        // Handling tweets
 
-function deleteSelectedTweets(userID, selectedItems) {
-    // TODO : Remove some of user's tweets
-    var before = availableTweets.length;
+        deleteSelectedTweets: function (userID, selectedItems) {
+            // TODO : Remove some of user's tweets
+            alert("Should delete " + selectedItems.length + " records");
+            var before = availableTweets.length;
+            var results = new Array; // of  tweetRecord objects
+            var result = tweetRecord;
+            var item = tweetRecord;
 
-    alert("Should delete " + selectedItems.length + " records");
-    resetSelectionRange();
-    deselectAll();
-    
-    return (availableTweets.length < before);
-}
+            results = availableTweets.filter(equalsTweetAuthor);
+            for (var i = 0; i < selectedItems.length; i++) {
+                item = selectedItems[i];
 
-function deleteUserTweets(userID) {
-    // TODO : Remove user's tweets
-    var before = availableTweets.length;
+                for (var k = 0; i < results.length; i++) {
+                    result = results[k];
+                    if ((result.day == item.day) && (result.tine == item.time)) {
+                        var index = availableTweets.indexOf(user);
+                        if (index >= 0) {
+                            availableTweets.splice(index, 1); // Remove 1 element 
+                            success = true;
+                        }
+                    }
+                }
+            }
 
-    alert("Should delete all records of user " + userID);
-    resetSelectionRange();
-    deselectAll();
+            mwaToolkit.resetSelectionRange();
+            deselectAll();
 
-    return (availableTweets.length < before);
-}
+            return (availableTweets.length < before);
+        },
 
-function uploadTweet(newTweet) {
-    var before = localStorage.getItem(availableTweetsKey).length;
+        deleteUserTweets: function (userID) {
+            // TODO : Remove user's tweets
+            var before = availableTweets.length;
 
-    availableTweets.push(newTweet);
-    localStorage.setItem(availableTweetsKey, JSON.stringify(availableTweets));
+            alert("Should delete all records of user " + userID);
+            mwaToolkit.resetSelectionRange();
+            deselectAll();
 
-    return (localStorage.getItem(availableTweetsKey).length == before + 1);
+            return (availableTweets.length < before);
+        },
+
+        uploadTweet: function (newTweet) {
+            var before = availableTweets.length;
+
+            availableTweets.push(newTweet);
+            localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
+
+            return (availableTweets.length == before + 1);
+        }
+
+    };
+
+    return writer;
 }

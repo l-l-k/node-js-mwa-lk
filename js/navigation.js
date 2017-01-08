@@ -1,134 +1,194 @@
-/* navigation support */
-// other global variables
-var sections = [elAccountSection, elEmptyPageSection, elTweetSection, elAdminSection]
-var activeSection;
-var fieldsets = [elSignup, elLogin, elUserData, elAddUser, elRemoveUser, elCleanupTweets, elStatistics]
+// global variables for navigation and activation
+
+var sections = [];
+sections.push(document.getElementById('account'));
+//sections.push(document.getElementById('emptyPage'));
+sections.push(document.getElementById('tweets'));
+//sections.push(document.getElementById('tweetHistory'));
+sections.push(document.getElementById('administration'));
+
+
+var fieldsets = [];
+fieldsets.push(document.getElementById('signup'));
+fieldsets.push(document.getElementById('login'));
+fieldsets.push(document.getElementById('userdata'));
+fieldsets.push(document.getElementById('addUser'));
+fieldsets.push(document.getElementById('removeUser'));
+fieldsets.push(document.getElementById('cleanupTweets'));
+fieldsets.push(document.getElementById('statistics'));
+
 var activeFieldset;
-var activeElement;
+
+// Activation object
+var activator = (function () {
+    // Private properties
+    var me = this;
+    var activeSection;
+    var activeElement;
+
+    // Private methods
+    function activateSection(sectionID) {
+        activeElement = activeSection;
+        activateElement(sections, sectionID);
+        activeSection = activeElement;
+    }
+
+    function activateFieldset(fieldsetID) {
+        activeElement = activeFieldset;
+        activateElement(fieldsets, fieldsetID);
+        activeFieldset = activeElement;
+    }
+
+    function activateElement(elements, elementID) {
+        var elementToActivate = document.getElementById(elementID);
+        var activeElementChanged = true;
+        if (activeElement != null) {
+            if (activeElement.id == elementID && activeElement.hasAttribute('class')) {
+                if (activeElement.className = 'hidden') {
+                    activeElement.className = 'notHidden';
+                } else {
+                    activeElementChanged = false;
+                }
+            }
+        }
+
+        if (activeElementChanged = true) {
+            var element;
+            for (i = 0; i < elements.length; i++) {
+                element = elements[i]
+                switch (element.id) {
+                    case elementID:
+                        element.className = 'notHidden';
+                        break;
+                    default:
+                        element.className = 'hidden';
+                        break;
+                }
+            }
+            activeElement = elementToActivate;
+        }
+    }
+
+    function tryEnableAdminMode() {
+        // enable admin-link if required
+        if (activeUser == null) {
+            alert("Please login first.");
+        } else {
+            if (currentUser.isAdmin) {
+                activateAdminMode();
+            }
+        }
+    }
+
+    function activateTweetSection() {
+        if (activeUser == null) {
+            alert("Please login first.");
+        } else {
+            activateSection('tweets');
+        }
+    }
+
+    function activateAccountSection() {
+        activateSection('account');
+    }
+
+    function activateAdminSection() {
+        activateSection('administration');
+    }
+
+    // Public methods
+    return {
+        activateSignup: function () {
+            activateAccountSection();
+            activateFieldset('signup');
+            var feedback = document.getElementById('feedbackSignup');
+            feedback.className = 'hidden';
+        },
+
+        activateLogin: function () {
+            activateAccountSection();
+            activateFieldset('login');
+            var loginForm = document.forms.login;
+            loginForm.elements.mailAddress.value = lastUser.mailAddress;
+        },
+
+        activateUserData: function () {
+            if (activeUser == null) {
+                alert("Please login first.");
+            } else {
+                activateAccountSection();
+                activateFieldset('userdata');
+                var settingsForm = document.forms.userdata;
+                settingsForm.elements.mailAddress.value = activeUser.mailAddress;
+                settingsForm.elements.username.value = activeUser.username;
+                settingsForm.elements.password.value = activeUser.password;
+            }
+        },
+
+        activateAddUser: function () {
+            activateFieldset('addUser');
+        },
+
+        activateRemoveUser: function () {
+            activateFieldset('removeUser');
+        },
+
+        activateCleanupTweets: function () {
+            activateFieldset('cleanupTweets');
+        },
+
+        activateAdmSummary: function () {
+            activateFieldset('statistics');
+        },
+
+        activateAdminMode: function () {
+            activateAdminSection();
+        },
+
+        activateTweetMode: function () {
+            activateTweetSection();
+        }
+
+    };
+
+})();
 
 //=============================================================
-function activateSection(sectionID) {
-    activeElement = activeSection;
-    activateElement(sections, sectionID);
-    activeSection = activeElement;
-}
-
-function activateFieldset(fieldsetID) {
-    activeElement = activeFieldset;
-    activateElement(fieldsets, fieldsetID);
-    activeFieldset = activeElement;
-}
-
-function activateElement(elements, elementID) {
-    var elementToActivate = document.getElementById(elementID);
-    var activeElementChanged = true;
-    if (activeElement != null) {
-        if (activeElement.id == elementID && activeElement.hasAttribute('class')) {
-            if (activeElement.className = 'hidden') {
-                activeElement.className = 'notHidden';
-            } else {
-                activeElementChanged = false;
-            }
-        }
-    }
-
-    if (activeElementChanged = true) {
-        var element;
-        for (i = 0; i < elements.length; i++) {
-            element = elements[i]
-            switch (element.id) {
-                case elementID:
-                    element.className = 'notHidden';
-                    break;
-                default:
-                    element.className = 'hidden';
-                    break;
-            }
-        }
-        activeElement = elementToActivate;
-    }
-}
-
-function tryEnableAdminMode() {
-    // enable admin-link if required
-    if (activeUser == null) {
-        alert("Please login first.");
-    } else {
-        if (currentUser.isAdmin) {
-            activateAdminMode();
-        }
-    }
-}
-
-function activateTweetSection() {
-    if (activeUser == null) {
-        alert("Please login first.");
-    } else {
-        activateSection('tweets');
-    }
-}
-
-function activateAccountSection() {
-    activateSection('account');
-}
-
-function activateAdminSection() {
-    activateSection('administration');
-}
-
-// Event handlers connectod to page-navigation
+// Event handlers, connectod to page-navigation
 //=============================================================
 
 function activateSignup() {
-    activateAccountSection();
-    activateFieldset('signup');
-    var feedback = document.getElementById('feedbackSignup');
-    feedback.className = 'hidden';
+    activator.activateSignup();
 }
 
 function activateLogin() {
-    activateAccountSection();
-    activateFieldset('login');
-    var loginForm = document.forms.login;
-    loginForm.elements.mailAddress.value = lastUser.mailAddress;
+    activator.activateLogin();
 }
 
 function activateUserData() {
-    if (activeUser == null) {
-        alert("Please login first.");
-    } else {
-        activateAccountSection();
-        activateFieldset('userdata');
-        var settingsForm = document.forms.userdata;
-        settingsForm.elements.mailAddress.value = activeUser.mailAddress;
-        settingsForm.elements.username.value = activeUser.username;
-    }
+    activator.activateUserData();
 }
 
 function activateAddUser() {
-    activateFieldset('addUser');
+    activator.activateAddUser();
 }
 
 function activateRemoveUser() {
-    activateFieldset('removeUser');
+    activator.activateRemoveUser();
 }
 
 function activateCleanupTweets() {
-    activateFieldset('cleanupTweets');
+    activator.activateCleanupTweets();
 }
 
 function activateAdmSummary() {
-    activateFieldset('statistics');
+    activator.activateAdmSummary();
 }
 
 function activateAdminMode() {
-    activateAdminSection();
+    activator.activateAdminMode();
 }
 
 function activateTweetMode() {
-    activateTweetSection();
+    activator.activateTweetMode();
 }
-
-
-// Event handler
-//=============================================================

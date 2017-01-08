@@ -1,3 +1,4 @@
+var dbWriter = (function () {
 
 function appendUser(temporaryUser) {
     var newUser = new userRecord(temporaryUser.email, temporaryUser.password, temporaryUser.name);
@@ -11,3 +12,5 @@ function updateUser(temporaryUser) {
    currentUser.id
     // TODO : update settings of current user
 }
+
+})();

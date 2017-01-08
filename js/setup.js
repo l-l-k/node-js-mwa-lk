@@ -1,39 +1,34 @@
-/* Global Variables */
 
-/* navigation support */
-// Registration and  Login
-var elSignup = document.getElementById('signup');
-var elLogin = document.getElementById('login');
-var elUserData = document.getElementById('userdata');
-var elAccountSection = document.getElementById('account');
-// Administration
-var elAddUser = document.getElementById('addUser');
-var elRemoveUser = document.getElementById('removeUser');
-var elCleanupTweets = document.getElementById('cleanupTweets');
-var elStatistics = document.getElementById('statistics');
-var elAdminSection = document.getElementById('administration');
-// Tweets
-var elTweetSection = document.getElementById('tweets');
-var elEmptyPageSection = document.getElementById('emptyPage')
+/* Global Objects */
+var mwaToolkit = mwaToolkit();
+var storageReader = localStorageReader();
+var storageWriter = localStorageWriter();
+
+var tweetCreator = tweetCreation();
+var tweetViewer = tweetView();
+
 
 //=============================================================
 // disable navigation to admin-tools
-var elAdminLink = document.getElementById('adminLink');
-//elAdminLink.className = 'hidden';
+var adminLink = document.getElementById('adminLink');
+// adminLink.className = 'hidden';
 
-// Hide Sections
-elAccountSection.className = 'hidden';
-elEmptyPageSection.className = 'notHidden';
-elTweetSection.className = 'hidden';
-elAdminSection.className = 'hidden';
+(function () {
 
-// Hide all fieldsets in section account (Registration and  Login)
-elSignup.className = 'hidden';
-elLogin.className = 'hidden';
-elUserData.className = 'hidden';
+    // Hide Sections
+    for (i = 0; i < sections.length; i++) {
+        sections[i].className = 'hidden';
+    };
 
-// Hide all fieldsets in section administration
-elAddUser.className = 'hidden';
-elRemoveUser.className = 'hidden';
-elCleanupTweets.className = 'hidden';
-elStatistics.className = 'hidden';
+    // Hide all fieldsets 
+    for (i = 0; i < fieldsets.length; i++) {
+        fieldsets[i].className = 'hidden';
+    };
+
+    var lsInitiator = new localStorageInitialisation();
+    lsInitiator.initialise();
+
+    storageReader.updateUsers();
+    storageReader.updateTweets();
+
+} ());

@@ -1,39 +1,43 @@
-function retrieveUserDataByID(userID) {
-    var existingUser = userRecord;
+var dbReader = (function () {
 
-    // TODO : retrieve user data from storage
+    function retrieveUserDataByID(userID) {
+        var existingUser = userRecord;
 
-    return existingUser;
-}
+        // TODO : retrieve user data from storage
 
-function retrieveUserDataByMailAddress(temporaryUser) {
-    var existingUser = userRecord;
+        return existingUser;
+    }
 
-    // TODO : retrieve user data from storage
+    function retrieveUserDataByMailAddress(temporaryUser) {
+        var existingUser = userRecord;
 
-    return existingUser;
-}
+        // TODO : retrieve user data from storage
 
-function findUserName(name) {
-    var nameExists = false;
+        return existingUser;
+    }
 
-    // TODO : retrieve user data from storage;  ask server if name exists
+    function findUserName(name) {
+        var nameExists = false;
 
-    return nameExists;
-}
+        // TODO : retrieve user data from storage;  ask server if name exists
 
-function findMailAddress(address) {
-    var addressExists = false;
+        return nameExists;
+    }
 
-    // TODO : retrieve user data from storage;  ask server if address exists
+    function findMailAddress(address) {
+        var addressExists = false;
 
-    return addressExists;
-}
+        // TODO : retrieve user data from storage;  ask server if address exists
 
-function  determineUserStatus(userID) {
-    var isAdmin = false;
+        return addressExists;
+    }
 
-    // TODO : retrieve user status from storage
+    function determineUserStatus(userID) {
+        var isAdmin = false;
 
-    return isAdmin;
-}
+        // TODO : retrieve user status from storage
+
+        return isAdmin;
+    }
+
+})();
