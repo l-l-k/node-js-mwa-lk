@@ -1,7 +1,5 @@
 function inputValidation() {
     // Private properties
-    var me = this;
-    var activeFieldset;
     var activeForm;
     var tweetsTable = document.getElementById("extractedTweets");
     var tweetTbl = new tweetTable(tweetsTable);
@@ -247,8 +245,7 @@ function inputValidation() {
                             "")
                         success = validateLogin(loginUser);
                         if (success) {
-                            // Change label text 'My tweets'
-                            document.getElementById("labelR1").innerHTML = "My tweets (" + activeUser.username + ")";
+                            document.getElementById("nameOfCurrentUser").innerHTML = activeUser.username;
                             if (!currentUser.isAdmin) {
                                 activateTweetMode();
                             }

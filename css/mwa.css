@@ -15,10 +15,10 @@ form {
 
 
 div {
-  border-bottom: 1px solid #efefef;
+  border-bottom: 0px solid #efefef;
   margin: 10px;
   padding-bottom: 10px;
-  width: 440px;
+  width: 600px;
 }
 
 .inputLabel {
@@ -79,10 +79,32 @@ fieldset[value]:disabled {
 
 
 /*  ------------  tweet section  ------------  */
+/* bird section  */
+.bird {
+    background-image: url("../img/bird.png");
+    background-repeat: no-repeat;
+    background-size: 200px auto;
+    width: 300px; 
+    height: auto;
+    float: middle;
+    margin-right: 10px;
+    text-align: right top;
+}
+#nameOfCurrentUser {
+	/*border: 3px dashed #F00;*/
+	height: 180px;
+	padding: 10px;
+	position: relative;
+    left: 180px;
+	top: 0;
+	width: 320px;
+}
+
+
 /* message in textaerea */
 .tweet {
     font-size: 120%;
-    width: 440px;
+    width: 600px;
 }
 /* hint referring to textaerea */
 #charCounter {font-size: 80%;}
@@ -110,20 +132,20 @@ fieldset[value]:disabled {
 }
 
 .tweetDefinition {
-    width: 440px;
+    width: 600px;
     text-align: left;
     padding-left: 10px;
 }
 
 .postTweet {
     border: none;
-    width: 440px;
+    width: 600px;
     text-align: left;
 }
 
 .filterTweets {
     border: none;
-    width: 440px;
+    width: 600px;
     text-align: left;
 }
 

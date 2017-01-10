@@ -1,9 +1,10 @@
 function localStorageWriter() {
     // Private properties
     var ls = new localStorageInitialisation();
-    var availableTweets = importAvailableTweets();
-    var knownUsers = importKnownUsers();
     var comparativeValue;
+
+    knownUsers = importKnownUsers();
+    availableTweets = importAvailableTweets();
 
     // Private methods
     function importAvailableTweets() {

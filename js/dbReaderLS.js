@@ -1,10 +1,10 @@
 function localStorageReader() {
     // Private properties
-    var me = this;
     var comparativeValue;
     var ls = new localStorageInitialisation();
-    var knownUsers = importKnownUsers();
-    var availableTweets = importAvailableTweets();
+
+    knownUsers = importKnownUsers();
+    availableTweets = importAvailableTweets();
 
     // =================================================== 
     // Private methods
@@ -162,13 +162,13 @@ function localStorageReader() {
             return results;
         },
 
-                // =================================================== 
+        // =================================================== 
         // Update memory
-        updateUsers: function() {
+        updateUsers: function () {
             knownUsers = importKnownUsers();
         },
 
-        updateTweets: function() {
+        updateTweets: function () {
             availableTweets = importAvailableTweets();
         }
 

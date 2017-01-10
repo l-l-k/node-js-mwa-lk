@@ -7,14 +7,13 @@ var storageWriter = localStorageWriter();
 var tweetCreator = tweetCreation();
 var tweetViewer = tweetView();
 
-
-//=============================================================
-// disable navigation to admin-tools
+// navigation to admin-tools
 var adminLink = document.getElementById('adminLink');
 // adminLink.className = 'hidden';
 
-(function () {
+//=============================================================
 
+function resetUI() {
     // Hide Sections
     for (i = 0; i < sections.length; i++) {
         sections[i].className = 'hidden';
@@ -24,11 +23,17 @@ var adminLink = document.getElementById('adminLink');
     for (i = 0; i < fieldsets.length; i++) {
         fieldsets[i].className = 'hidden';
     };
+}
 
+(function () {
     var lsInitiator = new localStorageInitialisation();
     lsInitiator.initialise();
+
+    resetUI();
 
     storageReader.updateUsers();
     storageReader.updateTweets();
 
 } ());
+
+

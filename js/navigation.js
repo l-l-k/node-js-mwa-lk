@@ -1,28 +1,6 @@
-// global variables for navigation and activation
-
-var sections = [];
-sections.push(document.getElementById('account'));
-//sections.push(document.getElementById('emptyPage'));
-sections.push(document.getElementById('tweets'));
-//sections.push(document.getElementById('tweetHistory'));
-sections.push(document.getElementById('administration'));
-
-
-var fieldsets = [];
-fieldsets.push(document.getElementById('signup'));
-fieldsets.push(document.getElementById('login'));
-fieldsets.push(document.getElementById('userdata'));
-fieldsets.push(document.getElementById('addUser'));
-fieldsets.push(document.getElementById('removeUser'));
-fieldsets.push(document.getElementById('cleanupTweets'));
-fieldsets.push(document.getElementById('statistics'));
-
-var activeFieldset;
-
 // Activation object
 var activator = (function () {
     // Private properties
-    var me = this;
     var activeSection;
     var activeElement;
 
@@ -98,6 +76,11 @@ var activator = (function () {
 
     // Public methods
     return {
+        performLogout: function () {
+            document.getElementById("nameOfCurrentUser").innerHTML = " ";
+            resetUI();
+        },
+
         activateSignup: function () {
             activateAccountSection();
             activateFieldset('signup');
@@ -156,6 +139,10 @@ var activator = (function () {
 //=============================================================
 // Event handlers, connectod to page-navigation
 //=============================================================
+
+function performLogout() {
+    activator.performLogout();
+}
 
 function activateSignup() {
     activator.activateSignup();

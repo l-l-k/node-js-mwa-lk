@@ -34,7 +34,7 @@ function localStorageInitialisation() {
 
         populateUserList: function () {
             var admin = new userRecord("leo@regensburg.oth", "l", "Admin Leo l", "0");
-            var admins = [admin.id];
+            admins = [admin.id];
             localStorage.setItem(this.adminsKey, JSON.stringify(admins));
 
             var users = [];

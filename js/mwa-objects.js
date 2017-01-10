@@ -9,6 +9,25 @@ var currentTweet;
 var lastUser = userRecord;
 var tweetFilter="";
 
+// global variables for navigation and activation
+
+var sections = [];
+sections.push(document.getElementById('account'));
+sections.push(document.getElementById('tweets'));
+sections.push(document.getElementById('administration'));
+
+var activeFieldset;
+var fieldsets = [];
+fieldsets.push(document.getElementById('signup'));
+fieldsets.push(document.getElementById('login'));
+fieldsets.push(document.getElementById('userdata'));
+fieldsets.push(document.getElementById('addUser'));
+fieldsets.push(document.getElementById('removeUser'));
+fieldsets.push(document.getElementById('cleanupTweets'));
+fieldsets.push(document.getElementById('statistics'));
+
+// global data objects
+
 var activeUser = function () {
     this.id = "dummy";
     this.isAdmin = false;
