@@ -43,107 +43,107 @@
         <a href="javascript:activateSignup()" class="internalLink">Signup</a> /
         <a href="javascript:activateTweetMode()" class="internalLink">Tweets</a> /
         <a href="javascript:activateAdminMode()" class="visible internalLink" id="adminLink">Admin Tools</a> /
-        <a href="javascript:performLogout()" class="internalLink">Logout</a> 
+        <a href="javascript:performLogout()" class="internalLink">Logout</a>
     </nav>
-        <hr/>
+    <hr/>
 
-        <!-- Signup / Registration / Login
+    <!-- Signup / Registration / Login
     ================================================== 
     Control visibility via java script-->
-        <section id="account">
+    <section id="account">
 
-            <!-- Register as new user -->
-            <fieldset id="signup" class="visible">
-                <legend>Signup</legend>
-                <form name="signup" action="Submit" method="POST">
-                    <div>
-                        <label for="mailAddress" class="inputLabel">Login-Name :  </label>
-                        <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..."
-                            required />
-                        <div id="feedbackAddressExists" class='hidden'></div>
-                    </div>
-                    <div>
-                        <label for="password" class="inputLabel">Password :  </label>
-                        <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33"
-                        />
-                    </div>
-                    <div>
-                        <label for="username" class="inputLabel">Username : </label>
-                        <input id="username" type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
-                        <div id="feedbackUsernameExists" class='hidden'></div>
-                    </div>
-                    <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
-                    <div id="feedbackSignup" class='hidden'></div>
-                </form>
-            </fieldset>
+        <!-- Register as new user -->
+        <fieldset id="signup" class="visible">
+            <legend>Signup</legend>
+            <form name="signup" action="Submit" method="POST">
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name :  </label>
+                    <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..."
+                        required />
+                    <div id="feedbackAddressExists" class='hidden'></div>
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password :  </label>
+                    <input type="password" name="password" class="inputField" placeholder="Type in a password ..." required size="8" maxlength="33"
+                    />
+                </div>
+                <div>
+                    <label for="username" class="inputLabel">Username : </label>
+                    <input id="username" type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
+                    <div id="feedbackUsernameExists" class='hidden'></div>
+                </div>
+                <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" />
+                <div id="feedbackSignup" class='hidden'></div>
+            </form>
+        </fieldset>
 
-            <!-- Login as registered user -->
-            <fieldset id="login" class="visible">
-                <legend>Login</legend>
-                <form name="login" action="#" method="POST">
-                    <div>
-                        <label for="mailAddress" class="inputLabel">Login-Name : </label>
-                        <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
-                        <div id="feedbackAddressUnknown" class='hidden'></div>
-                    </div>
-                    <div>
-                        <label for="password" class="inputLabel">Password : </label>
-                        <input type="password" name="password" class="inputField" placeholder="Type in your password ..." required size="8" maxlength="33"
-                        />
-                        <div id="feedbackPasswordUnknown" class='hidden'></div>
-                    </div>
-                    <input class="submit" type="submit" name="login" value="Login" />
-                </form>
-            </fieldset>
+        <!-- Login as registered user -->
+        <fieldset id="login" class="visible">
+            <legend>Login</legend>
+            <form name="login" action="#" method="POST">
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name : </label>
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
+                    <div id="feedbackAddressUnknown" class='hidden'></div>
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password : </label>
+                    <input type="password" name="password" class="inputField" placeholder="Type in your password ..." required size="8" maxlength="33"
+                    />
+                    <div id="feedbackPasswordUnknown" class='hidden'></div>
+                </div>
+                <input class="submit" type="submit" name="login" value="Login" />
+            </form>
+        </fieldset>
 
-            <!-- Edit user data -->
-            <fieldset id="userdata" class="visible">
-                <legend>Edit Account Data</legend>
-                <form name="userdata" action="ChangeAccountData" method="POST">
-                    <div>
-                        <label for="mailAddress" class="inputLabel">Login-Name :</label>
-                        <input type="email" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />
-                    </div>
-                    <div>
-                        <label for="password" class="inputLabel">Password :</label>
-                        <input type="password" name="password" class="inputField" placeholder="Type in a new password ..." required size="8" maxlength="33"
-                        />
-                    </div>
-                    <div>
-                        <label for="username" class="inputLabel">Username :</label>
-                        <input type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
-                    </div>
-                    <input class="submit" type="submit" name="update" value="Update Account" />
-                </form>
-            </fieldset>
-            <hr/>
-        </section>
+        <!-- Edit user data -->
+        <fieldset id="userdata" class="visible">
+            <legend>Edit Account Data</legend>
+            <form name="userdata" action="ChangeAccountData" method="POST">
+                <div>
+                    <label for="mailAddress" class="inputLabel">Login-Name :</label>
+                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />
+                </div>
+                <div>
+                    <label for="password" class="inputLabel">Password :</label>
+                    <input type="password" name="password" class="inputField" placeholder="Type in a new password ..." required size="8" maxlength="33"
+                    />
+                </div>
+                <div>
+                    <label for="username" class="inputLabel">Username :</label>
+                    <input type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
+                </div>
+                <input class="submit" type="submit" name="update" value="Update Account" />
+            </form>
+        </fieldset>
+        <hr/>
+    </section>
 
-        <!-- Tweets-Logo
+    <!-- Tweets-Logo
     ================================================== -->
-        <section id="bird" class="bird">
-            <div id="nameOfCurrentUser"> </div>
-        </section>
+    <section id="bird" class="bird">
+        <div id="nameOfCurrentUser"> </div>
+    </section>
 
-        <section id="tweets">
-            <!-- Posting tweets
+    <!-- Posting tweets
     ================================================== -->
-            <section id="tweetDefinition" class="visible">
-                <h2 class="hidden">Messages</h2>
-                <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-                <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
-                    <fieldset class="postTweet">
-                        <legend></legend>
-                        <div>
-                            <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
-                            /></textarea>
-                            <span id="charCounter"></span>
-                            <br />
-                            <!-- use an icon instead default file selection -->
-                            <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
-                                title="You may add a picture"></a>
-                            </img>
-                            <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+    <section id="tweets">
+        <section id="tweetDefinition" class="visible">
+            <h2 class="hidden">Messages</h2>
+            <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
+            <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
+                <fieldset class="postTweet">
+                    <legend></legend>
+                    <div>
+                        <textarea id="message" name="message" class="tweet" rows="4" cols="50" maxlength="140" placeholder="Type in your message ..."
+                        /></textarea>
+                        <span id="charCounter"></span>
+                        <br />
+                        <!-- use an icon instead default file selection -->
+                        <img id='camera' src="img/photo.svg" alt="Add Picture" align="middle" width="30" height="30" <a id="selectFile" href="#"
+                            title="You may add a picture"></a>
+                        </img>
+                        <input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
 <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
     title="Detach picture"></a>
 </img>
@@ -176,6 +176,13 @@
             <label for="r3"> All Users</label><br />
             <input type="radio" class="radio1" id="r4" name="filter" value="none" />
             <label for="r4"> None</label><br />
+            <input type="checkbox" class="radio1" name="showVIPs" value="VIPs" checked="unchecked" />
+            <select name="selectedVIPs" id="selectedVIPs" size="1" multiple="multiple" <a id="selectedVIPs" href="#" title="Click to show all VIPs"></a> 
+                <option value="vip1" selected="false" > Dummy VIP</option>
+                <option value="vip2" selected="false" > Another VIP</option>
+            </select>
+                   <input id="editVipList" type="submit" name="editVipList" class="button" value="Add or Remove VIP" />
+            <br />
             <br />
             <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
             <input id="deleteSelectedRows" type="submit" name="deleteSelectedRows" class="button" value="Delete selected tweets" />
