@@ -143,9 +143,16 @@ fieldset[value]:disabled {
     text-align: left;
 }
 
-.filterTweets {
+.filterTweets  {
     border: none;
     width: 600px;
+    text-align: left;
+}
+
+.vipField {
+    border: none;
+    margin-left: 45px;
+    width: 555px;
     text-align: left;
 }
 
@@ -160,7 +167,7 @@ fieldset[value]:disabled {
 .radio1 {
     float: none;
     margin-left: 35px;
-    font-size: 80%;
+    font-size: 70%;
 }
 
 .radio11 {

@@ -79,6 +79,8 @@ var activator = (function () {
         performLogout: function () {
             document.getElementById("nameOfCurrentUser").innerHTML = " ";
             resetUI();
+            currentUser.id="";
+            currentUser.isAdmin=false;
         },
 
         activateSignup: function () {

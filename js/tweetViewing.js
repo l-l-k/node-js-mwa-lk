@@ -16,6 +16,55 @@ function tweetView() {
         }
     }
 
+    function editVipList() {
+        var username = document.forms.tweetAuthor.elements.anyVIP.value.trim();
+        var anyUser = storageReader.retrieveUserDataByName(username);
+        if (anyUser != null) {
+            var vip = new vipRecord(anyUser.id, username, "unchecked");
+            storageWriter.toggleVIP(vip);
+            cleanupVipList();
+            createVipList();
+        }
+    }
+
+    function cleanupVipList() {
+        //var vipSection = document.getElementsByName('vipList');
+        var checkboxes = document.getElementsByName('vipMember');
+        var parent = checkboxes[0].parentNode;
+        for (var i = checkboxes.length - 1; i >= 0; i--) {
+            parent.removeChild(checkboxes[i])
+        }
+        var labels = document.getElementsByName('vipLabel');
+        for (var i = labels.length - 1; i >= 0; i--) {
+            parent.removeChild(labels[i])
+        }
+
+    }
+
+    function createVipList() {
+        var vip = vipRecord;
+        var position = document.getElementById("vipList");
+
+        for (var i = 0; i < vips.length; i++) {
+            vip = vips[i];
+            var itemID = "vipLabel" + i;
+            var chkItem = document.createElement('input');
+            chkItem.setAttribute("type", "checkbox");
+            chkItem.setAttribute("id", "itemID");
+            chkItem.setAttribute("class", "vipItem");
+            chkItem.setAttribute("name", "vipMember");
+            chkItem.setAttribute("value", vip.id);
+            chkItem.setAttribute("checked", vip.checked);
+            position.appendChild(chkitem);
+
+            var lbl = document.createElement('label');
+            lbl.setAttribute("for", "itemID");
+            lbl.innerHTML = vip.name;
+            position.appendChild(lbl);
+        }
+
+    }
+
     function updateUserView() {
         determineFilterOption;
         updateTableSettings();
@@ -54,7 +103,7 @@ function tweetView() {
                 break;
 
             case "some":
-                //TODO : create filter term for more than one user
+                //TODO : append vips to filter term in order to display more than one user
                 activeFilter = document.forms.tweetAuthor.elements.author.trim();
                 tableType = "wide";
                 break;
@@ -69,6 +118,8 @@ function tweetView() {
                 tweetsTable.className = 'hidden';
                 break;
         }
+
+        // TODO: append vips to filter
 
         tweetTbl.setTableType(tableType);
     }
@@ -89,6 +140,10 @@ function tweetView() {
         historyButtonClicked: function (e) {
             var clickedButton = e.explicitOriginalTarget;
             switch (clickedButton.id) {
+                case "editVipList":
+                    editVipList();
+                    break;
+
                 case 'updateView':
                     tweetsTable.className = 'notHidden';
                     updateUserView();
@@ -112,7 +167,12 @@ function tweetView() {
         fitSettings: function (selectedOption) {
             selectedFilterOption = selectedOption;
             updateTableSettings(selectedFilterOption);
-        }
+        },
+
+        populateVipList: function () {
+            cleanupVipList();
+            createVipList();
+        },
 
     }
     return tableViewObject;
@@ -139,4 +199,5 @@ function tweetView() {
 
     //tweetsTable = document.getElementById("extractedTweets");
     viewer.fitSettings(selectedFilterOption);
+    viewer.populateVipList();
 } ());

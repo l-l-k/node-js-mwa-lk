@@ -176,13 +176,23 @@
             <label for="r3"> All Users</label><br />
             <input type="radio" class="radio1" id="r4" name="filter" value="none" />
             <label for="r4"> None</label><br />
-            <input type="checkbox" class="radio1" name="showVIPs" value="VIPs" checked="unchecked" />
-            <select name="selectedVIPs" id="selectedVIPs" size="1" multiple="multiple" <a id="selectedVIPs" href="#" title="Click to show all VIPs"></a> 
-                <option value="vip1" selected="false" > Dummy VIP</option>
-                <option value="vip2" selected="false" > Another VIP</option>
-            </select>
-                   <input id="editVipList" type="submit" name="editVipList" class="button" value="Add or Remove VIP" />
-            <br />
+            <input type="checkbox" class="radio1" id="includeVIPs" name="includeVIPs" value="VIPs" checked="unchecked" />
+            <label for="includeVips"> Include selected VIPs</label><br />
+            <!-- TODO : enable user to toggle visibility of fieldset vipField -->
+            <fieldset class="vipField">
+                <legend></legend>
+                <input type="text" name="anyVIP" class="inputField" value="" placeholder="Type in username ..." />
+                <input id="editVipList" type="submit" name="editVipList" class="button" value="Add or Remove VIP" />
+                <br />
+                <!-- container for vips -->
+                <section id="vipList">
+                    <!-- value = userID -->
+                    <input type="checkbox" class="vipItem" name="vipMember" value="VIP1" checked="unchecked"/>
+                    <label for="includeVips" name="vipLabel"> VIP 1</label>
+                    <input type="checkbox" class="vipItem" name="vipMember" value="VIP2" checked="unchecked"/>
+                    <label for="includeVips"  name="vipLabel"> VIP 2</label>
+                </section>
+            </fieldset>
             <br />
             <input id="updateView" type="submit" name="updateView" class="button" value="Update View" />
             <input id="deleteSelectedRows" type="submit" name="deleteSelectedRows" class="button" value="Delete selected tweets" />

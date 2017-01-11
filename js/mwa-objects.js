@@ -3,6 +3,7 @@ var mwa = {};
 /* Global Variables */
 var admins = new Array();
 var knownUsers = new Array();
+var vips = new Array(); // persons to follow
 var lastDisplayedMessages = new Array();
 var availableTweets = new Array();
 var currentTweet;
@@ -47,6 +48,12 @@ function userRecord(email, password, name, id) {
     } else {
         this.id = id;
     }
+}
+
+function vipRecord(id, name, checked) {
+    this.id = id;
+    this.username = name.trim();
+    this.checked = checked;
 }
 
 function tweetRecord(userID, day, time, message, picture) {

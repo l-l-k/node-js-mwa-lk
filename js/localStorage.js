@@ -5,7 +5,7 @@ function localStorageInitialisation() {
 
     //Private methods
 
-    // Public methods
+    // Public 
     var lsObject = {
         // Public properties
         adminsKey: "mwa-admins",
@@ -14,6 +14,7 @@ function localStorageInitialisation() {
         currentTweetKey: "mwa-currentMessage",
         lastDisplayedMessagesKey: "mwa-Messages",
         availableTweetsKey: "mwa-Tweets",
+        vipsKey: "mwa-Vips",
 
         // Public methods
         temporaryTweet: function (userID, message, picture) {
@@ -27,6 +28,7 @@ function localStorageInitialisation() {
             admins = JSON.parse(localStorage.getItem(this.adminsKey));
             knownUsers = JSON.parse(localStorage.getItem(this.knownUsersKey));
             lastUser = JSON.parse(localStorage.getItem(this.lastUserKey));
+            vips = JSON.parse(localStorage.getItem(this.vipsKey));
             // restoreTweets;
             currentTweet = JSON.parse(localStorage.getItem(this.currentTweetKey));
             availableTweets = JSON.parse(localStorage.getItem(this.availableTweetsKey));

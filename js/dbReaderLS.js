@@ -4,11 +4,16 @@ function localStorageReader() {
     var ls = new localStorageInitialisation();
 
     knownUsers = importKnownUsers();
+    vips = importVIPs();
     availableTweets = importAvailableTweets();
 
     // =================================================== 
     // Private methods
     // users
+
+    function equalsVIPID(vip) {
+        return vip.id == comparativeValue;
+    }
 
     function equalsUserID(user) {
         return user.id == comparativeValue;
@@ -26,6 +31,10 @@ function localStorageReader() {
         return JSON.parse(localStorage.getItem(ls.knownUsersKey));
     }
 
+    function importVIPs() {
+        return JSON.parse(localStorage.getItem(ls.vipsKey));
+    }
+
     // tweets
     function equalsTweetAuthor(tweet) {
         return tweet.userID == comparativeValue;
@@ -39,6 +48,17 @@ function localStorageReader() {
     // Public methods
     var reader = {
         // Handling tweets
+        retrieveVIPDataByID: function(userID) {
+            comparativeValue = userID;
+            var existingVip = vipRecord;
+            var index = vips.findIndex(equalsVIPID);
+            if (index >= 0) {
+                existingVip = vips[index];
+            }
+
+            return existingVip;
+        },
+
         retrieveUserDataByID: function (userID) {
             comparativeValue = userID;
             var existingUser = userRecord;

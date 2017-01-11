@@ -30,7 +30,7 @@ function localStorageWriter() {
                 temporaryUser.password,
                 temporaryUser.username);
 
-            // TODO : append user to storage
+            // append user to storage
             knownUsers.push(newUser);
             localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
 
@@ -63,6 +63,25 @@ function localStorageWriter() {
             return success;
         },
 
+        // Managing VIPs
+        toggleVIP: function (vip) {
+            var index = -1; // no vip
+            var existingVIP = storageReader.retrieveVIPDataByID(vip.id);
+            if (existingVIP == null) {
+                // append vip
+                vips.push(vip);
+                index = vips.indexOf(existingVIP);
+            } else {
+                // remove vip
+                var vipIndex = vips.indexOf(existingVIP);
+                if (vipIndex >= 0) {
+                    vips.splice(vipIndex, 1); // Remove 1 element 
+                }
+            }
+            localStorage.setItem(ls.vipsKey, JSON.stringify(vips));
+
+            return index;
+        },
 
         // =================================================== 
         // Handling tweets
