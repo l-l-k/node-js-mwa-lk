@@ -67,10 +67,11 @@ function localStorageWriter() {
         toggleVIP: function (vip) {
             var index = -1; // no vip
             var existingVIP = storageReader.retrieveVIPDataByID(vip.id);
-            if (existingVIP == null) {
+            if ((existingVIP == null) || (existingVIP.id == null)) {
                 // append vip
+                if (vips==null) {vips = new Array;}
                 vips.push(vip);
-                index = vips.indexOf(existingVIP);
+                index = vips.length -1;
             } else {
                 // remove vip
                 var vipIndex = vips.indexOf(existingVIP);
@@ -82,6 +83,10 @@ function localStorageWriter() {
 
             return index;
         },
+
+        storeVipFollowingStatus : function() {
+            localStorage.setItem(initiator.followVipsKey, followVips)
+        }
 
         // =================================================== 
         // Handling tweets

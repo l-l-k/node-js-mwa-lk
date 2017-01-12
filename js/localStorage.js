@@ -15,6 +15,7 @@ function localStorageInitialisation() {
         lastDisplayedMessagesKey: "mwa-Messages",
         availableTweetsKey: "mwa-Tweets",
         vipsKey: "mwa-Vips",
+        followVipsKey: "mwa-Follow",
 
         // Public methods
         temporaryTweet: function (userID, message, picture) {
@@ -55,10 +56,10 @@ function localStorageInitialisation() {
             currentTweet = new this.temporaryTweet("2", "Eins ist mehr als zwei", "");
             localStorage.setItem(this.currentTweetKey, JSON.stringify(currentTweet));
 
-           // var tweetCreator = tweetCreation();
+            // var tweetCreator = tweetCreation();
             var users = JSON.parse(localStorage.getItem(this.knownUsersKey));
             var messages = [];
-            var anyTweet = tweetCreator.createTweet("1","2017-01-05", "10:13:19","X","" )
+            var anyTweet = tweetCreator.createTweet("1", "2017-01-05", "10:13:19", "X", "")
             messages.push(tweetCreator.createTweet("3", "2016-12-01", "10:10:10",
                 "Only after generating 1 billion UUIDs every second for the next 100 years, the probability of creating just one duplicate would be about 50%", ""));
             messages.push(tweetCreator.createTweet("3", "2016-12-01", "10:10:10", "The Node.js node-donothing module is very simple to use.", ""));
@@ -100,6 +101,12 @@ function localStorageInitialisation() {
     } else {
         initiator.populateTweetList();
     }
+
+    if (localStorage.getItem(initiator.followVipsKey) != null) {
+        followVips = localStorage.getItem(initiator.followVipsKey);
+    }
+    var chkbox = document.getElementById("includeVIPs");
+    chkbox.checked = followVips;
 
 } ());
 

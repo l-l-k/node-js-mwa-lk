@@ -33,7 +33,8 @@ function resetUI() {
 
     storageReader.updateUsers();
     storageReader.updateTweets();
-
+    
+    tweetViewer.populateVipList();
 } ());
 
 

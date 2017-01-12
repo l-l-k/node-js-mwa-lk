@@ -44,14 +44,33 @@ function localStorageReader() {
         return JSON.parse(localStorage.getItem(ls.availableTweetsKey));
     }
 
+    function getVipTweets() {
+        var vipTweets = new Array;
+        var vip = vipRecord;
+        for (var i = [0]; i < vips.length; i++) {
+            var vip = vips[i];
+            if (vip.checked) {
+                comparativeValue = vip.id;
+                var vipResults = availableTweets.filter(equalsTweetAuthor);
+                if (vipResults.length > 0) {
+                    vipTweets = vipTweets.concat(vipResults);
+                }
+            }
+        }
+        return vipTweets;
+    }
+
     // =================================================== 
     // Public methods
     var reader = {
         // Handling tweets
-        retrieveVIPDataByID: function(userID) {
+        retrieveVIPDataByID: function (userID) {
             comparativeValue = userID;
             var existingVip = vipRecord;
-            var index = vips.findIndex(equalsVIPID);
+            var index = -1;
+            if (vips != null) {
+                index = vips.findIndex(equalsVIPID);
+            }
             if (index >= 0) {
                 existingVip = vips[index];
             }
@@ -156,8 +175,9 @@ function localStorageReader() {
                 comparativeValue = filter;
                 results = availableTweets.filter(equalsTweetAuthor);
             }
-
-            return results;
+            //  append tweets of selected vips
+            var vipTweets = getVipTweets();
+            return results.concat(vipTweets);
         },
 
         // =================================================== 

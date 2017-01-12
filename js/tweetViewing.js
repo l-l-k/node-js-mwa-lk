@@ -20,7 +20,7 @@ function tweetView() {
         var username = document.forms.tweetAuthor.elements.anyVIP.value.trim();
         var anyUser = storageReader.retrieveUserDataByName(username);
         if (anyUser != null) {
-            var vip = new vipRecord(anyUser.id, username, "unchecked");
+            var vip = new vipRecord(anyUser.id, username, false);
             storageWriter.toggleVIP(vip);
             cleanupVipList();
             createVipList();
@@ -29,16 +29,20 @@ function tweetView() {
 
     function cleanupVipList() {
         //var vipSection = document.getElementsByName('vipList');
+        var parent;
         var checkboxes = document.getElementsByName('vipMember');
-        var parent = checkboxes[0].parentNode;
+        var labels = document.getElementsByName('vipLabel');
+        if (checkboxes.length > 0) {
+            parent = checkboxes[0].parentNode;
+        } else if (labels.length > 0) {
+            parent = labels[0].parentNode;
+        }
         for (var i = checkboxes.length - 1; i >= 0; i--) {
             parent.removeChild(checkboxes[i])
         }
-        var labels = document.getElementsByName('vipLabel');
         for (var i = labels.length - 1; i >= 0; i--) {
             parent.removeChild(labels[i])
         }
-
     }
 
     function createVipList() {
@@ -48,19 +52,25 @@ function tweetView() {
         for (var i = 0; i < vips.length; i++) {
             vip = vips[i];
             var itemID = "vipLabel" + i;
-            var chkItem = document.createElement('input');
-            chkItem.setAttribute("type", "checkbox");
-            chkItem.setAttribute("id", "itemID");
-            chkItem.setAttribute("class", "vipItem");
-            chkItem.setAttribute("name", "vipMember");
-            chkItem.setAttribute("value", vip.id);
-            chkItem.setAttribute("checked", vip.checked);
-            position.appendChild(chkitem);
+            var chk = document.createElement('input');
+            chk.setAttribute("type", "checkbox");
+            chk.setAttribute("id", itemID);
+            chk.setAttribute("class", "vipItem");
+            chk.setAttribute("name", "vipMember");
+            chk.setAttribute("value", vip.id);
+            if (vip.checked) {
+                chk.setAttribute("checked", "checked");
+            } else {
+                chk.setAttribute("checked", "unchecked");
+            }
+            position.appendChild(chk);
 
             var lbl = document.createElement('label');
-            lbl.setAttribute("for", "itemID");
-            lbl.innerHTML = vip.name;
+            lbl.setAttribute("for", itemID);
+            lbl.innerHTML = vip.username;
             position.appendChild(lbl);
+
+            chk.addEventListener('click', this.vipStatusChanged, false);
         }
 
     }
@@ -119,7 +129,7 @@ function tweetView() {
                 break;
         }
 
-        // TODO: append vips to filter
+        tweetFilter = activeFilter;
 
         tweetTbl.setTableType(tableType);
     }
@@ -174,6 +184,21 @@ function tweetView() {
             createVipList();
         },
 
+        vipHandlingChanged: function (e) {
+            var chkbox = e.currentTarget;
+            followVips = chkbox.checked;
+            storageWriter.storeVipFollowingStatus();
+        },
+
+        vipStatusChanged: function (e) {
+            var chk = e.currentTarget;
+            var vipID = chk.value;
+            var vip = storageReader.retrieveVIPDataByID(vipID);
+            if (vip != null) {
+                vip.checked = (chk.checked == "checked");
+            }
+        }
+
     }
     return tableViewObject;
 
@@ -199,5 +224,7 @@ function tweetView() {
 
     //tweetsTable = document.getElementById("extractedTweets");
     viewer.fitSettings(selectedFilterOption);
-    viewer.populateVipList();
+    //viewer.populateVipList();
+    var checkbox = document.getElementById("includeVIPs");
+    frm.addEventListener('click', viewer.vipHandlingChanged, false);
 } ());

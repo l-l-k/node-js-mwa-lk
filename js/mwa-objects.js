@@ -9,6 +9,7 @@ var availableTweets = new Array();
 var currentTweet;
 var lastUser = userRecord;
 var tweetFilter="";
+var followVips = false;
 
 // global variables for navigation and activation
 
