@@ -30,7 +30,7 @@ function tweetTable(dataTable) {
 
         for (var rowIndex = 0; rowIndex < tweetsToDisplay.length; rowIndex++) {
             row = document.createElement("tr");
-            if (mwaToolkit.isEven(rowIndex)) {
+            if (mwaToolset.isEven(rowIndex)) {
                 row.setAttribute("class", "even");
             }
 
@@ -155,7 +155,7 @@ function tweetTable(dataTable) {
             activeTable.appendChild(header);
             activeTable.appendChild(body);
 
-            mwaToolkit.resetSelectionRange();
+            mwaToolset.resetSelectionRange();
 
         } catch (e) {
             var err = e.name + ' ' + e.message;
@@ -223,14 +223,14 @@ function tweetTable(dataTable) {
                                         var allRows = region.getElementsByTagName("tr");
                                         selectFromTo(selectionRange, allRows);
                                     }
-                                    mwaToolkit.resetSelectionRange();
+                                    mwaToolset.resetSelectionRange();
                                 }
                                 break;
                             case (true):
                                 // refuse existing selection list, start a new one
                                 if (selectedRows.length > 0) {
                                     deselectAll();
-                                    mwaToolkit.resetSelectionRange();
+                                    mwaToolset.resetSelectionRange();
                                 }
                                 currentRow.classList.toggle('selected');
                                 selectionRange[0] = currentRow.rowIndex; // startIndex

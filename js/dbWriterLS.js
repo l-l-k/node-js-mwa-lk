@@ -119,7 +119,7 @@ function localStorageWriter() {
                 }
             }
 
-            mwaToolkit.resetSelectionRange();
+            mwaToolset.resetSelectionRange();
             deselectAll();
 
             return (availableTweets.length < before);
@@ -130,7 +130,7 @@ function localStorageWriter() {
             var before = availableTweets.length;
 
             alert("Should delete all records of user " + userID);
-            mwaToolkit.resetSelectionRange();
+            mwaToolset.resetSelectionRange();
             deselectAll();
 
             return (availableTweets.length < before);

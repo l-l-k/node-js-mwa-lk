@@ -45,7 +45,7 @@ function userRecord(email, password, name, id) {
     this.password = password.trim();
     this.username = name.trim();
     if (id == null || id == "") {
-        this.id = mwaToolkit.createGuid();
+        this.id = mwaToolset.createGuid();
     } else {
         this.id = id;
     }

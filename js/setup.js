@@ -1,6 +1,6 @@
 
 /* Global Objects */
-var mwaToolkit = mwaToolkit();
+var mwaToolset = mwaToolkit();
 var storageReader = localStorageReader();
 var storageWriter = localStorageWriter();
 

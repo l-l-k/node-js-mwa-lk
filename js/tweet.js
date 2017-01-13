@@ -76,14 +76,14 @@ function tweetCreation() {
 
             var newTweet = new tweetRecord(
                 activeUser.id,
-                mwaToolkit.getDay(),
-                mwaToolkit.getTime(),
+                mwaToolset.getDay(),
+                mwaToolset.getTime(),
                 msg,
                 img.currentSrc
             );
 
             if (storageWriter.uploadTweet(newTweet)) {
-                // TODO : update timeline if user is listed in current timeline
+                // ER : only update timeline if user is listed in current timeline
                 tableUpdateRequested = true;
                 // Update timeline
                 if (tableUpdateRequested) {

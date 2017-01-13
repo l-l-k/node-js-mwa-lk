@@ -60,7 +60,7 @@ var AdminStatistics = (function () {
 
         for (var rowIndex = 0; rowIndex < recordsToDisplay.length; rowIndex++) {
             row = document.createElement("tr");
-            if (mwaToolkit.isEven(rowIndex)) {
+            if (mwaToolset.isEven(rowIndex)) {
                 row.setAttribute("class", "even");
             }
 
