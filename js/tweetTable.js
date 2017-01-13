@@ -34,9 +34,7 @@ function tweetTable(dataTable) {
 
         for (var rowIndex = 0; rowIndex < tweetsToDisplay.length; rowIndex++) {
             row = document.createElement("tr");
-            if (mwaToolset.isEven(rowIndex)) {
-                row.setAttribute("class", "even");
-            }
+            setRowColor(row, rowIndex);
 
             tweetData = tweetsToDisplay[rowIndex];
 
@@ -57,7 +55,14 @@ function tweetTable(dataTable) {
                         content = document.createTextNode(tweetData.message);
                         break;
                     case 4:
-                        content = document.createTextNode(tweetData.attachment);
+                        // attachment
+                        content = document.createElement('IMG');
+                        if ((tweetData.attachment != null) && (tweetData.attachment != "")) {
+                            content.setAttribute("src", tweetData.attachment);
+                            content.setAttribute("height", "auto");
+                            content.setAttribute("width", "100px");
+                            content.setAttribute("alt", "Attached Image");
+                        }
                         break;
                 }
                 col.appendChild(content);
@@ -67,6 +72,14 @@ function tweetTable(dataTable) {
             body.appendChild(row);
         }
         return body;
+    }
+
+    function setRowColor(row, index) {
+        if (mwaToolset.isEven(index)) {
+            row.setAttribute("class", "even");
+        } else {
+            row.removeAttribute("class");
+        }
     }
 
     function selectFromTo(range, rows) {
@@ -149,7 +162,7 @@ function tweetTable(dataTable) {
             if (tableType == "small") {
                 columns = ["Day", "Time", "Message", "Attachment"];
                 header = createTableHeader(columns);
-                body = populateTable(subsetOfTweets, 1, columns.length);
+                body = populateTable(subsetOfTweets, 1, columns.length + 1);
             } else {
                 columns = ["Author", "Day", "Time", "Message", "Attachment"];
                 header = createTableHeader(columns);
@@ -172,41 +185,6 @@ function tweetTable(dataTable) {
     }
 
     // Table data sorting 
-    function sortNumericData(columnIndex, direction) {
-        var region = activeTable.getElementsByTagName("TBODY")[0];
-        var rows = region.getElementsByTagName("tr");
-        var item1;
-        var item2;
-        var swap = false;
-
-        for (var i = 0; i < rows.length - 1; i++) {
-            for (var j = 0; j < rows.length - (i + 1); j++) {
-
-                item1 = parseInt(rows.item(j).getElementsByTagName('td').item(columnIndex).innerHTML);
-                item2 = parseInt(rows.item(j + 1).getElementsByTagName('td').item(columnIndex).innerHTML);
-                // Swap rows if sort condition matches
-                if (sorting[columnIndex] == "ascending") {
-                    swap = item1 > item2;
-                } else {
-                    swap = item1 < item2;
-                }
-                if (swap) {
-                    region.insertBefore(rows.item(j + 1), rows.item(j));
-                }
-            }
-        }
-
-        for (var i = 0; i < rows.length - 1; i++) {
-            for (var j = 0; j < rows.length - (i + 1); j++) {
-
-                //Swap row nodes if short condition matches
-                if (parseInt(rows.item(j).getElementsByTagName('td').item(0).innerHTML) > parseInt(rows.item(j + 1).getElementsByTagName('td').item(0).innerHTML)) {
-                    region.insertBefore(rows.item(j + 1), rows.item(j));
-                }
-            }
-        }
-    }
-
     function sortTextData(columnIndex) {
         var region = activeTable.getElementsByTagName("TBODY")[0];
         var rows = region.getElementsByTagName("tr");
@@ -229,6 +207,11 @@ function tweetTable(dataTable) {
                     region.insertBefore(rows.item(j + 1), rows.item(j));
                 }
             }
+        }
+
+        // restore alternating row background
+        for (var i = 0; i < rows.length - 1; i++) {
+            setRowColor(rows[i], i);
         }
     }
 

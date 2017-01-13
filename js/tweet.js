@@ -87,8 +87,10 @@ function tweetCreation() {
                 tableUpdateRequested = true;
                 // Update timeline
                 if (tableUpdateRequested) {
-                    var tweets = storageReader.getSubsetOfTweetsByID(tweetFilter);
-                    tweetTbl.updateTable( tweets);
+                    //XX var tweets = storageReader.getSubsetOfTweetsByID(tweetFilter);
+                    tweets = availableTweets;
+                    tweetTbl.updateTable(tweets);
+                    tweetsTable.addEventListener('click', tweetTbl.findTweets, false);
                     tableUpdateRequested = false;
                 }
             } else {

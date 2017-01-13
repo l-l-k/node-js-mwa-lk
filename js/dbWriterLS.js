@@ -69,9 +69,9 @@ function localStorageWriter() {
             var existingVIP = storageReader.retrieveVIPDataByID(vip.id);
             if ((existingVIP == null) || (existingVIP.id == null)) {
                 // append vip
-                if (vips==null) {vips = new Array;}
+                if (vips == null) { vips = new Array; }
                 vips.push(vip);
-                index = vips.length -1;
+                index = vips.length - 1;
             } else {
                 // remove vip
                 var vipIndex = vips.indexOf(existingVIP);
@@ -84,11 +84,11 @@ function localStorageWriter() {
             return index;
         },
 
-        storeVipFollowingStatus : function() {
+        storeVipFollowingStatus: function () {
             localStorage.setItem(initiator.followVipsKey, followVips)
         },
 
-        storeVipStatus : function() {
+        storeVipStatus: function () {
             localStorage.setItem(initiator.vipsKey, JSON.stringify(vips))
         },
 
@@ -140,7 +140,7 @@ function localStorageWriter() {
             var before = availableTweets.length;
 
             availableTweets.push(newTweet);
-            localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
+            //XX localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
 
             return (availableTweets.length == before + 1);
         }
