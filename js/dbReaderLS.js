@@ -46,8 +46,11 @@ function localStorageReader() {
 
     function getVipTweets() {
         var vipTweets = new Array;
+        if (!followVips) {
+            return vipTweets;
+        }
         var vip = vipRecord;
-        for (var i = [0]; i < vips.length; i++) {
+        for (var i = 0; i < vips.length; i++) {
             var vip = vips[i];
             if (vip.checked) {
                 comparativeValue = vip.id;
@@ -158,6 +161,7 @@ function localStorageReader() {
             var results = new Array; // of  tweetRecord objects
             if (filter == "*") {
                 results = availableTweets;
+                return results; // vips are already included
             } else {
                 var user = retrieveUserDataByMailAddress(filter);
                 results = getSubsetOfTweetsByID(user.id);

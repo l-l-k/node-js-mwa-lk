@@ -8,7 +8,7 @@ var lastDisplayedMessages = new Array();
 var availableTweets = new Array();
 var currentTweet;
 var lastUser = userRecord;
-var tweetFilter="";
+var tweetFilter = "";
 var followVips = false;
 
 // global variables for navigation and activation
@@ -34,7 +34,7 @@ var activeUser = function () {
     this.id = "dummy";
     this.isAdmin = false;
 };
-var currentUser =  function () {
+var currentUser = function () {
     this.id = "";
     this.isAdmin = false;
 };
@@ -54,7 +54,13 @@ function userRecord(email, password, name, id) {
 function vipRecord(id, name, checked) {
     this.id = id;
     this.username = name.trim();
-    this.checked = checked;
+    if (checked == null) {
+        this.checked = false;
+    } else if ((checked == "checked") || (checked==true)) {
+        this.checked = true;
+    } else {
+        this.checked = checked;
+    }
 }
 
 function tweetRecord(userID, day, time, message, picture) {

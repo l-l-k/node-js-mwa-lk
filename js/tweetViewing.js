@@ -16,6 +16,12 @@ function tweetView() {
         }
     }
 
+    function setFollowingBehaviour() {
+        var chkbox = document.forms.tweetAuthor.elements.includeVIPs;
+        followVips = chkbox.checked;
+        storageWriter.storeVipFollowingStatus();
+    }
+
     function editVipList() {
         var username = document.forms.tweetAuthor.elements.anyVIP.value.trim();
         var anyUser = storageReader.retrieveUserDataByName(username);
@@ -24,6 +30,7 @@ function tweetView() {
             storageWriter.toggleVIP(vip);
             cleanupVipList();
             createVipList();
+            document.forms.tweetAuthor.elements.anyVIP.value = "";
         }
     }
 
@@ -58,19 +65,16 @@ function tweetView() {
             chk.setAttribute("class", "vipItem");
             chk.setAttribute("name", "vipMember");
             chk.setAttribute("value", vip.id);
-            if (vip.checked) {
-                chk.setAttribute("checked", "checked");
-            } else {
-                chk.setAttribute("checked", "unchecked");
-            }
+            chk.checked = vip.checked;
             position.appendChild(chk);
 
             var lbl = document.createElement('label');
             lbl.setAttribute("for", itemID);
+            lbl.setAttribute("name", "vipLabel");
             lbl.innerHTML = vip.username;
             position.appendChild(lbl);
 
-            chk.addEventListener('click', this.vipStatusChanged, false);
+            chk.addEventListener('click', tweetViewer.vipStatusChanged, false);
         }
 
     }
@@ -96,6 +100,8 @@ function tweetView() {
         delRowsButton.disabled = true;
         var delAllButton = document.forms.tweetAuthor.elements.deleteAll;
         delAllButton.disabled = true;
+
+var followCkkName = "Include selected VIPs";
 
         switch (selectedFilterOption.value) {
             case "me":
@@ -126,11 +132,16 @@ function tweetView() {
             case 'none':
                 activeFilter = "";
                 tweetsTable.className = 'hidden';
+                followCkkName = "But selected VIPs";
                 break;
         }
 
         tweetFilter = activeFilter;
-
+        var label = document.getElementsByName('followLabel')[0];
+        label.innerHTML=followCkkName;
+        if (followVips) {
+            tableType = "wide"
+        }
         tweetTbl.setTableType(tableType);
     }
 
@@ -150,6 +161,10 @@ function tweetView() {
         historyButtonClicked: function (e) {
             var clickedButton = e.explicitOriginalTarget;
             switch (clickedButton.id) {
+                case "includeVIPs":
+                    setFollowingBehaviour();
+                    break;
+
                 case "editVipList":
                     editVipList();
                     break;
@@ -195,8 +210,9 @@ function tweetView() {
             var vipID = chk.value;
             var vip = storageReader.retrieveVIPDataByID(vipID);
             if (vip != null) {
-                vip.checked = (chk.checked == "checked");
+                vip.checked = chk.checked;
             }
+            storageWriter.storeVipFollowingStatus();
         }
 
     }
@@ -225,6 +241,6 @@ function tweetView() {
     //tweetsTable = document.getElementById("extractedTweets");
     viewer.fitSettings(selectedFilterOption);
     //viewer.populateVipList();
-    var checkbox = document.getElementById("includeVIPs");
-    frm.addEventListener('click', viewer.vipHandlingChanged, false);
+    var checkbox = document.forms.tweetAuthor.elements.includeVIPs;
+    checkbox.addEventListener('click', viewer.vipHandlingChanged, false);
 } ());

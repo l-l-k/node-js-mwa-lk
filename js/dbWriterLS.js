@@ -86,7 +86,11 @@ function localStorageWriter() {
 
         storeVipFollowingStatus : function() {
             localStorage.setItem(initiator.followVipsKey, followVips)
-        }
+        },
+
+        storeVipStatus : function() {
+            localStorage.setItem(initiator.vipsKey, JSON.stringify(vips))
+        },
 
         // =================================================== 
         // Handling tweets
