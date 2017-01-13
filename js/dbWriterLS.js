@@ -96,7 +96,7 @@ function localStorageWriter() {
         // Handling tweets
 
         deleteSelectedTweets: function (userID, selectedItems) {
-            // TODO : Remove some of user's tweets
+            // TODO : Remove some of user's tweets in DB
             alert("Should delete " + selectedItems.length + " records");
             var before = availableTweets.length;
             var results = new Array; // of  tweetRecord objects

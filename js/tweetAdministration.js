@@ -28,11 +28,11 @@ function tweetAdministration() {
         var delAllButton = document.forms.cleanupTweets.elements.cleanupTweets;
 
         switch (selectedFilterOption.value) {
-            case "some":
+            case "any":
                 findButton.disabled = false;
                 delAllButton.disabled = true;
                 tweetsTable.className = 'notHhidden';
-                //TODO : create filter term for more than one user
+                // create filter term for defined user
                 activeFilter = document.forms.cleanupTweets.elements.userID.trim();
                 break;
 
@@ -49,7 +49,7 @@ function tweetAdministration() {
 
     function deleteTweets(userID) {
         switch (selectedFilterOption.value) {
-            case "some":
+            case "any":
                 tweetTbl.deleteSelectedTweets(userID);
                 tableUpdateRequested = true;
                 break;

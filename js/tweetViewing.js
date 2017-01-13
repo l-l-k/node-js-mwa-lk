@@ -101,9 +101,10 @@ function tweetView() {
         var delAllButton = document.forms.tweetAuthor.elements.deleteAll;
         delAllButton.disabled = true;
 
-var followCkkName = "Include selected VIPs";
+        var followCkkName = "Include selected VIPs";
 
         switch (selectedFilterOption.value) {
+            // Radio buttons
             case "me":
                 activeFilter = activeUser.id;
                 tableType = "small";
@@ -118,30 +119,26 @@ var followCkkName = "Include selected VIPs";
                 tableType = "small";
                 break;
 
-            case "some":
-                //TODO : append vips to filter term in order to display more than one user
-                activeFilter = document.forms.tweetAuthor.elements.author.trim();
-                tableType = "wide";
-                break;
-
             case "all":
                 activeFilter = "*";
                 tableType = "wide";
                 break;
 
-            case 'none':
+            case "none":
                 activeFilter = "";
                 tweetsTable.className = 'hidden';
                 followCkkName = "But selected VIPs";
                 break;
         }
-
         tweetFilter = activeFilter;
+
+        // Checkbox for following-mode
         var label = document.getElementsByName('followLabel')[0];
-        label.innerHTML=followCkkName;
+        label.innerHTML = followCkkName;
         if (followVips) {
             tableType = "wide"
         }
+
         tweetTbl.setTableType(tableType);
     }
 

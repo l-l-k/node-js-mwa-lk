@@ -3,6 +3,10 @@ function tweetTable(dataTable) {
     var activeTable = dataTable;
     var tableType = "small";
     var selectionRange = [-1, -1];
+    var sorting = [];
+    sorting[0] = "descending";
+    sorting[1] = "descending";
+    sorting[2] = "descending";
 
     // Private methods
     function createTableHeader(columns) {
@@ -167,7 +171,74 @@ function tweetTable(dataTable) {
         }
     }
 
+    // Table data sorting 
+    function sortNumericData(columnIndex, direction) {
+        var region = activeTable.getElementsByTagName("TBODY")[0];
+        var rows = region.getElementsByTagName("tr");
+        var item1;
+        var item2;
+        var swap = false;
 
+        for (var i = 0; i < rows.length - 1; i++) {
+            for (var j = 0; j < rows.length - (i + 1); j++) {
+
+                item1 = parseInt(rows.item(j).getElementsByTagName('td').item(columnIndex).innerHTML);
+                item2 = parseInt(rows.item(j + 1).getElementsByTagName('td').item(columnIndex).innerHTML);
+                // Swap rows if sort condition matches
+                if (sorting[columnIndex] == "ascending") {
+                    swap = item1 > item2;
+                } else {
+                    swap = item1 < item2;
+                }
+                if (swap) {
+                    region.insertBefore(rows.item(j + 1), rows.item(j));
+                }
+            }
+        }
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            for (var j = 0; j < rows.length - (i + 1); j++) {
+
+                //Swap row nodes if short condition matches
+                if (parseInt(rows.item(j).getElementsByTagName('td').item(0).innerHTML) > parseInt(rows.item(j + 1).getElementsByTagName('td').item(0).innerHTML)) {
+                    region.insertBefore(rows.item(j + 1), rows.item(j));
+                }
+            }
+        }
+    }
+
+    function sortTextData(columnIndex) {
+        var region = activeTable.getElementsByTagName("TBODY")[0];
+        var rows = region.getElementsByTagName("tr");
+        var item1;
+        var item2;
+        var swap = false;
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            for (var j = 0; j < rows.length - (i + 1); j++) {
+
+                item1 = rows.item(j).getElementsByTagName('td').item(columnIndex).innerHTML;
+                item2 = rows.item(j + 1).getElementsByTagName('td').item(columnIndex).innerHTML;
+                // Swap rows if sort condition matches
+                if (sorting[columnIndex] == "ascending") {
+                    swap = item1 > item2;
+                } else {
+                    swap = item1 < item2;
+                }
+                if (swap) {
+                    region.insertBefore(rows.item(j + 1), rows.item(j));
+                }
+            }
+        }
+    }
+
+    function toggleSorting(columnIndex) {
+        if (sorting[columnIndex] == "descending") {
+            sorting[columnIndex] = "ascending";
+        } else {
+            sorting[columnIndex] = "descending";
+        }
+    }
     // ___________________________________________________________
     // Public methods
 
@@ -191,8 +262,16 @@ function tweetTable(dataTable) {
 
             switch (nameOfRegion) {
                 case 'THEAD':
-                    // TODO : switch sort order
+                    // switch sort order
+                    var upperBound = 3;
+                    if (tableType = "small") { upperBound = 2 };
+
+                    if (selectedColumn.cellIndex <= upperBound) {
+                        toggleSorting(selectedColumn.cellIndex);
+                        sortTextData(selectedColumn.cellIndex)
+                    }
                     break;
+
                 case 'TBODY':
                     // highlight selected rows
                     selectedRows = getSelectedRows(activeTable);
