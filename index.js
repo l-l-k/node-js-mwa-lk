@@ -16,7 +16,7 @@ app.use(express.static('.'));
 
 //Respond to GET request on the root route (/), the application’s home page:
 app.get('/', function (request, response) {
- // response.send('Hello Ne87ööw World!');
+  // response.send('Hello Ne87ööw World!');
   response.sendFile(path.join(__dirname + '/UI.html'));
 });
 
@@ -70,8 +70,10 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
   client
     .query('SELECT * FROM admins')
+         .on('row',console.log(JSON.stringify(row)));
+
     // .on('row', function(row) {
     //   console.log(JSON.stringify(row));
-          .on('row', xdbReader.importAdmins(row));
-  });
+    //.on('row', xdbReader.importAdmins(row));
+});
 
