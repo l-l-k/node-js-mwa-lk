@@ -5,6 +5,7 @@ var path = require('path');
 var app = express();
 // var xdbReader = dbReader();
 // var xdbWriter = dbWriter();
+var admins=[];
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -70,7 +71,10 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
   client
     .query('SELECT * FROM admins')
-   .on('row', function(row) {console.log(JSON.stringify(row))});
+  .on('row', importAdmins(row));
+
+// -->  {"uid":"Leonard
+//   .on('row', function(row) {console.log(JSON.stringify(row))});
 
 // --> undefined 
 //    .on('row', function(row) {console.log(row[0])});
@@ -84,5 +88,6 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
 function importAdmins(row) {
   admins.push(row[0]);
+  console.log(admins.length);
 };
 
