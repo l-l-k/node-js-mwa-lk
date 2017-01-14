@@ -3,6 +3,8 @@ var pg = require('pg');
 var express = require('express');
 var path = require('path');
 var app = express();
+var xdbReader = dbReader();
+var xdbWriter = dbWriter();
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -67,8 +69,9 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   console.log('Connected to postgres! Getting schemas...');
 
   client
-    .query('SELECT * FROM admins;')
-    .on('row', function(row) {
-      console.log(JSON.stringify(row));
+    .query('SELECT * FROM admins')
+    // .on('row', function(row) {
+    //   console.log(JSON.stringify(row));
+          .on('row', xdbReader.importAdmins(row));
   });
 

@@ -3,9 +3,6 @@
 
 ## Running Locally
 
-Make sure you have installed
-    [Node.js](http://nodejs.org/) and the
-    [Heroku Toolbelt](https://toolbelt.heroku.com/) .
 
 ```sh
 $ git clone git@github.com/l-l-k/node-js-mwa-lk.git # or clone your own fork
