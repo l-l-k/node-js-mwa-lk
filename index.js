@@ -70,7 +70,8 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
   client
     .query('SELECT * FROM admins')
-    .on('row', function(row) {console.log(JSON.stringify(row))});
+    .on('row', function(row) {console.log(row[0])});
+  //  .on('row', function(row) {console.log(JSON.stringify(row))});
 
   // .on('row', function(row) {
   //   console.log(JSON.stringify(row));
