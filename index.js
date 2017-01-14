@@ -9,6 +9,7 @@ app.listen(process.env.PORT, function () {
   console.log('Listening on port ' + process.env.PORT + ' !')
 })
 
+app.use(express.static('.'));
 //Respond to GET request on the root route (/), the application’s home page:
 app.get('/', function (request, response) {
   response.send('Hello Ne87ööw World!');
