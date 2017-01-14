@@ -3,6 +3,8 @@ var pg = require('pg');
 var express = require('express');
 var path = require('path');
 var dbOperations = require("./dbOperations.js");
+var dbReader = require("./dbReaderDB.js");
+var dbWriter = require("./dbWriterDB.js");
 
 var app = express();
 var admins = [];
@@ -96,8 +98,9 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   });
 
   query.on("end", function (result) {
-    client.end();
+    client.end();    
     importAdmins(result.rows);
+  //  dbReader.importAdmins(result.rows);
     // res.writeHead(200, { 'Content-Type': 'text/plain' });
     // res.write(JSON.stringify(result.rows, null, "    ") + "\n");
     // res.end();
@@ -119,5 +122,7 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 function importAdmins(result) {
   //admins.push(result.length);
   console.log("WWWWWW" + result.length);
+  console.log(result[0]);
+  console.log(JSON.stringify(result.rows, null, "    "));
 };
 

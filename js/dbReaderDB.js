@@ -1,4 +1,4 @@
-function dbReader() {
+function readDB() {
     // Private properties
     var comparativeValue;
     var ls = new localStorageInitialisation();
@@ -67,8 +67,8 @@ function dbReader() {
     // Public methods
     var reader = {
 
-        importAdmins: function(row) {
-            admins.push(row[0]);
+        importAdmins: function(rows) {
+            admins.push(rows[0]);
         },
 
         // Handling tweets
