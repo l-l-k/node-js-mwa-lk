@@ -3,8 +3,8 @@ var pg = require('pg');
 var express = require('express');
 var path = require('path');
 var dbOperations = require("./dbOperations.js");
-var dbReader = require("./dbReaderDB.js");
-var dbWriter = require("./dbWriterDB.js");
+var dbReader = require("./js/dbReaderDB.js");
+var dbWriter = require("./js/dbWriterDB.js");
 
 var app = express();
 var admins = [];
