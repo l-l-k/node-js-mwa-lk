@@ -122,7 +122,7 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 function importAdmins(result) {
   //admins.push(result.length);
   console.log("WWWWWW" + result.length);
-  console.log(result[0]);
+  console.log(result[0].uid);
   console.log(JSON.stringify(result.rows, null, "    "));
 };
 
