@@ -1,0 +1,12 @@
+{
+    "name": "mwa",
+    "version": "0.0.1",
+    "description": "OTH Regensburg IM WiSe 16/17 Course de Leastar",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"No test available\" && exit1",
+        "start": "node index.js"
+    },
+    "author": "Leonard Klausmann",
+    "license": "ISC"
+}
