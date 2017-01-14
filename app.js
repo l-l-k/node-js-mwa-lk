@@ -97,9 +97,10 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
   query.on("end", function (result) {
     client.end();
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write(JSON.stringify(result.rows, null, "    ") + "\n");
-    res.end();
+    importAdmins(result.rows);
+    // res.writeHead(200, { 'Content-Type': 'text/plain' });
+    // res.write(JSON.stringify(result.rows, null, "    ") + "\n");
+    // res.end();
   });
 
   // -->  {"uid":"Leonard
@@ -115,8 +116,8 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   //.on('row', xdbReader.importAdmins(row));
 });
 
-function importAdmins(row) {
-  admins.push(row[0]);
-  console.log(admins.length);
+function importAdmins(result) {
+  //admins.push(result.length);
+  console.log("WWWWWW" + result.length);
 };
 
