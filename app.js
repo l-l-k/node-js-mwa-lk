@@ -5,7 +5,7 @@ var path = require('path');
 var dbOperations = require("./dbOperations.js");
 
 var app = express();
-var admins=[];
+var admins = [];
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -21,25 +21,25 @@ app.get('/', function (request, response) {
   response.sendFile(path.join(__dirname + '/UI.html'));
 });
 
-app.get('/db/readRecords', function(req,res){
-    dbOperations.getRecords(req,res);
+app.get('/db/readRecords', function (req, res) {
+  dbOperations.getRecords(req, res);
 });
 
-app.get('/db/addRecord', function(req,res){
-    dbOperations.addRecord(req,res);
+app.get('/db/addRecord', function (req, res) {
+  dbOperations.addRecord(req, res);
 });
 
-app.get('/db/delRecord', function(req,res){
-    dbOperations.delRecord(req,res);
+app.get('/db/delRecord', function (req, res) {
+  dbOperations.delRecord(req, res);
 });
 
-app.get('/db/createTable', function(req,res){
-    dbOperations.createTable(req,res);
+app.get('/db/createTable', function (req, res) {
+  dbOperations.createTable(req, res);
 });
 
-app.get('/db/dropTable', function(req,res){
-    dbOperations.dropTable(req,res);
-}); 
+app.get('/db/dropTable', function (req, res) {
+  dbOperations.dropTable(req, res);
+});
 
 //___________________________________________________
 // Default express methods
@@ -90,15 +90,23 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   if (err) throw err;
   console.log('Connected to postgres! Getting schemas...');
 
-  client
-    .query('SELECT * FROM admins;')
-  .on('row', importAdmins(row));
+  var query = client.query('SELECT * FROM admins;');
+  query.on('row', function (row, result) {
+    result.addRow(row);
+  });
 
-// -->  {"uid":"Leonard
-//   .on('row', function(row) {console.log(JSON.stringify(row))});
+  query.on("end", function (result) {
+    client.end();
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write(JSON.stringify(result.rows, null, "    ") + "\n");
+    res.end();
+  });
 
-// --> undefined 
-//    .on('row', function(row) {console.log(row[0])});
+  // -->  {"uid":"Leonard
+  //   .on('row', function(row) {console.log(JSON.stringify(row))});
+
+  // --> undefined 
+  //    .on('row', function(row) {console.log(row[0])});
 
   console.log('Done');
 
