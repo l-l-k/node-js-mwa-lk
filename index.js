@@ -74,4 +74,4 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   //   .on('row', function(row) {
   //     console.log(JSON.stringify(row));
   //   });
-});
+
