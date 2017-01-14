@@ -1,6 +1,7 @@
 var http = require('http')
 var pg = require('pg');
 var express = require('express');
+var path = require('path');
 var app = express();
 
 app.set('port', (process.env.PORT || 5000));
@@ -10,10 +11,13 @@ app.listen(process.env.PORT, function () {
 })
 
 app.use(express.static('.'));
+
+
+
 //Respond to GET request on the root route (/), the application’s home page:
 app.get('/', function (request, response) {
-  response.send('Hello Ne87ööw World!');
-  //response.render('UI');
+ // response.send('Hello Ne87ööw World!');
+  response.sendFile(path.join(__dirname + '/UI.html'));
 });
 
 
@@ -58,21 +62,20 @@ app.delete('/user', function (req, res) {
 // ___________________________________________
 // Database initialisation
 
-pg.defaults.ssl = true;
-//pg.defaults.ssl = false;
-pg.connect(process.env.DATABASE_URL, function (err, client) {
-  if (err) throw err;
-  console.log('Connected to postgres! Getting schemas...');
+// pg.defaults.ssl = true;
+// //pg.defaults.ssl = false;
+// pg.connect(process.env.DATABASE_URL, function (err, client) {
+//   if (err) throw err;
+//   console.log('Connected to postgres! Getting schemas...');
 
-  // app.get('/', function (request, response) {
-  //   response.send('Connected to postgres! Getting schemas...');
-    //response.render('UI');
-  });
+//   // app.get('/', function (request, response) {
+//   //   response.send('Connected to postgres! Getting schemas...');
+//     //response.render('UI');
  
 
-  // client
-  //   .query('SELECT table_schema,table_name FROM information_schema.tables;')
-  //   .on('row', function(row) {
-  //     console.log(JSON.stringify(row));
-  //   });
+//   // client
+//   //   .query('SELECT table_schema,table_name FROM information_schema.tables;')
+//   //   .on('row', function(row) {
+//   //     console.log(JSON.stringify(row));
+//   });
 
