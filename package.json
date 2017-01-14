@@ -1,5 +1,5 @@
 {
-  "name": "mwa",
+  "name": "modern-web-application",
   "version": "0.0.1",
   "description": "OTH Regensburg IM WiSe 16/17 Course de Leastar",
   "main": "index.js",
@@ -8,8 +8,26 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "pg": "4.5.6"
+    "express": "^4.14.0",
+    "pg": "6.1.2"
   },
+  "engines": {
+    "node": "7.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/l-l-k/node-js-mwa-lk.git"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "spa"
+  ],
   "author": "Leonard Klausmann",
-  "license": "ISC"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/l-l-k/node-js-mwa-lk/issues"
+  },
+  "homepage": "https://github.com/l-l-k/node-js-mwa-lk#readme",
+  "devDependencies": {}
 }

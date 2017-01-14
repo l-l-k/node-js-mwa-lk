@@ -1,0 +1,8 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+mwa
+public
+
+# Local development
+*.env
