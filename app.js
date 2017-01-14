@@ -2,9 +2,9 @@ var http = require('http')
 var pg = require('pg');
 var express = require('express');
 var path = require('path');
+var dbOperations = require("./dbOperations.js");
+
 var app = express();
-// var xdbReader = dbReader();
-// var xdbWriter = dbWriter();
 var admins=[];
 
 app.set('port', (process.env.PORT || 5000));
@@ -21,7 +21,28 @@ app.get('/', function (request, response) {
   response.sendFile(path.join(__dirname + '/UI.html'));
 });
 
+app.get('/db/readRecords', function(req,res){
+    dbOperations.getRecords(req,res);
+});
 
+app.get('/db/addRecord', function(req,res){
+    dbOperations.addRecord(req,res);
+});
+
+app.get('/db/delRecord', function(req,res){
+    dbOperations.delRecord(req,res);
+});
+
+app.get('/db/createTable', function(req,res){
+    dbOperations.createTable(req,res);
+});
+
+app.get('/db/dropTable', function(req,res){
+    dbOperations.dropTable(req,res);
+}); 
+
+//___________________________________________________
+// Default express methods
 //Respond to POST request on the root route (/), the application’s home page:
 app.post('/', function (req, res) {
   res.send('Got a POST request')
@@ -70,7 +91,7 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
   console.log('Connected to postgres! Getting schemas...');
 
   client
-    .query('SELECT * FROM admins')
+    .query('SELECT * FROM admins;')
   .on('row', importAdmins(row));
 
 // -->  {"uid":"Leonard
