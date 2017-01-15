@@ -59,23 +59,23 @@ app.post('/Submit/signup', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.mailAddress,
-  req.body.username,  req.body.password];
+  req.body.username, req.body.password];
 
-pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-  //var query = dbOperator.getSignInQuery(req.body.username, req.body.password, req.body.mailAddress);
-  var quer = 'Select * from users where name = \'' + req.body.username + '\';'
+  pg.connect(process.env.DATABASE_URL, function (err, client, done) {
+    //var query = dbOperator.getSignInQuery(req.body.username, req.body.password, req.body.mailAddress);
+    var quer = 'Select * from users where name = \'' + req.body.username + '\';'
 
-    client.query('SELECT * FROM test_table', function(err, result) {
+    client.query(query, function (err, result) {
       done();
       if (err)
-       { console.error(err); response.send("Error " + err); }
+      { console.error(err); res.send("Error " + err); }
       else
-       { response.render('pages/db', {results: result.rows} ); }
+      { res.send(result); }
     });
   });
 
 
-// dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  // dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
   console.log('Got a POST request with these parameters : ' + params.join(' '));
   //res.send('Got a POST request')
 });
@@ -85,7 +85,7 @@ app.post('/Submit/login', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.mailAddress,
-  req.body.username,  req.body.password];
+  req.body.username, req.body.password];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -95,7 +95,7 @@ app.post('/Submit/account', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.id, req.body.mailAddress,
-  req.body.username,  req.body.password];
+  req.body.username, req.body.password];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -104,9 +104,9 @@ app.post('/Submit/addTweet', function (req, res) {
   console.log('Got a POST request to add a new tweet...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
- 
-  var params = [req.body.id, 
-  req.body.message,  (req.body.preview.length>0)];
+
+  var params = [req.body.id,
+  req.body.message, (req.body.preview.length > 0)];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -116,7 +116,7 @@ app.post('/Submit/selectTweets', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.id, req.body.start, req.body.end,
-  req.body.message,  (req.body.image.length>0)];
+  req.body.message, (req.body.image.length > 0)];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -126,7 +126,7 @@ app.post('/Admin/addUser', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.mailAddress,
-  req.body.username,  req.body.password];
+  req.body.username, req.body.password];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -145,7 +145,7 @@ app.post('/Admin/statistics', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
   var params = [req.body.id, req.body.mailAddress,
-  req.body.username,  req.body.password];
+  req.body.username, req.body.password];
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
