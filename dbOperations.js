@@ -78,7 +78,7 @@ module.exports = {
         changeEntry('Delete from users where uid = \'' + uid + '\'');
 
     },
-    
+
 
     editAccount: function (uid, newuserName, newpassword, newmail) {
         var resultUser = dbRowDefinition.userRecord('', '', '', '');
@@ -94,19 +94,19 @@ module.exports = {
     getSignInQuery: function (userName) {
         return 'Select * from users where name = \'' + userName + '\';'
     },
-logIn: function (password, mail) {
+    
+    logIn: function (password, mail) {
         var resultUser = dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByMail(mail);// importUserByName(userName);
         console.log('user status : ' + t);
         if ((t == null) || (t == undefined) || (t.id == '')) {
-              return resultUser;           
-        }
-        if(t.password != password)
-        {
             return resultUser;
         }
-       return t;
-      
+        if (t.password != password) {
+            return resultUser;
+        }
+        return t;
+
     },
 
     signIn: function (userName, password, mail) {
