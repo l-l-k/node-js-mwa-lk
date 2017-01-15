@@ -62,23 +62,23 @@ app.post('/Submit/signup', function (req, res) {
   req.body.username, req.body.password];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
 
-  var newUser = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
-  res.set(newUser);
-  res.send();
-  //res.send('Got a POST request')
+  var data = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length });
+  res.write(data);
+  res.end();
 });
 
 app.post('/Submit/login', function (req, res) {
   console.log('Got a POST request to login...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  
+
   var params = [req.body.mailAddress, req.body.password];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var validUser = dbOperator.logIn(req.body.password, req.body.mailAddress);
-   console.log('Result : ' + validUser);
- res.set(validUser);
+  console.log('Result : ' + validUser);
+  res.set(validUser);
   res.send();
 });
 
@@ -91,7 +91,7 @@ app.post('/Submit/account', function (req, res) {
   req.body.username, req.body.password];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
 
-  var result = dbOperator.updateAccount(req.body.id, req.body.mailAddress,  req.body.username, req.body.password);
+  var result = dbOperator.updateAccount(req.body.id, req.body.mailAddress, req.body.username, req.body.password);
   res.set(result);
   res.send();
 });
@@ -119,9 +119,11 @@ app.post('/Submit/displayTweets', function (req, res) {
   var params = [req.body.id, req.body.start, req.body.end,
   req.body.message, (req.body.image.length > 0)];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
-  var tweets = dbOperator.getTweets(req.body.id, req.body.message, req.body.preview);
-  res.set(tweets);
-  res.send();
+  
+  var data = dbOperator.getTweets(req.body.id, req.body.message, req.body.preview);
+  res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length });
+  res.write(data);
+  res.end();
 });
 
 app.post('/Admin/addUser', function (req, res) {
@@ -133,9 +135,10 @@ app.post('/Admin/addUser', function (req, res) {
   req.body.username, req.body.password];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
 
-  var newUser = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
-  res.set(newUser);
-  res.send();
+  var data = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length });
+  res.write(data);
+  res.end();
 });
 
 app.post('/Admin/removeUser', function (req, res) {
@@ -156,25 +159,16 @@ app.post('/Admin/statistics', function (req, res) {
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
 
-  var params = [req.body.userid, req.body.r11,  req.body.r12];
+  var params = [req.body.userid, req.body.r11, req.body.r12];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
   console.log('Got a POST request with these parameters : ' + req.body.join(' '));
 
-  var newUser = dbOperator.evaluteFrequence(req.body.userID,req.body.r11,  req.body.r12);
-  res.set(newUser);
-  res.send();
+  var data = dbOperator.evaluteFrequence(req.body.userID, req.body.r11, req.body.r12);
+  res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length });
+  res.write(data);
+  res.end();
 });
 
-
-//Respond to a PUT request to the /user route:
-app.put('/user', function (req, res) {
-  res.send('Got a PUT request at /user')
-});
-
-//Respond to a DELETE request to the /user route:
-app.delete('/user', function (req, res) {
-  res.send('Got a DELETE request at /user')
-});
 
 // use a timer
 // app.get('/times', function(request, response) {
