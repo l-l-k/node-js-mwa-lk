@@ -1,6 +1,5 @@
 function readDB() {
     // Private properties
-    //var pg = require('pg');
     var comparativeValue;
     var ls = new localStorageInitialisation();
 

@@ -1,6 +1,5 @@
 function writeDB() {
     // Private properties
-             var pg = require('pg');  
   var ls = new localStorageInitialisation();
     var comparativeValue;
 
