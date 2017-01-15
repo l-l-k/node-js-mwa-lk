@@ -92,7 +92,7 @@ module.exports = {
 
     importUserByName: function (userName) {
         var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where name = ' + userName + ';');
+        var rows = getRecords('Select * from users where name = \'' + userName + '\';');
         if ((rows == null) || (rows.length == 0)) {
             user = new dbRowDefinition.userRecord('', '', '', '');
         } else {
@@ -104,7 +104,7 @@ module.exports = {
 
     importUserByID: function (userID) {
         var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where uid = ' + userID + ';');
+        var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
         if ((rows == null) || (rows.length == 0)) {
             user = new dbRowDefinition.userRecord();
         } else {
@@ -125,9 +125,9 @@ module.exports = {
         var rows;
         var query;
         if (filter == '*') {
-            query = 'Select * from tweets' + qback + ';';
+            query = 'Select * from tweets ' + qback + ';';
         } else {
-            query = 'Select * from tweets  where uid = ' + filter + ' limit 20;';
+            query = 'Select * from tweets where uid = \'' + filter + '\' limit 20;';
         }
         rows = getRecords(query);
         var tweets = new Array();
