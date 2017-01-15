@@ -30,12 +30,13 @@ var returnvalue;
        query.on('row', function (row, result) {
                         console.log('query result increased');
             result.addRow(row);
+  returnvalue= result.rows;
         });
 
         query.on("end", function (result) {
-            client.end();
+            // client.end();
             console.log('query finished');
-            returnvalue= result.rows;
+          
         });
     });
 return returnvalue;
