@@ -1,8 +1,8 @@
 
 /* Global Objects */
 var mwaToolset = mwaToolkit();
-var storageReader = localStorageReader();
-var storageWriter = localStorageWriter();
+var storageReader = dbReader();//localStorageReader();
+var storageWriter = dbWriter();
 
 var tweetCreator = tweetCreation();
 var tweetViewer = tweetView();

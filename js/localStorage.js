@@ -32,7 +32,7 @@ function localStorageInitialisation() {
             vips = JSON.parse(localStorage.getItem(this.vipsKey));
             // restoreTweets;
             currentTweet = JSON.parse(localStorage.getItem(this.currentTweetKey));
-            availableTweets = JSON.parse(localStorage.getItem(this.availableTweetsKey));
+            //availableTweets = JSON.parse(localStorage.getItem(this.availableTweetsKey));
         },
 
         populateUserList: function () {

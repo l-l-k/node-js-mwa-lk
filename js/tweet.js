@@ -87,7 +87,7 @@ function tweetCreation() {
                 tableUpdateRequested = true;
                 // Update timeline
                 if (tableUpdateRequested) {
-                    //XX var tweets = storageReader.getSubsetOfTweetsByID(tweetFilter);
+                    // no query requested because we extended 'availableTweets'
                     tweets = availableTweets;
                     tweetTbl.updateTable(tweets);
                     tweetsTable.addEventListener('click', tweetTbl.findTweets, false);

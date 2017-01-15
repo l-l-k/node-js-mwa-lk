@@ -140,7 +140,8 @@ function localStorageWriter() {
             var before = availableTweets.length;
 
             availableTweets.push(newTweet);
-            //XX localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
+            // thrrows errors in case of big pictures:
+            //  localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
 
             return (availableTweets.length == before + 1);
         }

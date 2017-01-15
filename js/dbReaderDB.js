@@ -4,7 +4,7 @@ function readDB() {
     var ls = new localStorageInitialisation();
 
     knownUsers = importKnownUsers();
-    availableTweets = importAvailableTweets();
+    availableTweets = new Array();
 
     // =================================================== 
     // Private methods
@@ -59,11 +59,12 @@ function readDB() {
             query = 'Select * from tweets  where uid = ' + filter + ' limit 20;';
         }
         rows = getRowsOfQuery(query);
-
+        var tweets = new Array();
         for (i = 0; i < rows.length; i++) {
             var tweet = tweetRecord(rows[i].uid, mwaToolset.getDay(rows[i].timestamp), mwaToolset.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
-            availableTweets.push(tweet);
+            tweets.push(tweet);
         }
+        return tweets;
     }
 
     function getVipTweets() {
@@ -114,7 +115,7 @@ function readDB() {
             var rows = getRowsOfQuery('Select * from admins;');
             for (i = 0; i < rows.length; i++) {
                 admins.push(rows[i].uid.trim());
-            };
+            }
         },
 
         importVips: function (userID) {
@@ -123,7 +124,7 @@ function readDB() {
             for (i = 0; i < rows.length; i++) {
                 var vip = vipRecord(rows[i].uid, rows[i].vip, rows[i].active);
                 vips.push(vip);
-            };
+            }
         },
 
         // Handling tweets
@@ -210,21 +211,22 @@ function readDB() {
             }
             //  append tweets of selected vips
             var vipTweets = getVipTweets();
-            return results.concat(vipTweets);
+            availableTweets = results.concat(vipTweets);
+            return availableTweets;
         },
 
         // =================================================== 
         // Statistical queries
 
         getTweetsInPeriod: function (startDate, endDate) {
-            availableTweets = importAvailableTweetsInPeriod();
+            var tweets  = importAvailableTweetsInPeriod();
             var results = [];
             var tweet; // = tweetRecord;
             var datum = "";
             var day;
 
-            for (var i = [0]; i < availableTweets.length; i++) {
-                tweet = availableTweets[i];
+            for (var i = [0]; i < tweets.length; i++) {
+                tweet = tweets[i];
                 datum = tweet.day.split("-");
                 day = new Date(datum[0], datum[1], datum[2]);
                 if ((day >= startDate) && (day <= endDate)) {
