@@ -13,18 +13,6 @@ function readDB() {
         return vip.id == comparativeValue;
     }
 
-    function equalsUserID(user) {
-        return user.id == comparativeValue;
-    }
-
-    function equalsUsername(user) {
-        return user.username == comparativeValue;
-    }
-
-    function equalsMailAddress(user) {
-        return user.mailAddress == comparativeValue;
-    }
-
     function importUserByID(userID) {
         var user = userRecord;
         var rows = getRowsOfQuery('Select * from users where uid = ' + userID + ';');
@@ -34,7 +22,6 @@ function readDB() {
             var row = rows[0];
             var user = userRecord(row.mail, row.name, row.password, row.uid);
         }
-        knownUsers.push(user);
         return user;
     }
 
@@ -49,7 +36,7 @@ function readDB() {
 
     function importAvailableTweets(filter, qback) {
         if (qback == null) {
-            qback = 'limit 20';
+            qback = ' limit 20';
         }
         var rows;
         var query;

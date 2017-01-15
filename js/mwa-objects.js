@@ -2,7 +2,6 @@ var mwa = {};
 
 /* Global Variables */
 var admins = new Array();
-var knownUsers = new Array();
 var vips = new Array(); // persons to follow
 var lastDisplayedMessages = new Array();
 var availableTweets = new Array();

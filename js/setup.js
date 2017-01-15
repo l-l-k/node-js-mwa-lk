@@ -30,9 +30,6 @@ function resetUI() {
     lsInitiator.initialise();
 
     resetUI();
-
-    storageReader.updateUsers();
-    storageReader.updateTweets();
     
     tweetViewer.populateVipList();
 } ());

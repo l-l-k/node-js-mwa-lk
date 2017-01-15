@@ -3,16 +3,11 @@ function writeDB() {
     var ls = new localStorageInitialisation();
     var comparativeValue;
 
-    knownUsers = importKnownUsers();
     availableTweets = importAvailableTweets();
 
     // Private methods
     function importAvailableTweets() {
         return JSON.parse(localStorage.getItem(ls.availableTweetsKey));
-    }
-
-    function importKnownUsers() {
-        return JSON.parse(localStorage.getItem(ls.knownUsersKey));
     }
 
     function equalsTweetAuthor(tweet) {
@@ -31,8 +26,8 @@ function writeDB() {
                 temporaryUser.username);
 
             // append user to storage
-            knownUsers.push(newUser);
-            localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
+// TODO             knownUsers.push(newUser);
+// TODO             localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
 
             return newUser;
         },
@@ -47,7 +42,7 @@ function writeDB() {
                 existingUser.username = temporaryUser.username;
                 existingUser.password = temporaryUser.password;
                 success = true;
-                localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
+     // TODO            localStorage.setItem(ls.knownUsersKey, JSON.stringify(knownUsers));
             }
 
             return success;
@@ -55,9 +50,9 @@ function writeDB() {
 
         deleteUser: function (user) {
             var success = false;
-            var index = knownUsers.indexOf(user);
+     // TODO       var index = knownUsers.indexOf(user);
             if (index >= 0) {
-                knownUsers.splice(index, 1); // Remove 1 element 
+     // TODO            knownUsers.splice(index, 1); // Remove 1 element 
                 success = true;
             }
             return success;

@@ -48,7 +48,7 @@ function localStorageInitialisation() {
             localStorage.setItem(this.currentTweetKey, JSON.stringify(currentTweet));
 
             // var tweetCreator = tweetCreation();
-            //var users = JSON.parse(localStorage.getItem(this.knownUsersKey));
+            var users = JSON.parse(localStorage.getItem(this.knownUsersKey));
             var messages = [];
             var anyTweet = tweetCreator.createTweet("1", "2017-01-05", "10:13:19", "X", "")
             messages.push(tweetCreator.createTweet("3", "2016-12-01", "10:10:10",
