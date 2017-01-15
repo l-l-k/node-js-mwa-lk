@@ -1,10 +1,10 @@
 var dbRowDefinition = require("./serverObjects.js");
 
 function getUserByName(userName) {
-    var user = dbRowDefinition.userRecord;
+    var user = new dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
     if ((rows == null) || (rows.length == 0)) {
-        user = new dbRowDefinition.userRecord('', '', '', '');
+       return user;
     } else {
         var row = rows[0];
         var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
