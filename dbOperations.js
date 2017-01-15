@@ -13,6 +13,7 @@ function getUserByName(userName) {
     return user;
 };
 
+
 function getRecords(req, res) {
     var pg = require('pg');
 
@@ -23,20 +24,21 @@ function getRecords(req, res) {
         if (err) throw err;
         console.log(req);
         var query = client.query(req);
-        query.on('row', function (row, result) {
+             console.log('query started');
+       query.on('row', function (row, result) {
+                        console.log('query result increased');
             result.addRow(row);
         });
 
         query.on("end", function (result) {
             client.end();
+            console.log('query finished');
             return result.rows;
         });
     });
 };
 
 module.exports = {
-
-
     changeRecord: function (req, res) {
         var pg = require('pg');
 

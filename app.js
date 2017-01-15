@@ -62,7 +62,7 @@ app.post('/Submit/signup', function (req, res) {
   req.body.username,  req.body.password];
 
 dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
-  console.log('Got a POST request with these parameters' + params.join(' '));
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
   //res.send('Got a POST request')
 });
 
@@ -73,7 +73,7 @@ app.post('/Submit/login', function (req, res) {
   var params = [req.body.mailAddress,
   req.body.username,  req.body.password];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Submit/account', function (req, res) {
@@ -83,7 +83,7 @@ app.post('/Submit/account', function (req, res) {
   var params = [req.body.id, req.body.mailAddress,
   req.body.username,  req.body.password];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Submit/addTweet', function (req, res) {
@@ -94,7 +94,7 @@ app.post('/Submit/addTweet', function (req, res) {
   var params = [req.body.id, 
   req.body.message,  (req.body.preview.length>0)];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Submit/selectTweets', function (req, res) {
@@ -104,7 +104,7 @@ app.post('/Submit/selectTweets', function (req, res) {
   var params = [req.body.id, req.body.start, req.body.end,
   req.body.message,  (req.body.image.length>0)];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Admin/addUser', function (req, res) {
@@ -114,7 +114,7 @@ app.post('/Admin/addUser', function (req, res) {
   var params = [req.body.mailAddress,
   req.body.username,  req.body.password];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Admin/removeUser', function (req, res) {
@@ -123,7 +123,7 @@ app.post('/Admin/removeUser', function (req, res) {
   console.log("query = " + req.query.length);
   var params = [req.body.mailAddress];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 app.post('/Admin/statistics', function (req, res) {
@@ -133,7 +133,7 @@ app.post('/Admin/statistics', function (req, res) {
   var params = [req.body.id, req.body.mailAddress,
   req.body.username,  req.body.password];
 
-  res.send('Got a POST request with these parameters' + params.join(' '));
+  res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
 
 
