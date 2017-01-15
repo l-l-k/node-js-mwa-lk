@@ -131,7 +131,7 @@
         <section id="tweetDefinition" class="visible">
             <h2 class="hidden">Messages</h2>
             <h3 class="visible"><a title="Limited to 140 characters">Post a tweet</a></h3>
-            <form id="defineTweet" name="tweetDefinition" action="#" method="POST">
+            <form id="defineTweet" name="Submit/addTweet" action="#" method="POST">
                 <fieldset class="postTweet">
                     <legend></legend>
                     <div>
@@ -230,7 +230,7 @@
     <!-- Add a new user -->
     <fieldset id="addUser" class="visible">
         <legend>Add User</legend>
-        <form name="addUser" action="#" method="POST">
+        <form name="addUser" action="Admin/addUser" method="POST">
             <div>
                 <label for="mailAddress" class="inputLabel">Login-Name : </label>
                 <input type="email" name="mailAddress" class="inputField" placeholder="Mail address ..." required />
@@ -252,7 +252,7 @@
     <!-- Remove a user (and his tweets) -->
     <fieldset id="removeUser" class="visible">
         <legend>Remove User</legend>
-        <form name="removeUser" action="#" method="POST">
+        <form name="removeUser" action="Admin/removeUser" method="POST">
             <div>
                 <label for="userID" class="inputLabel">Login-Name : </label>
                 <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
@@ -265,7 +265,7 @@
     <!-- Delete tweets of any user -->
     <fieldset id="cleanupTweets" class="visible">
         <legend>Delete Items</legend>
-        <form name="cleanupTweets" action="#" method="POST">
+        <form name="cleanupTweets" action="Admin/deleteTweets" method="POST">
             <div>
                 <input type="radio" class="radio1" id="r11" name="adminFilter" value="all" checked="checked" />
                 <label for="r11" id="labelR11" name="labelAdmR1"> All tweets</label>
@@ -297,7 +297,7 @@
     <!-- Statistic / Summary of user accounts -->
     <fieldset id="statistics" class="visible">
         <legend>Select Period for Statistic</legend>
-        <form name="statistics" action="#" method="POST">
+        <form name="statistics" action="Admin/statistics" method="POST">
             <div>
                 <label for="startDate" class="inputLabel" <a title="Select first day of time span to analyse">From :</a> </label>
                 <input type="date" name="startDate" class="inputField" placeholder="2000-12-30" maxlength="10" required />
