@@ -1,6 +1,6 @@
 function readDB() {
     // Private properties
-           var pg = require('pg');  
+    //var pg = require('pg');
     var comparativeValue;
     var ls = new localStorageInitialisation();
 
@@ -76,7 +76,21 @@ function readDB() {
         return vipTweets;
     }
 
+    function herokutest() {
+        var pg = require('pg').native
+            , connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/mwq'
+            , client
+            , query;
+        pg.defaults.ssl = true;
+
+        client = new pg.Client(connectionString);
+        client.connect();
+        query = client.query('SELECT * FROM admins');
+        query.on('end', function () { client.end(); });
+    }
+
     function getRowsOfQuery(querystring) {
+        herokutest();
         pg.defaults.ssl = true;
         pg.connect(process.env.DATABASE_URL, function (err, client) {
             if (err) throw err;
@@ -161,12 +175,12 @@ function readDB() {
 
         findUserName: function findUserName(name) {
             var user = retrieveUserDataByName(name);
-            return (user.mail!=null);
+            return (user.mail != null);
         },
 
         findMailAddress: function (address) {
             var user = retrieveUserDataByName(name);
-            return (user.mail!=null);
+            return (user.mail != null);
         },
 
         determineUserStatus: function (userID) {
