@@ -100,8 +100,7 @@ function readDB() {
             query.on("end", function (result) {
                 client.end();
                 return (result.rows);
-            }
-            );
+            });
         });
     }
 
