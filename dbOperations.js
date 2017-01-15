@@ -2,7 +2,7 @@ var dbRowDefinition = require("./serverObjects.js");
 var toolkit = require("./serverToolkit.js");
 
 function getUserByName(userName) {
-    var user = new dbRowDefinition.userRecord('', '', '', '');
+    var user = dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
 
     if ((rows == null) || (rows.length == 0) || (rows === undefined)) {
@@ -79,7 +79,7 @@ module.exports = {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByName(userName);// importUserByName(userName);
         console.log('user status : ' + t);
-        if ((t==null) || (t.id == '')) {
+        if ((t==null) || (t==undefined) || (t.id == '')) {
             console.log(' create id ');
             var uid = toolkit.createGuid();
             console.log('  id =  ' + uid);
