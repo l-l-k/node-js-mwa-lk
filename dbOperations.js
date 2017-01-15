@@ -3,10 +3,10 @@ var dbRowDefinition = require("./serverObjects.js");
 function getUserByName(userName) {
     var user = new dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
-              
-    if ((rows == null) || (rows.length == 0) || (rows===undefined)) {
-         console.log('empty row');
-       return user;
+
+    if ((rows == null) || (rows.length == 0) || (rows === undefined)) {
+        console.log('empty row');
+        return user;
     } else {
         var row = rows[0];
         console.log(row.join(' '));
@@ -18,35 +18,35 @@ function getUserByName(userName) {
 
 function getRecords(query, res) {
     var pg = require('pg');
-var returnvalue;
+    var returnvalue;
     //You can run command "heroku config" to see what is Database URL from Heroku belt
 
-    pg.defaults.ssl = true;
-    pg.connect(process.env.DATABASE_URL, function (err, client) {
-  client.query(query, function (err, result) {
-      done();
-      if (err)
-      { console.error(err); res.send("Error " + err); }
-      else
-      { returnvalue =(result.rows); }
+    //  pg.defaults.ssl = true;
+    pg.connect(process.env.DATABASE_URL, function (err, client, done) {
+        client.query(query, function (err, result) {
+            done();
+            if (err)
+            { console.error(err); res.send("Error " + err); }
+            else
+            { returnvalue = (result.rows); }
+        });
     });
-    });
-return returnvalue;
+    return returnvalue;
 }
 
 module.exports = {
-    changeRecord: function (query, res) {
+    changeRecord: function (query, res, done) {
         var pg = require('pg');
 
         pg.connect(process.env.DATABASE_URL, function (err, client) {
-  client.query(query, function (err, result) {
-      done();
-      if (err)
-      { console.error(err); res.send("Error " + err); }
-      else
-      { console.log('database change success'); }
-    });
-    });
+            client.query(query, function (err, result) {
+                done();
+                if (err)
+                { console.error(err); res.send("Error " + err); }
+                else
+                { console.log('database change success'); }
+            });
+        });
     },
 
 
@@ -70,9 +70,9 @@ module.exports = {
         return resultUser;
     },
 
-getSignInQuery:function (userName) {
-return 'Select * from users where name = \'' + userName + '\';'
-},
+    getSignInQuery: function (userName) {
+        return 'Select * from users where name = \'' + userName + '\';'
+    },
 
     signIn: function (userName, password, mail) {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
@@ -89,14 +89,14 @@ return 'Select * from users where name = \'' + userName + '\';'
     },
 
     importUserByName: function (userName) {
-      return getUserByName(userName);
+        return getUserByName(userName);
     },
 
     importUserByID: function (userID) {
         var user = dbRowDefinition.userRecord;
         var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
         if ((rows == null) || (rows.length == 0)) {
-            user = new dbRowDefinition.userRecord('','','','');
+            user = new dbRowDefinition.userRecord('', '', '', '');
         } else {
             var row = rows[0];
             var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);

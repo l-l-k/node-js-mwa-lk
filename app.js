@@ -61,14 +61,22 @@ app.post('/Submit/signup', function (req, res) {
   var params = [req.body.mailAddress,
   req.body.username, req.body.password];
 
- 
+  pg.connect(process.env.DATABASE_URL, function (err, client, done) {
     //var query = dbOperator.getSignInQuery(req.body.username, req.body.password, req.body.mailAddress);
-  //  var query = 'Select * from users where name = \'' + req.body.username + '\';'
-  //  query = 'Select * from users;'
-    
+    var query = 'Select * from users where name = \'' + req.body.username + '\';'
+var query = 'Select * from users where name = \'' + req.body.username + '\';'
+
+    client.query(query, function (err, result) {
+      done();
+      if (err)
+      { console.error(err); res.send("Error " + err); }
+      else
+      { res.send(result); }
+    });
+  });
 
 
-   dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  // dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
   console.log('Got a POST request with these parameters : ' + params.join(' '));
   //res.send('Got a POST request')
 });
