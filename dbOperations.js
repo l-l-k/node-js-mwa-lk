@@ -1,4 +1,5 @@
 var dbRowDefinition = require("./serverObjects.js");
+var toolkit = require("./serverToolkit.js");
 
 function getUserByName(userName) {
     var user = new dbRowDefinition.userRecord('', '', '', '');
@@ -77,8 +78,9 @@ module.exports = {
     signIn: function (userName, password, mail) {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByName(userName);// importUserByName(userName);
+                console.log('user status : ' + t);
         if (t.id == '') {
-            var uid = mwaToolset.createGuid();
+            var uid = toolkit.createGuid();
             var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \');';
             console.log(qs);
             //     changeRecord(qs);
@@ -122,7 +124,7 @@ module.exports = {
         rows = getRecords(query);
         var tweets = new Array();
         for (i = 0; i < rows.length; i++) {
-            var tweet = tweetRecord(rows[i].uid, mwaToolset.getDay(rows[i].timestamp), mwaToolset.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
+            var tweet = tweetRecord(rows[i].uid, toolkit.getDay(rows[i].timestamp), toolkit.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
             tweets.push(tweet);
         }
         return tweets;
