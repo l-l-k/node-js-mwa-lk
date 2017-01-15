@@ -60,6 +60,7 @@ app.post('/Submit/signup', function (req, res) {
   console.log("query = " + req.query.length);
   var params = [req.body.mailAddress,
   req.body.username, req.body.password];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var newUser = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
   res.set(newUser);
@@ -72,9 +73,10 @@ app.post('/Submit/login', function (req, res) {
   console.log('Got a POST request to login...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
+  
+  var params = [req.body.mailAddress, req.body.password];
   console.log('Got a POST request with these parameters : ' + params.join(' '));
 
-  var params = [req.body.mailAddress, req.body.password];
   var validUser = dbOperator.logIn(req.body.password, req.body.mailAddress);
   res.set(validUser);
   res.send();
@@ -84,10 +86,10 @@ app.post('/Submit/account', function (req, res) {
   console.log('Got a POST request to update account data...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.id, req.body.mailAddress,
   req.body.username, req.body.password];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -96,10 +98,10 @@ app.post('/Submit/addTweet', function (req, res) {
   console.log('Got a POST request to add a new tweet...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.id,
   req.body.message, (req.body.preview.length > 0)];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -108,10 +110,10 @@ app.post('/Submit/selectTweets', function (req, res) {
   console.log('Got a POST request to get specific tweets...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.id, req.body.start, req.body.end,
   req.body.message, (req.body.image.length > 0)];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -120,10 +122,10 @@ app.post('/Admin/addUser', function (req, res) {
   console.log('Got a POST request to add a new user...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.mailAddress,
   req.body.username, req.body.password];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -132,9 +134,9 @@ app.post('/Admin/removeUser', function (req, res) {
   console.log('Got a POST request to remove an existing user...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.mailAddress];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
@@ -143,10 +145,10 @@ app.post('/Admin/statistics', function (req, res) {
   console.log('Got a POST request to delete tweets...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   var params = [req.body.id, req.body.mailAddress,
   req.body.username, req.body.password];
+  console.log('Got a POST request with these parameters : ' + params.join(' '));
 
   res.send('Got a POST request with these parameters : ' + params.join(' '));
 });
