@@ -18,7 +18,7 @@ function getUserByName(userName) {
 
 function getRecords(req, res) {
     var pg = require('pg');
-
+var returnvalue;
     //You can run command "heroku config" to see what is Database URL from Heroku belt
 
     pg.defaults.ssl = true;
@@ -35,10 +35,11 @@ function getRecords(req, res) {
         query.on("end", function (result) {
             client.end();
             console.log('query finished');
-            return result.rows;
+            returnvalue= result.rows;
         });
     });
-};
+return returnvalue;
+}
 
 module.exports = {
     changeRecord: function (req, res) {
