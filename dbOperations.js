@@ -4,7 +4,7 @@ function getUserByName(userName) {
     var user = new dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
               
-    if ((rows == null) || (rows.length == 0)) {
+    if ((rows == null) || (rows.length == 0) || (rows===undefined)) {
          console.log('empty row');
        return user;
     } else {
