@@ -46,12 +46,15 @@ app.post('/', function (req, res) {
   res.send('Got a POST request')
 });
 
-app.post('/ignup', function (req, res) {
+app.post('/signup', function (req, res) {
   console.log('Got a POST request to signup...');
   res.send('Got a POST request')
 });
 
-
+app.post('/Submit', function (req, res) {
+  console.log('Got a POST request to signup...');
+  res.send('Got a POST request')
+});
 
 //Respond to a PUT request to the /user route:
 app.put('/user', function (req, res) {
