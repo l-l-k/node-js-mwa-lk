@@ -9,7 +9,7 @@ var tweetViewer = tweetView();
 
 // navigation to admin-tools
 var adminLink = document.getElementById('adminLink');
-// adminLink.className = 'hidden';
+adminLink.className = 'hidden';
 
 //=============================================================
 
@@ -36,5 +36,3 @@ function resetUI() {
     
     tweetViewer.populateVipList();
 } ());
-
-

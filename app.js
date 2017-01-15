@@ -86,25 +86,25 @@ app.delete('/user', function (req, res) {
 // ___________________________________________
 // Database initialisation
 
-pg.defaults.ssl = true;
-//pg.defaults.ssl = false;
-pg.connect(process.env.DATABASE_URL, function (err, client) {
-  if (err) throw err;
-  console.log('Connected to postgres! Getting schemas...');
+// pg.defaults.ssl = true;
+// //pg.defaults.ssl = false;
+// pg.connect(process.env.DATABASE_URL, function (err, client) {
+//   if (err) throw err;
+//   console.log('Connected to postgres! Getting schemas...');
 
-  var query = client.query('SELECT * FROM admins;');
-  query.on('row', function (row, result) {
-    result.addRow(row);
-  });
+//   var query = client.query('SELECT * FROM admins;');
+//   query.on('row', function (row, result) {
+//     result.addRow(row);
+//   });
 
-  query.on("end", function (result) {
-    client.end();    
-    importAdmins(result.rows);
-  //  dbReader.importAdmins(result.rows);
-    // res.writeHead(200, { 'Content-Type': 'text/plain' });
-    // res.write(JSON.stringify(result.rows, null, "    ") + "\n");
-    // res.end();
-  });
+//   query.on("end", function (result) {
+//     client.end();    
+//     dbReader.importAdmins(result.rows);
+//   //  dbReader.importAdmins(result.rows);
+//     // res.writeHead(200, { 'Content-Type': 'text/plain' });
+//     // res.write(JSON.stringify(result.rows, null, "    ") + "\n");
+//     // res.end();
+//   });
 
   // -->  {"uid":"Leonard
   //   .on('row', function(row) {console.log(JSON.stringify(row))});
@@ -121,8 +121,6 @@ pg.connect(process.env.DATABASE_URL, function (err, client) {
 
 function importAdmins(result) {
   //admins.push(result.length);
-  console.log("WWWWWW" + result.length);
   console.log(result[0].uid);
-  console.log(JSON.stringify(result.rows, null, "    "));
 };
 

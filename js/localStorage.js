@@ -26,7 +26,7 @@ function localStorageInitialisation() {
 
         initialise: function () {
             var i = 5;
-            admins = JSON.parse(localStorage.getItem(this.adminsKey));
+            //admins = JSON.parse(localStorage.getItem(this.adminsKey));
             knownUsers = JSON.parse(localStorage.getItem(this.knownUsersKey));
             lastUser = JSON.parse(localStorage.getItem(this.lastUserKey));
             vips = JSON.parse(localStorage.getItem(this.vipsKey));
@@ -36,8 +36,8 @@ function localStorageInitialisation() {
         },
 
         populateUserList: function () {
-            var admin = new userRecord("leo@regensburg.oth", "l", "Admin Leo l", "0");
-            admins = [admin.id];
+            //var admin = new userRecord("leo@regensburg.oth", "l", "Admin Leo l", "0");
+            // admins = [admin.id];
             localStorage.setItem(this.adminsKey, JSON.stringify(admins));
 
             var users = [];

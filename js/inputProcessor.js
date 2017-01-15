@@ -177,7 +177,7 @@ function inputValidation() {
     }
 
     function isValidPassword(pw) {
-        // TODO validate PW-Security
+        // ER: validate PW-Security
         return true;
     }
 
@@ -229,7 +229,7 @@ function inputValidation() {
                             activeForm.elements.username.value)
                         success = validateSignup(newUser);
                         if (success) {
-                            // TODO : ensure identity by sending an activation mail
+                            // ER : ensure identity by sending an activation mail
 
                             // Welcome-Message
                             var feedback = document.getElementById('feedbackSignup');
