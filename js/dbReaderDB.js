@@ -148,9 +148,9 @@ function readDB() {
             return (user.mail != null);
         },
 
-        findMailAddress: function (address) {
+        findMailAddress: function (name) {
             var user = retrieveUserDataByName(name);
-            return (user.mail != null);
+            return (user.name != null);
         },
 
         determineUserStatus: function (userID) {
