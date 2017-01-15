@@ -135,7 +135,7 @@ function readDB() {
             var user = userRecord;
             var rows = getRowsOfQuery('Select * from users where mail = ' + mailAddress + ';');
             if ((rows == null) || (rows.length == 0)) {
-                user = new userRecord();
+                user = new userRecord("", "","");
             } else {
                 var row = rows[0];
                 var user = userRecord(row.mail, row.name, row.password, row.uid);
