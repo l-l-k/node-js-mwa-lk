@@ -78,9 +78,11 @@ module.exports = {
     signIn: function (userName, password, mail) {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByName(userName);// importUserByName(userName);
-                console.log('user status : ' + t);
-        if (t.id == '') {
+        console.log('user status : ' + t);
+        if ((t==null) || (t.id == '')) {
+            console.log(' create id ');
             var uid = toolkit.createGuid();
+            console.log('  id =  ' + uid);
             var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \');';
             console.log(qs);
             //     changeRecord(qs);
