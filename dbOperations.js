@@ -35,10 +35,10 @@ function getRecords(query, res) {
     return returnvalue;
 }
 
-function changeEntry(query, res, done) {
+function changeEntry(query, res) {
     var pg = require('pg');
 
-    pg.connect(process.env.DATABASE_URL, function (err, client) {
+    pg.connect(process.env.DATABASE_URL, function (err, client, done) {
         client.query(query, function (err, result) {
             done();
             if (err)
@@ -55,7 +55,7 @@ module.exports = {
     },
 
 
-    deleteUser: function (uid) {
+    deleteUser: function (uid, done) {
         changeEntry('Delete from tweets where uid = \'' + uid + '\'');
         changeEntry('Delete from followers where vip = \'' + uid + '\' or uid = \'' + uid + '\'');
         changeEntry('Delete from admins where uid = \'' + uid + '\'');
