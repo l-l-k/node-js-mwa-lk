@@ -76,7 +76,9 @@ var query = 'Select * from users where name = \'' + req.body.username + '\';'
   });
 */
 
-   dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  var newUser = dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  res.set(newUser);
+  res.send();
   console.log('Got a POST request with these parameters : ' + params.join(' '));
   //res.send('Got a POST request')
 });
