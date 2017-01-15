@@ -35,38 +35,41 @@ function getRecords(query, res) {
     return returnvalue;
 }
 
+function changeEntry(query, res, done) {
+    var pg = require('pg');
+
+    pg.connect(process.env.DATABASE_URL, function (err, client) {
+        client.query(query, function (err, result) {
+            done();
+            if (err)
+            { console.error(err); res.send("Error " + err); }
+            else
+            { console.log('database change success'); }
+        });
+    });
+}
+
 module.exports = {
     changeRecord: function (query, res, done) {
-        var pg = require('pg');
-
-        pg.connect(process.env.DATABASE_URL, function (err, client) {
-            client.query(query, function (err, result) {
-                done();
-                if (err)
-                { console.error(err); res.send("Error " + err); }
-                else
-                { console.log('database change success'); }
-            });
-        });
+        changeEntry(query, res, done);
     },
 
 
-
     deleteUser: function (uid) {
-        changeRecord('Delete from tweets where uid = \'' + uid + '\'');
-        changeRecord('Delete from followers where vip = \'' + uid + '\' or uid = \'' + uid + '\'');
-        changeRecord('Delete from admins where uid = \'' + uid + '\'');
-        changeRecord('Delete from users where uid = \'' + uid + '\'');
+        changeEntry('Delete from tweets where uid = \'' + uid + '\'');
+        changeEntry('Delete from followers where vip = \'' + uid + '\' or uid = \'' + uid + '\'');
+        changeEntry('Delete from admins where uid = \'' + uid + '\'');
+        changeEntry('Delete from users where uid = \'' + uid + '\'');
 
     },
 
     editAccount: function (uid, newuserName, newpassword, newmail) {
-        var resultUser =  dbRowDefinition.userRecord('', '', '', '');
+        var resultUser = dbRowDefinition.userRecord('', '', '', '');
         var user = importUserByID(uid);
         var alreadyinUse = importUserByName(userName);
         if (alreadyinUse.id == '') {
-            changeRecord('Update table users set mail = \' ' + newmail + ' \',password = \'' + newpassword + '  \',name = \'' + newuserName + '  \' where uid =  \' ' + uid + ' \'');
-            resultUser =  dbRowDefinition.userRecord(newmail, newpassword, newuserName, uid);
+            changeEntry('Update table users set mail = \' ' + newmail + ' \',password = \'' + newpassword + '  \',name = \'' + newuserName + '  \' where uid =  \' ' + uid + ' \'');
+            resultUser = dbRowDefinition.userRecord(newmail, newpassword, newuserName, uid);
         }
         return resultUser;
     },
@@ -76,17 +79,16 @@ module.exports = {
     },
 
     signIn: function (userName, password, mail) {
-        var resultUser =  dbRowDefinition.userRecord('', '', '', '');
+        var resultUser = dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByName(userName);// importUserByName(userName);
         console.log('user status : ' + t);
-        if ((t==null) || (t==undefined) || (t.id == '')) {
+        if ((t == null) || (t == undefined) || (t.id == '')) {
             console.log(' create id ');
             var uid = toolkit.createGuid();
             console.log('  id =  ' + uid);
-            var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + userName + ' \');';
+            var qs = 'Insert into users values (\'' + uid + '\',\'' + mail + '\',\'' + password + '\',\'' + userName + '\');';
             console.log(qs);
-            //     changeRecord(qs);
-
+            changeEntry(qs);
             resultUser = dbRowDefinition.userRecord(mail, password, userName, uid);
         }
         return resultUser;
@@ -100,7 +102,7 @@ module.exports = {
         var user = dbRowDefinition.userRecord;
         var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
         if ((rows == null) || (rows.length == 0)) {
-            user =  dbRowDefinition.userRecord('', '', '', '');
+            user = dbRowDefinition.userRecord('', '', '', '');
         } else {
             var row = rows[0];
             var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
