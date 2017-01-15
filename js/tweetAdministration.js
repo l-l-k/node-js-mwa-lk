@@ -88,10 +88,11 @@ function tweetAdministration() {
         // Submit-Button
         manageTweets: function (e) {
             var mailAddress = document.forms.cleanupTweets.elements.userID.value.trim();
-            if (!storageReader.findMailAddress(mailAddress)) {
+             var user = storageReader.retrieveUserDataByMailAddress(temporaryUser.mailAddress);
+            var addressExists = user.mailAddress != null && user.mailAddress.length > 0;
+           if (!addressExists) {
                 alert("Unknown address : " + mailAddress);
             } else {
-                var user = storageReader.retrieveUserDataByMailAddress(mailAddress);
                 var delAllButton = document.forms.cleanupTweets.elements.cleanupTweets;
                 var action = e.explicitOriginalTarget;
 

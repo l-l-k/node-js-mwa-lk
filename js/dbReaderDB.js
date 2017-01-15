@@ -145,11 +145,6 @@ function readDB() {
 
         findUserName: function (name) {
             var user = retrieveUserDataByName(name);
-            return (user.mail != null);
-        },
-
-        findMailAddress: function (name) {
-            var user = retrieveUserDataByName(name);
             return (user.name != null);
         },
 

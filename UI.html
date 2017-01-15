@@ -55,7 +55,7 @@
         <!-- Register as new user -->
         <fieldset id="signup" class="visible">
             <legend>Signup</legend>
-            <form name="signup" action="Submit" method="POST">
+            <form name="signup" action="Submit/signup" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :  </label>
                     <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..."
@@ -80,7 +80,7 @@
         <!-- Login as registered user -->
         <fieldset id="login" class="visible">
             <legend>Login</legend>
-            <form name="login" action="#" method="POST">
+            <form name="login" action="Submit/login" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name : </label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Type in your mail adress ..." required />
@@ -99,7 +99,7 @@
         <!-- Edit user data -->
         <fieldset id="userdata" class="visible">
             <legend>Edit Account Data</legend>
-            <form name="userdata" action="ChangeAccountData" method="POST">
+            <form name="userdata" action="Submit/account" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :</label>
                     <input type="email" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />

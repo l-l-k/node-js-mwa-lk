@@ -8,12 +8,12 @@ function inputValidation() {
     function validateSignup(temporaryUser) {
         // try retrieving user data from storage
         var existingUser = storageReader.retrieveUserDataByMailAddress(temporaryUser.mailAddress);
-
         var addressExists = existingUser.mailAddress != null && existingUser.mailAddress.length > 0;
         displayMailAddressHint(addressExists);
 
         // ask server if name exists
-        var nameExists = storageReader.findUserName(temporaryUser.username);
+        var user = storageReader.retrieveUserDataByName(temporaryUser.username);
+        var nameExists = user.username != null && user.username.length > 0;
         displayUsernameHint(nameExists);
 
         var isValidUser =
@@ -60,12 +60,15 @@ function inputValidation() {
         var storeSettings = false;
         var settingsChanged = false;
         var hasUsernameChanged = false;  // triggers update of tweet-history
+        var user;
 
         // mail address
         var isValidAddress = true;
         if (activeUser.mailAddress != temporaryUser.mailAddress) {
             // ask server if name exists
-            var addressExists = storageReader.findMailAddress(temporaryUser.mailAddress);
+            user = storageReader.retrieveUserDataByMailAddress(temporaryUser.mailAddress);
+            var addressExists = user.mailAddress != null && user.mailAddress.length > 0;
+
             displayMailAddressHint(addressExists);
             isValidAddress = !addressExists;
             hasChanges = true;
@@ -75,7 +78,9 @@ function inputValidation() {
         var isValidName = true;
         if (activeUser.username != temporaryUser.username) {
             // ask server if name exists
-            var nameExists = storageReader.findUserName(temporaryUser.username);
+            user = storageReader.retrieveUserDataByName(temporaryUser.username);
+            var nameExists = user.username != null && user.username.length > 0;
+
             displayUsernameHint(nameExists);
             isValidName = !nameExists;
             hasChanges = true;
@@ -188,7 +193,8 @@ function inputValidation() {
 
     function removeUser(mailAddress) {
         // Admin-Task removeUser
-        var userExists = storageReader.findMailAddress(mailAddress);
+            user = storageReader.retrieveUserDataByMailAddress(temporaryUser.mailAddress);
+            var addressExists = user.mailAddress != null && user.mailAddress.length > 0;
         if (userExists) {
             var user = storageReader.retrieveUserDataByMailAddress(mailAddress);
             // First remove user's tweets ...
