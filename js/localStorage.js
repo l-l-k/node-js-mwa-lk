@@ -33,10 +33,10 @@ function localStorageInitialisation() {
 
         populateUserList: function () {
             var users = [];
-            users.push(new userRecord("anton@post.de", "a", "Testuser Anton", "1"));
-            users.push(new userRecord("otto@post.de", "o", "Testuser Otto", "2"));
-            users.push(new userRecord("fred@post.de", "f", "Testuser Fred", "3"));
-            users.push(new userRecord("sepp@post.de", "s", "Testuser Sepp", "4"));
+            users.push(new userRecord("anton@post.de", "a", "Anton", "1"));
+            users.push(new userRecord("otto@post.de", "o", "Otto", "2"));
+            users.push(new userRecord("fred@post.de", "f", "Fred", "3"));
+            users.push(new userRecord("sepp@post.de", "s", "Sepp", "4"));
             localStorage.setItem(this.knownUsersKey, JSON.stringify(users));
 
             lastUser = users[2];
