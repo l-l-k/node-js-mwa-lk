@@ -7,7 +7,7 @@ function getUserByName(userName) {
        return user;
     } else {
         var row = rows[0];
-        var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
+        var user = dbRowDefinition.userRecord(row.mail.trim(), row.name.trim(), row.password.trim(), row.uid.trim());
     }
     return user;
 };
@@ -88,22 +88,14 @@ module.exports = {
     },
 
     importUserByName: function (userName) {
-        var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where name = \'' + userName + '\';');
-        if ((rows == null) || (rows.length == 0)) {
-            user = new dbRowDefinition.userRecord('', '', '', '');
-        } else {
-            var row = rows[0];
-            var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
-        }
-        return user;
+      return getUserByName(userName);
     },
 
     importUserByID: function (userID) {
         var user = dbRowDefinition.userRecord;
         var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
         if ((rows == null) || (rows.length == 0)) {
-            user = new dbRowDefinition.userRecord();
+            user = new dbRowDefinition.userRecord('','','','');
         } else {
             var row = rows[0];
             var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
