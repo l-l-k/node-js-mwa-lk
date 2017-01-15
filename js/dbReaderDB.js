@@ -143,7 +143,7 @@ function readDB() {
             return user;
         },
 
-        findUserName: function findUserName(name) {
+        findUserName: function (name) {
             var user = retrieveUserDataByName(name);
             return (user.mail != null);
         },
