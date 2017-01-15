@@ -36,6 +36,18 @@ function readDB() {
         //return JSON.parse(localStorage.getItem(ls.knownUsersKey));
     }
 
+    function importUserByID(userID) {
+        var user = userRecord;
+        var rows = getRowsOfQuery('Select * from followers where uid = ' + userID + ';');
+        if ((rows == null) || (rows.length == 0)) {
+            user = new userRecord();
+        } else {
+            var row = rows[0];
+            var user = userRecord(row.mail, row.name, row.password, row.uid);
+        }
+
+        return user;
+    }
 
 
     // tweets
@@ -219,7 +231,7 @@ function readDB() {
         // Statistical queries
 
         getTweetsInPeriod: function (startDate, endDate) {
-            var tweets  = importAvailableTweetsInPeriod();
+            var tweets = importAvailableTweetsInPeriod(startDate, endDate);
             var results = [];
             var tweet; // = tweetRecord;
             var datum = "";
