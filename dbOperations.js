@@ -16,7 +16,7 @@ function getUserByName(userName) {
 };
 
 
-function getRecords(req, res) {
+function getRecords(query, res) {
     var pg = require('pg');
 var returnvalue;
     //You can run command "heroku config" to see what is Database URL from Heroku belt
@@ -35,7 +35,7 @@ return returnvalue;
 }
 
 module.exports = {
-    changeRecord: function (req, res) {
+    changeRecord: function (query, res) {
         var pg = require('pg');
 
         pg.connect(process.env.DATABASE_URL, function (err, client) {
