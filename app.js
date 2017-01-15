@@ -53,6 +53,7 @@ app.post('/signup', function (req, res) {
 
 app.post('/Submit', function (req, res) {
   console.log('Got a POST request to signup...');
+  console.log(req);
   res.send('Got a POST request')
 });
 
