@@ -196,7 +196,7 @@ function readDB() {
             }
 
             return results;
-        },
+        }
 
     };
 

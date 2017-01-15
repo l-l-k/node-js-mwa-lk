@@ -2,10 +2,8 @@ var http = require('http')
 var pg = require('pg');
 var express = require('express');
 var path = require('path');
-var dbOperations = require("./dbOperations.js");
-var dbReader = require("./js/dbReaderDB.js");
-var dbWriter = require("./js/dbWriterDB.js");
-
+var bodyParser = require('body-parser');
+var dbOperator = require("./dbOperations.js");
 var app = express();
 var admins = [];
 
@@ -16,6 +14,8 @@ app.listen(process.env.PORT, function () {
 });
 
 app.use(express.static('.'));
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 //Respond to GET request on the root route (/), the application’s home page:
 app.get('/', function (request, response) {
@@ -28,21 +28,21 @@ app.get('/db/readRecords', function (req, res) {
   console.log('Get ReadRecord Request...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  dbOperations.getRecords(req, res);
+  // dbOperations.getRecords(req, res);
 });
 
 app.get('/db/addRecord', function (req, res) {
   console.log('Get AddRecord Request...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  dbOperations.addRecord(req, res);
+  // dbOperations.addRecord(req, res);
 });
 
 app.get('/db/delRecord', function (req, res) {
   console.log('Get DeleteRecord Request...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  dbOperations.delRecord(req, res);
+  // dbOperations.delRecord(req, res);
 });
 
 //___________________________________________________
@@ -58,56 +58,82 @@ app.post('/Submit/signup', function (req, res) {
   console.log('Got a POST request to signup...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.mailAddress,
+  req.body.username,  req.body.password];
+
+dbOperator.signIn(req.body.username, req.body.password, req.body.mailAddress);
+  console.log('Got a POST request with these parameters' + params.join(' '));
+  //res.send('Got a POST request')
 });
 
 app.post('/Submit/login', function (req, res) {
   console.log('Got a POST request to login...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.mailAddress,
+  req.body.username,  req.body.password];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Submit/account', function (req, res) {
   console.log('Got a POST request to update account data...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.id, req.body.mailAddress,
+  req.body.username,  req.body.password];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Submit/addTweet', function (req, res) {
   console.log('Got a POST request to add a new tweet...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+ 
+  var params = [req.body.id, 
+  req.body.message,  (req.body.preview.length>0)];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Submit/selectTweets', function (req, res) {
   console.log('Got a POST request to get specific tweets...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.id, req.body.start, req.body.end,
+  req.body.message,  (req.body.image.length>0)];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Admin/addUser', function (req, res) {
   console.log('Got a POST request to add a new user...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.mailAddress,
+  req.body.username,  req.body.password];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Admin/removeUser', function (req, res) {
   console.log('Got a POST request to remove an existing user...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.mailAddress];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 app.post('/Admin/statistics', function (req, res) {
   console.log('Got a POST request to delete tweets...');
   console.log("param = " + req.params.length);
   console.log("query = " + req.query.length);
-  res.send('Got a POST request')
+  var params = [req.body.id, req.body.mailAddress,
+  req.body.username,  req.body.password];
+
+  res.send('Got a POST request with these parameters' + params.join(' '));
 });
 
 
@@ -133,10 +159,10 @@ app.delete('/user', function (req, res) {
 // ___________________________________________
 // Database initialisation
 
-pg.defaults.ssl = true;
-// //pg.defaults.ssl = false;
-pg.connect(process.env.DATABASE_URL, function (err, client) {
-  if (err) throw err;
-  console.log('Connected to postgres! Getting schemas...');
-});
+// pg.defaults.ssl = true;
+// // //pg.defaults.ssl = false;
+// pg.connect(process.env.DATABASE_URL, function (err, client) {
+//   if (err) throw err;
+//   console.log('Connected to postgres! Getting schemas...');
+// });
 
