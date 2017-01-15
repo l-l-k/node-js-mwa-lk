@@ -102,16 +102,16 @@
             <form name="userdata" action="Submit/account" method="POST">
                 <div>
                     <label for="mailAddress" class="inputLabel">Login-Name :</label>
-                    <input type="email" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />
+                    <input type="email"  id="mailAddress" name="mailAddress" class="inputField" placeholder="Type in your new mail adress ..." required />
                 </div>
                 <div>
                     <label for="password" class="inputLabel">Password :</label>
-                    <input type="password" name="password" class="inputField" placeholder="Type in a new password ..." required size="8" maxlength="33"
+                    <input type="password" id="password"  name="password" class="inputField" placeholder="Type in a new password ..." required size="8" maxlength="33"
                     />
                 </div>
                 <div>
                     <label for="username" class="inputLabel">Username :</label>
-                    <input type="text" name="username" class="inputField" placeholder="Type in a name ..." required />
+                    <input type="text" id="username" name="username" class="inputField" placeholder="Type in a name ..." required />
                 </div>
                 <input class="submit" type="submit" name="update" value="Update Account" />
             </form>
@@ -163,7 +163,7 @@
         ================================================== -->
 <section id="tweetHistory" class="visible">
     <h3 class="visible">Tweet History</h3>
-    <form id="tweetAuthor" name="tweetAuthor" action="Submit/selectTweets">
+    <form id="tweetAuthor" name="tweetAuthor" action="Submit/displayTweets">
         <fieldset class="filterTweets">
             <legend></legend>
             <input type="radio" class="radio1" id="r1" name="filter" value="me" checked="checked" />
@@ -255,7 +255,7 @@
         <form name="removeUser" action="Admin/removeUser" method="POST">
             <div>
                 <label for="userID" class="inputLabel">Login-Name : </label>
-                <input type="email" name="userID" class="inputField" placeholder="Mail address or username ..." required />
+                <input type="email" id ="userID" name="userID" class="inputField" placeholder="Mail address or username ..." required />
                 <div id="feedbackUserDoesntExist" class='hidden'></div>
             </div>
             <input class="submit" type="submit" name="unsubscribe" value="Delete Account" />

@@ -32,6 +32,20 @@ function getUserByName(userName) {
     return user;
 };
 
+function getUserByID(userID) {
+    var user = dbRowDefinition.userRecord('', '', '', '');
+    var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
+
+    if ((rows == null) || (rows.length == 0) || (rows === undefined)) {
+        console.log('empty row');
+        return user;
+    } else {
+        var row = rows[0];
+        console.log(row.join(' '));
+        var user = dbRowDefinition.userRecord(row.mail.trim(), row.name.trim(), row.password.trim(), row.uid.trim());
+    }
+    return user;
+};
 
 function getRecords(query, res) {
     var pg = require('pg');
@@ -65,22 +79,32 @@ function changeEntry(query, res) {
     });
 }
 
+function getTweets(filter, qback) {
+            if (qback == null) {
+            qback = ' limit 20';
+        }
+        var rows;
+        var query;
+        if (filter == '*') {
+            query = 'Select * from tweets ' + qback + ';';
+        } else {
+            query = 'Select * from tweets where uid = \'' + filter + '\' limit 20;';
+        }
+        rows = getRecords(query);
+        var tweets = new Array();
+        for (i = 0; i < rows.length; i++) {
+            var tweet = tweetRecord(rows[i].uid, toolkit.getDay(rows[i].timestamp), toolkit.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
+            tweets.push(tweet);
+        }
+        return tweets;
+}
+
 module.exports = {
     changeRecord: function (query, res, done) {
         changeEntry(query, res, done);
     },
 
-
-    deleteUser: function (uid, done) {
-        changeEntry('Delete from tweets where uid = \'' + uid + '\'');
-        changeEntry('Delete from followers where vip = \'' + uid + '\' or uid = \'' + uid + '\'');
-        changeEntry('Delete from admins where uid = \'' + uid + '\'');
-        changeEntry('Delete from users where uid = \'' + uid + '\'');
-
-    },
-
-
-    editAccount: function (uid, newuserName, newpassword, newmail) {
+    updateAccount: function (uid, newuserName, newpassword, newmail) {
         var resultUser = dbRowDefinition.userRecord('', '', '', '');
         var user = importUserByID(uid);
         var alreadyinUse = importUserByName(userName);
@@ -91,10 +115,6 @@ module.exports = {
         return resultUser;
     },
 
-    getSignInQuery: function (userName) {
-        return 'Select * from users where name = \'' + userName + '\';'
-    },
-    
     logIn: function (password, mail) {
         var resultUser = dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByMail(mail);// importUserByName(userName);
@@ -125,44 +145,32 @@ module.exports = {
         return resultUser;
     },
 
+    signOut: function (userID) {
+        // Delete entryies of user in all tables
+        changeEntry('Delete from tweets where uid = \'' + uid + '\'');
+        changeEntry('Delete from followers where vip = \'' + uid + '\' or uid = \'' + uid + '\'');
+        changeEntry('Delete from admins where uid = \'' + uid + '\'');
+        changeEntry('Delete from users where uid = \'' + uid + '\'');
+    },
+
+    evaluteFrequence: function (userID, firstDay, lastDay) {
+
+    },
+
     importUserByName: function (userName) {
         return getUserByName(userName);
     },
 
     importUserByID: function (userID) {
-        var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
-        if ((rows == null) || (rows.length == 0)) {
-            user = dbRowDefinition.userRecord('', '', '', '');
-        } else {
-            var row = rows[0];
-            var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
-        }
-        return user;
+        return getUserByID(userID);
     },
 
     importAvailableTweetsInPeriod: function (start, end) {
-        importAvailableTweets('*', 'where timestamp >=\'' + start + '\' and timestamp <=\'' + end + '\'');
+        getTweets('*', 'where timestamp >=\'' + start + '\' and timestamp <=\'' + end + '\'');
     },
 
     importAvailableTweets: function (filter, qback) {
-        if (qback == null) {
-            qback = ' limit 20';
-        }
-        var rows;
-        var query;
-        if (filter == '*') {
-            query = 'Select * from tweets ' + qback + ';';
-        } else {
-            query = 'Select * from tweets where uid = \'' + filter + '\' limit 20;';
-        }
-        rows = getRecords(query);
-        var tweets = new Array();
-        for (i = 0; i < rows.length; i++) {
-            var tweet = tweetRecord(rows[i].uid, toolkit.getDay(rows[i].timestamp), toolkit.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
-            tweets.push(tweet);
-        }
-        return tweets;
+        return getTweets(filter, qback);
     },
 
     getVipTweets: function (followVips) {
@@ -182,7 +190,7 @@ module.exports = {
                 }
             }
         }
-        vipTweets = importAvailableTweets('x', qBack);
+        vipTweets = getTweets('*', qBack);
         return vipTweets;
     }
 

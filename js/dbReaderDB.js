@@ -15,7 +15,7 @@ function readDB() {
 
     function importUserByID(userID) {
         var user = userRecord;
-        var rows = getRowsOfQuery('Select * from users where uid = ' + userID + ';');
+        var rows = getRecords('Select * from users where uid = ' + userID + ';');
         if ((rows == null) || (rows.length == 0)) {
             user = new userRecord();
         } else {
@@ -45,7 +45,7 @@ function readDB() {
         } else {
             query = 'Select * from tweets  where uid = ' + filter + ' limit 20;';
         }
-        rows = getRowsOfQuery(query);
+        rows = getRecords(query);
         var tweets = new Array();
         for (i = 0; i < rows.length; i++) {
             var tweet = tweetRecord(rows[i].uid, mwaToolset.getDay(rows[i].timestamp), mwaToolset.getTime(rows[i].timestamp), rows[i].message, rows[i].image);
@@ -75,7 +75,7 @@ function readDB() {
         return vipTweets;
     }
 
-    function getRowsOfQuery(querystring) {
+    function getRecords(querystring) {
         // TODO Send a request to the server
     }
 
@@ -84,14 +84,14 @@ function readDB() {
     var reader = {
 
         importAdmins: function () {
-            var rows = getRowsOfQuery('Select * from admins;');
+            var rows = getRecords('Select * from admins;');
             for (i = 0; i < rows.length; i++) {
                 admins.push(rows[i].uid.trim());
             }
         },
 
         importVips: function (userID) {
-            var rows = getRowsOfQuery('Select * from followers where uid = ' + userID + ';');
+            var rows = getRecords('Select * from followers where uid = ' + userID + ';');
             vips = [];
             for (i = 0; i < rows.length; i++) {
                 var vip = vipRecord(rows[i].uid, rows[i].vip, rows[i].active);
@@ -121,7 +121,7 @@ function readDB() {
 
         retrieveUserDataByName: function (username) {
             var user = userRecord;
-            var rows = getRowsOfQuery('Select * from users where name = ' + username + ';');
+            var rows = getRecords('Select * from users where name = ' + username + ';');
             if ((rows == null) || (rows.length == 0)) {
                 user = new userRecord("", "","");
             } else {
@@ -133,7 +133,7 @@ function readDB() {
 
         retrieveUserDataByMailAddress: function (mailAddress) {
             var user = userRecord;
-            var rows = getRowsOfQuery('Select * from users where mail = ' + mailAddress + ';');
+            var rows = getRecords('Select * from users where mail = ' + mailAddress + ';');
             if ((rows == null) || (rows.length == 0)) {
                 user = new userRecord("", "","");
             } else {

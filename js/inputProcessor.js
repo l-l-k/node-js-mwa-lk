@@ -37,7 +37,6 @@ function inputValidation() {
     function validateLogin(temporaryUser) {
         // try retrieving user data from storage
         var existingUser = storageReader.retrieveUserDataByMailAddress(temporaryUser.mailAddress);
-
         var addressExists = existingUser.mailAddress != null && existingUser.mailAddress.length > 0;
         displayMailAddressHint(addressExists);
 
@@ -245,7 +244,8 @@ function inputValidation() {
                         break;
 
                     case document.forms.login:
-                        var loginUser = new temporaryUser(
+                                      setTimeout(function () { }, 1000);
+                      var loginUser = new temporaryUser(
                             activeForm.elements.mailAddress.value,
                             activeForm.elements.password.value,
                             "")
@@ -256,6 +256,7 @@ function inputValidation() {
                                 activateTweetMode();
                             }
                         }
+
                         break;
 
                     case document.forms.userdata:
