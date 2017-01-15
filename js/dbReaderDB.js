@@ -75,38 +75,9 @@ function readDB() {
         return vipTweets;
     }
 
-    function herokutest() {
-        var pg = require('pg').native
-            , connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/mwq'
-            , client
-            , query;
-        pg.defaults.ssl = true;
-
-        client = new pg.Client(connectionString);
-        client.connect();
-        query = client.query('SELECT * FROM admins');
-        query.on('end', function () { client.end(); });
-    }
-
     function getRowsOfQuery(querystring) {
-        herokutest();
-        pg.defaults.ssl = true;
-        pg.connect(process.env.DATABASE_URL, function (err, client) {
-            if (err) throw err;
-            //console.log('Connected to postgres! Getting schemas...');
-            var query = client.query(querystring);
-            query.on('row', function (row, result) {
-                result.addRow(row);
-            });
-
-            query.on("end", function (result) {
-                client.end();
-                return (result.rows);
-            });
-        });
+        // TODO Send a request to the server
     }
-
-
 
     // =================================================== 
     // Public methods

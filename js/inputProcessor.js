@@ -299,7 +299,7 @@ function inputValidation() {
             }
 
             // Don't reload form
-            event.preventDefault();
+            //event.preventDefault();
         }
 
     }

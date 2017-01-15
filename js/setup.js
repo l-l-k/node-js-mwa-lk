@@ -1,7 +1,6 @@
 
 /* Global Objects */
 var mwaToolset = mwaToolkit();
-var pg = pg;
 var storageReader = readDB();//localStorageReader();
 var storageWriter = writeDB();
 
