@@ -61,12 +61,12 @@ module.exports = {
     },
 
     editAccount: function (uid, newuserName, newpassword, newmail) {
-        var resultUser = new dbRowDefinition.userRecord('', '', '', '');
+        var resultUser =  dbRowDefinition.userRecord('', '', '', '');
         var user = importUserByID(uid);
         var alreadyinUse = importUserByName(userName);
         if (alreadyinUse.id == '') {
             changeRecord('Update table users set mail = \' ' + newmail + ' \',password = \'' + newpassword + '  \',name = \'' + newuserName + '  \' where uid =  \' ' + uid + ' \'');
-            resultUser = new dbRowDefinition.userRecord(newmail, newpassword, newuserName, uid);
+            resultUser =  dbRowDefinition.userRecord(newmail, newpassword, newuserName, uid);
         }
         return resultUser;
     },
@@ -76,18 +76,18 @@ module.exports = {
     },
 
     signIn: function (userName, password, mail) {
-        var resultUser = new dbRowDefinition.userRecord('', '', '', '');
+        var resultUser =  dbRowDefinition.userRecord('', '', '', '');
         var t = getUserByName(userName);// importUserByName(userName);
         console.log('user status : ' + t);
         if ((t==null) || (t==undefined) || (t.id == '')) {
             console.log(' create id ');
             var uid = toolkit.createGuid();
             console.log('  id =  ' + uid);
-            var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \');';
+            var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + userName + ' \');';
             console.log(qs);
             //     changeRecord(qs);
 
-            resultUser = new dbRowDefinition.userRecord(mail, password, userName, uid);
+            resultUser = dbRowDefinition.userRecord(mail, password, userName, uid);
         }
         return resultUser;
     },
@@ -100,7 +100,7 @@ module.exports = {
         var user = dbRowDefinition.userRecord;
         var rows = getRecords('Select * from users where uid = \'' + userID + '\';');
         if ((rows == null) || (rows.length == 0)) {
-            user = new dbRowDefinition.userRecord('', '', '', '');
+            user =  dbRowDefinition.userRecord('', '', '', '');
         } else {
             var row = rows[0];
             var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
