@@ -86,11 +86,11 @@ app.delete('/user', function (req, res) {
 // ___________________________________________
 // Database initialisation
 
-// pg.defaults.ssl = true;
+pg.defaults.ssl = true;
 // //pg.defaults.ssl = false;
-// pg.connect(process.env.DATABASE_URL, function (err, client) {
-//   if (err) throw err;
-//   console.log('Connected to postgres! Getting schemas...');
+pg.connect(process.env.DATABASE_URL, function (err, client) {
+  if (err) throw err;
+  console.log('Connected to postgres! Getting schemas...');
 
 //   var query = client.query('SELECT * FROM admins;');
 //   query.on('row', function (row, result) {
@@ -104,7 +104,7 @@ app.delete('/user', function (req, res) {
 //     // res.writeHead(200, { 'Content-Type': 'text/plain' });
 //     // res.write(JSON.stringify(result.rows, null, "    ") + "\n");
 //     // res.end();
-//   });
+  });
 
   // -->  {"uid":"Leonard
   //   .on('row', function(row) {console.log(JSON.stringify(row))});
