@@ -1,4 +1,4 @@
-function dbWriter() {
+function writeDB() {
     // Private properties
     var ls = new localStorageInitialisation();
     var comparativeValue;
@@ -140,7 +140,7 @@ function dbWriter() {
             var before = availableTweets.length;
 
             availableTweets.push(newTweet);
-            //XX localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
+            //TODO : add to DB localStorage.setItem(ls.availableTweetsKey, JSON.stringify(availableTweets));
 
             return (availableTweets.length == before + 1);
         }
