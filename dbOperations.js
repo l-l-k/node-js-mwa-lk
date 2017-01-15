@@ -2,7 +2,7 @@ var dbRowDefinition = require("./serverObjects.js");
 
          function getUserByName(userName) {
         var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where name = ' + userName + ';');
+        var rows = getRecords('Select * from users where name = \'' + userName + '\';');
         if ((rows == null) || (rows.length == 0)) {
             user = new dbRowDefinition.userRecord('', '', '', '');
         } else {
@@ -20,7 +20,7 @@ var dbRowDefinition = require("./serverObjects.js");
         pg.defaults.ssl = true;
         pg.connect(process.env.DATABASE_URL, function (err, client) {
             if (err) throw err;
-            // console.log('Connected to postgres! Getting records...');
+             console.log(req);
             var query = client.query(req);
             query.on('row', function (row, result) {
                 result.addRow(row);
@@ -44,7 +44,7 @@ module.exports = {
         pg.connect(process.env.DATABASE_URL, function (err, client) {
             if (err) throw err;
             // console.log('Connected to postgres! Getting records...');
-            // console.log(req.query);
+             console.log(req.query);
             var query = client.query(req.query);
 
             query.on("end", function (result) {
