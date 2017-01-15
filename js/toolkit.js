@@ -8,15 +8,29 @@ function mwaToolkit() {
             });
         },
 
-        getDay: function () {
-            var now = new Date();
+        getDay: function (timestamp) {
+            var now;
+            if (timestamp == null) {
+                now = new Date();
+            } else {
+                now = Date.parse(timestamp);
+            }
             var month = ("0" + (now.getMonth() + 1)).slice(-2);
             var day = ("0" + now.getDate()).slice(-2)
             return now.getFullYear() + "-" + month + "-" + day;
         },
 
+        getDayFromTimestamp: function (timestamp) {
+
+        },
+
         getTime: function () {
-            var now = new Date();
+            var now;
+            if (timestamp == null) {
+                now = new Date();
+            } else {
+                now = Date.parse(timestamp);
+            }
             return now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
         },
 

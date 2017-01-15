@@ -64,10 +64,10 @@ function vipRecord(id, name, checked) {
 }
 
 function tweetRecord(userID, day, time, message, picture) {
-    this.userID = userID;
+    this.userID = userID.trim();    
     this.day = day;
     this.time = time;
-    this.message = message;
-    this.attachment = picture;
+    this.message = message.trim();
+    this.attachment = picture.trim();
 }
 

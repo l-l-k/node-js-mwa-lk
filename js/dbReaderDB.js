@@ -42,7 +42,7 @@ function readDB() {
     function equalsTweetAuthor(tweet) {
         return tweet.userID == comparativeValue;
     }
-    
+
     function importAvailableTweetsInPeriod(start, end) {
         importAvailableTweets('*', 'where timestamp >=\'' + start + '\' and timestamp <=\'' + end + '\'');
     }
@@ -78,7 +78,7 @@ function readDB() {
                     comparativeValue = vip.id;
                     var vipResults = availableTweets.filter(equalsTweetAuthor);
                     if (vipResults.length > 0) {
-                        filter = filter.concat(vipResults, ' or uid = ');
+                        filter = filter.concat(vipResults, '\' or uid = \'');
                     }
                 }
             }

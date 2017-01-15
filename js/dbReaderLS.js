@@ -41,6 +41,11 @@ function localStorageReader() {
     }
 
     function importAvailableTweets() {
+ 
+
+
+
+
         return JSON.parse(localStorage.getItem(ls.availableTweetsKey));
     }
 
@@ -157,8 +162,8 @@ function localStorageReader() {
         },
 
         getSubsetOfTweetsByMailAddress: function (filter) {
-            availableTweets = importAvailableTweets();
             var results = new Array; // of  tweetRecord objects
+            results = importAvailableTweets();
             if (filter == "*") {
                 results = availableTweets;
                 return results; // vips are already included
@@ -171,13 +176,9 @@ function localStorageReader() {
         },
 
         getSubsetOfTweetsByID: function (filter) {
-            availableTweets = importAvailableTweets();
             var results = new Array; // of  tweetRecord objects
-            if (filter == "*") {
-                results = availableTweets;
-            } else {
-                comparativeValue = filter;
-                results = availableTweets.filter(equalsTweetAuthor);
+           if (filter != "none") {
+            results = importAvailableTweets(filter);
             }
             //  append tweets of selected vips
             var vipTweets = getVipTweets();
