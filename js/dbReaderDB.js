@@ -3,7 +3,6 @@ function readDB() {
     var comparativeValue;
     var ls = new localStorageInitialisation();
 
-    knownUsers = importKnownUsers();
     availableTweets = new Array();
 
     // =================================================== 
@@ -26,29 +25,18 @@ function readDB() {
         return user.mailAddress == comparativeValue;
     }
 
-    function importKnownUsers() {
-        var rows = getRowsOfQuery('Select * from followers where uid = ' + userID + ';');
-        knownUsers = [];
-        for (i = 0; i < rows.length; i++) {
-            var user = userRecord(rows[i].mail, rows[i].name, rows[i].password, rows[i].uid);
-            knownUsers.push(user);
-        }
-        //return JSON.parse(localStorage.getItem(ls.knownUsersKey));
-    }
-
     function importUserByID(userID) {
         var user = userRecord;
-        var rows = getRowsOfQuery('Select * from followers where uid = ' + userID + ';');
+        var rows = getRowsOfQuery('Select * from users where uid = ' + userID + ';');
         if ((rows == null) || (rows.length == 0)) {
             user = new userRecord();
         } else {
             var row = rows[0];
             var user = userRecord(row.mail, row.name, row.password, row.uid);
         }
-
+        knownUsers.push(user);
         return user;
     }
-
 
     // tweets
     function equalsTweetAuthor(tweet) {
@@ -155,48 +143,42 @@ function readDB() {
         },
 
         retrieveUserDataByID: function (userID) {
-            comparativeValue = userID;
-            var existingUser = userRecord;
-            var index = knownUsers.findIndex(equalsUserID);
-            if (index >= 0) {
-                existingUser = knownUsers[index];
-            }
-
+            var existingUser = importUserByID(userID);
             return existingUser;
         },
 
         retrieveUserDataByName: function (username) {
-            comparativeValue = username;
-            var existingUser = userRecord;
-            var index = knownUsers.findIndex(equalsUsername);
-            if (index >= 0) {
-                existingUser = knownUsers[index];
+            var user = userRecord;
+            var rows = getRowsOfQuery('Select * from users where name = ' + username + ';');
+            if ((rows == null) || (rows.length == 0)) {
+                user = new userRecord();
+            } else {
+                var row = rows[0];
+                var user = userRecord(row.mail, row.name, row.password, row.uid);
             }
-
-            return existingUser;
+            return user;
         },
 
         retrieveUserDataByMailAddress: function (mailAddress) {
-            comparativeValue = mailAddress;
-            var existingUser = userRecord;
-            var index = knownUsers.findIndex(equalsMailAddress);
-            if (index >= 0) {
-                existingUser = knownUsers[index];
+            var user = userRecord;
+            var rows = getRowsOfQuery('Select * from users where mail = ' + mailAddress + ';');
+            if ((rows == null) || (rows.length == 0)) {
+                user = new userRecord();
+            } else {
+                var row = rows[0];
+                var user = userRecord(row.mail, row.name, row.password, row.uid);
             }
-
-            return existingUser;
+            return user;
         },
 
         findUserName: function findUserName(name) {
-            comparativeValue = name;
-            var index = knownUsers.findIndex(equalsUsername);
-            return index >= 0;
+            var user = retrieveUserDataByName(name);
+            return (user.mail!=null);
         },
 
         findMailAddress: function (address) {
-            comparativeValue = address;
-            var index = knownUsers.findIndex(equalsMailAddress);
-            return index >= 0;
+            var user = retrieveUserDataByName(name);
+            return (user.mail!=null);
         },
 
         determineUserStatus: function (userID) {
@@ -248,18 +230,6 @@ function readDB() {
 
             return results;
         },
-
-        // =================================================== 
-        // Update memory
-        updateUsers: function () {
-            //only for local storage
-            //knownUsers = importKnownUsers();
-        },
-
-        updateTweets: function () {
-            //only for local storage
-            //availableTweets = importAvailableTweets();
-        }
 
     };
 

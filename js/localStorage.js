@@ -25,23 +25,14 @@ function localStorageInitialisation() {
         },
 
         initialise: function () {
-            var i = 5;
-            //admins = JSON.parse(localStorage.getItem(this.adminsKey));
-            knownUsers = JSON.parse(localStorage.getItem(this.knownUsersKey));
             lastUser = JSON.parse(localStorage.getItem(this.lastUserKey));
             vips = JSON.parse(localStorage.getItem(this.vipsKey));
             // restoreTweets;
             currentTweet = JSON.parse(localStorage.getItem(this.currentTweetKey));
-            //availableTweets = JSON.parse(localStorage.getItem(this.availableTweetsKey));
         },
 
         populateUserList: function () {
-            //var admin = new userRecord("leo@regensburg.oth", "l", "Admin Leo l", "0");
-            // admins = [admin.id];
-            localStorage.setItem(this.adminsKey, JSON.stringify(admins));
-
             var users = [];
-            users.push(admin);
             users.push(new userRecord("anton@post.de", "a", "Testuser Anton", "1"));
             users.push(new userRecord("otto@post.de", "o", "Testuser Otto", "2"));
             users.push(new userRecord("fred@post.de", "f", "Testuser Fred", "3"));
@@ -57,7 +48,7 @@ function localStorageInitialisation() {
             localStorage.setItem(this.currentTweetKey, JSON.stringify(currentTweet));
 
             // var tweetCreator = tweetCreation();
-            var users = JSON.parse(localStorage.getItem(this.knownUsersKey));
+            //var users = JSON.parse(localStorage.getItem(this.knownUsersKey));
             var messages = [];
             var anyTweet = tweetCreator.createTweet("1", "2017-01-05", "10:13:19", "X", "")
             messages.push(tweetCreator.createTweet("3", "2016-12-01", "10:10:10",
