@@ -1,6 +1,7 @@
 function writeDB() {
     // Private properties
-    var ls = new localStorageInitialisation();
+             var pg = require('pg');  
+  var ls = new localStorageInitialisation();
     var comparativeValue;
 
     availableTweets = importAvailableTweets();
