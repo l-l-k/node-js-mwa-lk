@@ -3,7 +3,7 @@ var dbRowDefinition = require("./serverObjects.js");
 function getUserByName(userName) {
     var user = new dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
-                 console.log(rows.join(' '));
+              
     if ((rows == null) || (rows.length == 0)) {
          console.log('empty row');
        return user;
