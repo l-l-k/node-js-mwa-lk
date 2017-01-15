@@ -7,6 +7,7 @@ function getUserByName(userName) {
        return user;
     } else {
         var row = rows[0];
+        console.log(row.join(' '));
         var user = dbRowDefinition.userRecord(row.mail.trim(), row.name.trim(), row.password.trim(), row.uid.trim());
     }
     return user;
