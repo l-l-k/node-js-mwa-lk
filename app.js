@@ -13,7 +13,7 @@ app.set('port', (process.env.PORT || 5000));
 
 app.listen(process.env.PORT, function () {
   console.log('Listening on port ' + process.env.PORT + ' !')
-})
+});
 
 app.use(express.static('.'));
 
@@ -48,17 +48,17 @@ app.get('/db/dropTable', function (req, res) {
 //Respond to POST request on the root route (/), the application’s home page:
 app.post('/', function (req, res) {
   res.send('Got a POST request')
-})
+});
 
 //Respond to a PUT request to the /user route:
 app.put('/user', function (req, res) {
   res.send('Got a PUT request at /user')
-})
+});
 
 //Respond to a DELETE request to the /user route:
 app.delete('/user', function (req, res) {
   res.send('Got a DELETE request at /user')
-})
+});
 
 // return all rows in test_table
 
@@ -112,12 +112,12 @@ app.delete('/user', function (req, res) {
   // --> undefined 
   //    .on('row', function(row) {console.log(row[0])});
 
-  console.log('Done');
+  //console.log('Done');
 
   // .on('row', function(row) {
   //   console.log(JSON.stringify(row));
   //.on('row', xdbReader.importAdmins(row));
-});
+//});
 
 function importAdmins(result) {
   //admins.push(result.length);
