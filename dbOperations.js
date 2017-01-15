@@ -23,21 +23,13 @@ var returnvalue;
 
     pg.defaults.ssl = true;
     pg.connect(process.env.DATABASE_URL, function (err, client) {
-        if (err) throw err;
-        console.log(req);
-        var query = client.query(req);
-             console.log('query started');
-       query.on('row', function (row, result) {
-                        console.log('query result increased');
-            result.addRow(row);
-  returnvalue= result.rows;
-        });
-
-        query.on("end", function (result) {
-            // client.end();
-            console.log('query finished');
-          
-        });
+  client.query(query, function (err, result) {
+      done();
+      if (err)
+      { console.error(err); res.send("Error " + err); }
+      else
+      { returnvalue =(result.rows); }
+    });
     });
 return returnvalue;
 }
@@ -47,16 +39,14 @@ module.exports = {
         var pg = require('pg');
 
         pg.connect(process.env.DATABASE_URL, function (err, client) {
-            if (err) throw err;
-            // console.log('Connected to postgres! Getting records...');
-            console.log(req);
-            var query = client.query(req);
-
-            query.on("end", function (result) {
-                client.end();
-                console.log('Databasechange with Success');
-            });
-        });
+  client.query(query, function (err, result) {
+      done();
+      if (err)
+      { console.error(err); res.send("Error " + err); }
+      else
+      { console.log('database change success'); }
+    });
+    });
     },
 
 
@@ -79,6 +69,10 @@ module.exports = {
         }
         return resultUser;
     },
+
+getSignInQuery:function (userName) {
+return 'Select * from users where name = \'' + userName + '\';'
+},
 
     signIn: function (userName, password, mail) {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
