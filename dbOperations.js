@@ -1,39 +1,37 @@
 var dbRowDefinition = require("./serverObjects.js");
 
-         function getUserByName(userName) {
-        var user = dbRowDefinition.userRecord;
-        var rows = getRecords('Select * from users where name = \'' + userName + '\';');
-        if ((rows == null) || (rows.length == 0)) {
-            user = new dbRowDefinition.userRecord('', '', '', '');
-        } else {
-            var row = rows[0];
-            var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
-        }
-        return user;
-    };
+function getUserByName(userName) {
+    var user = dbRowDefinition.userRecord;
+    var rows = getRecords('Select * from users where name = \'' + userName + '\';');
+    if ((rows == null) || (rows.length == 0)) {
+        user = new dbRowDefinition.userRecord('', '', '', '');
+    } else {
+        var row = rows[0];
+        var user = dbRowDefinition.userRecord(row.mail, row.name, row.password, row.uid);
+    }
+    return user;
+};
 
-    function getRecords (req, res) {
-        var pg = require('pg');
+function getRecords(req, res) {
+    var pg = require('pg');
 
-        //You can run command "heroku config" to see what is Database URL from Heroku belt
+    //You can run command "heroku config" to see what is Database URL from Heroku belt
 
-        pg.defaults.ssl = true;
-        pg.connect(process.env.DATABASE_URL, function (err, client) {
-            if (err) throw err;
-             console.log(req);
-            var query = client.query(req);
-            query.on('row', function (row, result) {
-                result.addRow(row);
-            });
-
-            query.on("end", function (result) {
-                client.end();
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.write(JSON.stringify(result.rows));
-                res.end();
-            });
+    pg.defaults.ssl = true;
+    pg.connect(process.env.DATABASE_URL, function (err, client) {
+        if (err) throw err;
+        console.log(req);
+        var query = client.query(req);
+        query.on('row', function (row, result) {
+            result.addRow(row);
         });
-    };
+
+        query.on("end", function (result) {
+            client.end();
+            return result.rows;
+        });
+    });
+};
 
 module.exports = {
 
@@ -44,13 +42,12 @@ module.exports = {
         pg.connect(process.env.DATABASE_URL, function (err, client) {
             if (err) throw err;
             // console.log('Connected to postgres! Getting records...');
-             console.log(req.query);
-            var query = client.query(req.query);
+            console.log(req);
+            var query = client.query(req);
 
             query.on("end", function (result) {
                 client.end();
-                res.write('Success');
-                res.end();
+                console.log('Databasechange with Success');
             });
         });
     },
@@ -78,13 +75,13 @@ module.exports = {
 
     signIn: function (userName, password, mail) {
         var resultUser = new dbRowDefinition.userRecord('', '', '', '');
-        var t =getUserByName(userName);// importUserByName(userName);
+        var t = getUserByName(userName);// importUserByName(userName);
         if (t.id == '') {
             var uid = mwaToolset.createGuid();
             var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \');';
-             console.log(qs);
-       //     changeRecord(qs);
-           
+            console.log(qs);
+            //     changeRecord(qs);
+
             resultUser = new dbRowDefinition.userRecord(mail, password, userName, uid);
         }
         return resultUser;
