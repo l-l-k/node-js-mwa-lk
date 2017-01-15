@@ -1,6 +1,22 @@
 var dbRowDefinition = require("./serverObjects.js");
 var toolkit = require("./serverToolkit.js");
 
+
+function getUserByMail(mail) {
+    var user = dbRowDefinition.userRecord('', '', '', '');
+    var rows = getRecords('Select * from users where mail = \'' + mail + '\';');
+
+    if ((rows == null) || (rows.length == 0) || (rows === undefined)) {
+        console.log('empty row');
+        return user;
+    } else {
+        var row = rows[0];
+        console.log(row.join(' '));
+        var user = dbRowDefinition.userRecord(row.mail.trim(), row.name.trim(), row.password.trim(), row.uid.trim());
+    }
+    return user;
+};
+
 function getUserByName(userName) {
     var user = dbRowDefinition.userRecord('', '', '', '');
     var rows = getRecords('Select * from users where name = \'' + userName + '\';');
@@ -62,6 +78,7 @@ module.exports = {
         changeEntry('Delete from users where uid = \'' + uid + '\'');
 
     },
+    
 
     editAccount: function (uid, newuserName, newpassword, newmail) {
         var resultUser = dbRowDefinition.userRecord('', '', '', '');
@@ -76,6 +93,20 @@ module.exports = {
 
     getSignInQuery: function (userName) {
         return 'Select * from users where name = \'' + userName + '\';'
+    },
+logIn: function (password, mail) {
+        var resultUser = dbRowDefinition.userRecord('', '', '', '');
+        var t = getUserByMail(mail);// importUserByName(userName);
+        console.log('user status : ' + t);
+        if ((t == null) || (t == undefined) || (t.id == '')) {
+              return resultUser;           
+        }
+        if(t.password != password)
+        {
+            return resultUser;
+        }
+       return t;
+      
     },
 
     signIn: function (userName, password, mail) {
