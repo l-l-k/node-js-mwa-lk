@@ -81,7 +81,9 @@ module.exports = {
         var t =getUserByName(userName);// importUserByName(userName);
         if (t.id == '') {
             var uid = mwaToolset.createGuid();
-            changeRecord('Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \',);')
+            var qs = 'Insert into users values (\'' + uid + ' \',\'' + mail + ' \',\'' + password + ' \',\'' + name + ' \');';
+            changeRecord(qs);
+            console.log(qs);
             resultUser = new dbRowDefinition.userRecord(mail, password, userName, uid);
         }
         return resultUser;
