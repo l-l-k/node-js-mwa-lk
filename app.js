@@ -64,6 +64,7 @@ app.post('/Submit/signup', function (req, res) {
   pg.connect(process.env.DATABASE_URL, function (err, client, done) {
     //var query = dbOperator.getSignInQuery(req.body.username, req.body.password, req.body.mailAddress);
     var query = 'Select * from users where name = \'' + req.body.username + '\';'
+    query = 'Select * from users;'
 
     client.query(query, function (err, result) {
       done();
