@@ -1,4 +1,4 @@
-import { inject } from 'aurelia-framework';
+import { inject, NewInstance } from 'aurelia-framework';
 //import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 
@@ -8,19 +8,34 @@ export class EditAccount {
     constructor(user) {
         //     this.userGateway = userGateway;
         this.user = user;
+        this.currentUser = NewInstance.of(User);
+        this.currentUser.mail = this.user.mail;
+        this.currentUser.name = this.user.name;
+        this.currentUser.password = this.user.password;
     }
 
     isBusy = false;
 
     applyChanges() {
-        var msg = "New data  " + this.toString();
+        var msg1 = "Original user : " + this.user.mail + " " + this.user.name + " " + this.user.password;
+        console.log(msg1);
+        var msg = "Input :  " + this.toString();
         console.log(msg);
         alert(msg);
-        // TODO : try register as new user
+
+        //  update user record
+        this.user.mail = this.currentUser.mail;
+        this.user.name = this.currentUser.name;
+        this.user.password = this.currentUser.password;
+ 
+        var msg2 = "Changed user data : " + this.user.mail + " " + this.user.name + " " + this.user.password;
+        console.log(msg2);
+
+        // TODO : try change user record in data base
     }
 
     toString() {
-        var msg = "Current user : " + this.user.mail + " " + this.user.name + " " + this.user.password;
+        var msg = "Current user : " + this.currentUser.mail + " " + this.currentUser.name + " " + this.currentUser.password;
         return msg;
     }
 }

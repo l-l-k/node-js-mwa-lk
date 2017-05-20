@@ -10,14 +10,14 @@
                 <br></br>
                 <label for="mailAddress" class="inputLabel">Login-Name :  </label>
                 <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in a valid mail address ..." required
-                    value.bind="user.mail" />
+                    value.bind="currentUser.mail" />
                 <div id="feedbackAddressExists" class='hidden'></div>
             </div>
 
             <div>
                 <br></br>
                 <label for="username" class="inputLabel">Username : </label>
-                <input id="username" type="text" name="username" class="inputField" minlength="2" placeholder="Type in a name ..." required value.bind="user.name"
+                <input id="username" type="text" name="username" class="inputField" minlength="2" placeholder="Type in a name ..." required value.bind="currentUser.name"
                 />
                 <div id="feedbackUsernameExists" class='hidden'></div>
             </div>
@@ -26,7 +26,7 @@
                 <br></br>
                 <label for="password" class="inputLabel">Password :  </label>
                 <input type="password" name="password" class="inputField" placeholder="Type in a password ..." minlength="1" maxlength="100" required
-                    value.bind="user.password" />
+                    value.bind="currentUser.password" />
                 <br></br>
             </div>
         </form>

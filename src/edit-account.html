@@ -2,7 +2,7 @@
     <require from="mwa.css"></require>
 
     <form submit.delegate="applyChanges()">
-        <compose view="./resources/elements/account-detail.html"></compose>
+        <compose view-model="./resources/elements/account-detail" model.bind="currentUser"></compose>
         <br></br>
         <input id="subscribe" class="submit" type="submit" name="subscribe" value="Update Account" disabled.bind="isBusy" />
         <!--<div id="feedbackSignup" class='hidden'></div>-->

@@ -45,20 +45,9 @@ export class AuthorizationStep {
             }
         }
 
-        // Logout
-        // isRestrictedRoute = instructions.some(
-        //     i => i.config.settings.logoutRequired);
+        // Logout : no action required
 
-        // console.log('Does route require logout ? ' + isRestrictedRoute);
-        // if (isRestrictedRoute) {
-        //     console.log("Logout " + this.user.mail)
-        //     if (this.user !== null) {
-        //         console.log("Before : " + this.user.mail);
-        //         this.user = NewInstance.of(User)
-        //         console.log("After : " + this.user.mail);
-        //     }
-        // }
-
+        
         // Continue        
         return next();
     }
