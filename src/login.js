@@ -3,13 +3,11 @@ import { inject } from 'aurelia-framework';
 import { User } from './models/user';
 
 //@inject(UserGateway)
+@inject(User)
 export class Login {
     constructor(user) {
         //     this.userGateway = userGateway;
-        this.user = new User();
-        this.user.mail = "x@y.z";
-        this.user.name = "ede";
-        this.user.password = "1";
+        this.user = user;
     }
 
     isBusy = false;
@@ -20,5 +18,10 @@ export class Login {
         console.log(msg);
         alert(msg);
         // TODO: Validate user input
+
+        // TODO : Enable postings
+        this.user.isau
+        config.navModel.setTitle(this.contact.fullName);
+    
     }
 }

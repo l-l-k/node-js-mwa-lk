@@ -3,21 +3,24 @@ import { inject } from 'aurelia-framework';
 import { User } from './models/user';
 
 //@inject(UserGateway)
+@inject(User)
 export class Signup {
     constructor(user) {
         //     this.userGateway = userGateway;
-        this.user = new User();
-        this.user.mail = "x@y.z";
-        this.user.name = "ede";
-        this.user.password = "1";
+        this.user = user;
     }
 
     isBusy = false;
 
     performSignup() {
-        var msg = "Signup now  " + this.user.mail + " " + this.user.name + " " + this.user.password
+        var msg = "Signup  " + this.toString();
         console.log(msg);
         alert(msg);
         // TODO : try register as new user
+    }
+
+    toString() {
+        var msg = "Current user : " + this.user.mail + " " + this.user.name + " " + this.user.password;
+        return msg;
     }
 }
