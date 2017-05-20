@@ -1,3 +1,7 @@
 <template>
-    <h1>Login</h1>
+    <require from="mwa.css"></require>
+
+    <form submit.delegate="performLogin()">
+        <compose view="./resources/elements/login-data.html"></compose>
+    </form>
 </template>

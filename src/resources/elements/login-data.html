@@ -1,0 +1,19 @@
+<template>
+    <!-- Usage:
+        Login as registered user
+         -->
+    <fieldset>
+        <br></br>
+        <label for="mailAddress" class="inputLabel">Login-Name :  </label>
+        <input id="mailAddress" type="email" name="mailAddress" class="inputField" placeholder="Type in your mail address ..." required
+            value.bind="user.mail" />
+        <div id="feedbackAddressExists" class='hidden'></div>
+        <br></br>
+        <label for="password" class="inputLabel">Password :  </label>
+        <input type="password" name="password" class="inputField" placeholder="Type in your password ..." required value.bind="user.password"
+        />
+        <br></br>
+        <input class="submit" type="submit" name="login" value="Login" />
+        <div id="feedbackLogin" class='hidden'></div>
+    </fieldset>
+</template>
