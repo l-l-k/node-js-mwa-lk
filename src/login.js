@@ -14,14 +14,12 @@ export class Login {
 
     performLogin() {
         // TODO: Logout any active user
-        var msg = "Login now  " + this.user.mail + " " + this.user.name + " " + this.user.password
+        var msg = "Login now  " + this.user.toString(); //this.user.mail + " " + this.user.name + " " + this.user.password
         console.log(msg);
         alert(msg);
         // TODO: Validate user input
 
-        // TODO : Enable postings
-        this.user.isau
-        config.navModel.setTitle(this.contact.fullName);
-    
-    }
+        // Enable postings
+        this.user.isAuthenticated = true;
+      }
 }
