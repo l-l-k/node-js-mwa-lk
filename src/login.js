@@ -1,12 +1,11 @@
 import { inject } from 'aurelia-framework';
-//import { UserGateway } from './services/user-gateway';
+import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 
-//@inject(UserGateway)
-@inject(User)
+@inject(UserGateway, User)
 export class Login {
-    constructor(user) {
-        //     this.userGateway = userGateway;
+    constructor(userGateway, user) {
+        this.userGateway = userGateway;
         this.user = user;
     }
 
@@ -14,12 +13,18 @@ export class Login {
 
     performLogin() {
         // TODO: Logout any active user
-        var msg = "Login now  " + this.user.toString(); //this.user.mail + " " + this.user.name + " " + this.user.password
+        var msg = "Before Login : " + this.user.toString();
         console.log(msg);
-        alert(msg);
-        // TODO: Validate user input
-
-        // Enable postings
+        //alert(msg);
+        // Enable all
         this.user.isAuthenticated = true;
-      }
+        this.user.isAdmin = true;
+
+        // TODO: Validate user input, set properties isAuthenticated, isAdmin
+        //this.user = this.userGateway.verify(this.user);
+        // this.userGateway.verify(this.user);
+
+        msg = "After Login : " + this.user.toString();
+        console.log(msg);
+  }
 }

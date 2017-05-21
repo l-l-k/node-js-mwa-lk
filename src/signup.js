@@ -1,12 +1,11 @@
 import { inject } from 'aurelia-framework';
-//import { UserGateway } from './services/user-gateway';
+import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 
-//@inject(UserGateway)
-@inject(User)
+@inject(UserGateway, User)
 export class Signup {
-    constructor(user) {
-        //     this.userGateway = userGateway;
+    constructor(userGateway, user) {
+        this.userGateway = userGateway;
         this.user = user;
     }
 
@@ -17,6 +16,8 @@ export class Signup {
         console.log(msg);
         alert(msg);
         // TODO : try register as new user
+        this.userGateway.tryRegister(this.user)
+        // TODO Display hints if registration fails
     }
 
     toString() {

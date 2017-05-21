@@ -1,12 +1,11 @@
 import { inject, NewInstance } from 'aurelia-framework';
-//import { UserGateway } from './services/user-gateway';
+import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 
-//@inject(UserGateway)
-@inject(User)
+@inject(UserGateway, User)
 export class EditAccount {
-    constructor(user) {
-        //     this.userGateway = userGateway;
+    constructor(userGateway, user) {
+        this.userGateway = userGateway;
         this.user = user;
         this.currentUser = NewInstance.of(User);
         this.currentUser.mail = this.user.mail;
@@ -23,15 +22,16 @@ export class EditAccount {
         console.log(msg);
         alert(msg);
 
-        //  update user record
+        //  update active user
         this.user.mail = this.currentUser.mail;
         this.user.name = this.currentUser.name;
         this.user.password = this.currentUser.password;
- 
+
         var msg2 = "Changed user data : " + this.user.mail + " " + this.user.name + " " + this.user.password;
         console.log(msg2);
 
         // TODO : try change user record in data base
+        this.userGateway.updateRecord(this.user);
     }
 
     toString() {
