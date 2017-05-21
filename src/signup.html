@@ -5,6 +5,6 @@
         <compose view="./resources/elements/account-detail.html"></compose>
         <br></br>
         <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" disabled.bind="isBusy" />
-        <!--<div id="feedbackSignup" class='hidden'></div>-->
+        <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
     </form>
 </template>

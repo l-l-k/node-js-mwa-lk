@@ -1,6 +1,6 @@
 export class AccountDetail {
 
-    activate(currentUser) {
-        this.user = currentUser;
+    activate(temporaryUser) {
+        this.user = temporaryUser;
     }
 }

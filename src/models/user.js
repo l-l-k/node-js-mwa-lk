@@ -1,6 +1,5 @@
-//import { ValidationRules } from 'aurelia-validation';
+import { Toolkit } from './toolkit';
 
-///@inject(ValidationRules);
 export class User {
     static fromObject(src) {
         const user = Object.assign(new User(), src);
@@ -10,37 +9,26 @@ export class User {
     mail = 'a@b.c';
     name = 'otto';
     password = '1';
-    id = '0';
+    id = "0"; 
 
-    isAuthenticated = false;    
+    isAuthenticated = false;
     isAdmin = false;
 
     // Lists of tweeters whom this user wants to follow
     vips = []; // Very Important Persons (alwasy visible)
     nips = []; // Normal Important Persons (visible on demand)
 
-    // constructor() {
-    //     ValidationRules
-    //         .ensure('mail')
-    //         .required()
-    //         .maxLength(250)
-    //         .ensure('name')
-    //         .required()
-    //         .maxLength(100)
-    //         .ensure('password')
-    //         .required()
-    //         .maxLength(100)
-    //         .ensure('id')
-    //         .required()
-    //         .maxLength(100)
-    //         .on(this);
-    // }
+    constructor() {
+        var tool = new Toolkit();
+        this.id = tool.createGuid();
+        console.log("User created : " + this.toString());
+    }
 
     toString() {
         var msg = "Current user (ID = " + this.id + ") : " + this.mail + " " + this.name + " " + this.password;
         return msg;
     }
-    
+
     reset() {
         this.mail = '';
         this.name = '';

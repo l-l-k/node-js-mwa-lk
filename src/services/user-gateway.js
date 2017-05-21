@@ -13,9 +13,29 @@ export class UserGateway {
         // });
     }
 
-     // TODO check accout data : mail and name    
-   tryRegister(user) {
-    
+    add(user) {
+        // TODO : complete user data with id
+        // TODO : add user data to storage
+                // TODO : store mail address as lower case string    
+
+    }
+
+    // TODO update accout data : mail, name, password    
+    update(currentUser, modifiedUser) {
+        var success = true;
+// validate changes
+        // TODO : compare case insensitive    
+        if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() ) {
+            var existingUser = getByMailAddress(modifi)
+
+        }
+        var hasChanges =
+            this.user.mail.toLwerCase() !== this.temporaryUser.mail.toLwerCase() ||
+            this.user.name.toLwerCase() !== this.temporaryUser.name.toLwerCase() ||
+            this.user.password !== this.temporaryUser.password;
+        
+        var existingUser = getByMailAddress(modifi)
+        return success;
     }
     
      // TODO validate login data : mail and password    
@@ -36,6 +56,25 @@ export class UserGateway {
         return existingUser.isAuthenticated;
     }
 
+   getByMailAddress(mailAddress) {
+       var existingUser = NewInstance.of(User);
+
+       // TODO : retrieve user data from storage
+        //  compare case insensitive  ;  mail address is stored as lower case string
+
+       return existingUser;
+   }
+
+   getByName(name) {
+       var existingUser = NewInstance.of(User);
+
+       // TODO : retrieve user data from storage
+       //  compare case insensitive  ;  mail address is stored as lower case string
+
+       return existingUser;
+   }
+    
+
     getAll() {
         return this.httpClient.fetch('users')
             .then(response => response.json())
@@ -48,9 +87,5 @@ export class UserGateway {
             .then(User.fromObject);
     }
 
-    // TODO update accout data : mail, name, password    
-    updateRecord(user) {
-
-    }
 
 }
