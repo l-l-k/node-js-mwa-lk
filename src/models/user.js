@@ -9,10 +9,10 @@ export class User {
     mail = 'a@b.c';
     name = 'otto';
     password = '1';
-    id = "0"; 
+    id = "0";
 
     isAuthenticated = false;
-    isAdmin = false;
+    isAdmin = true;
 
     // Lists of tweeters whom this user wants to follow
     vips = []; // Very Important Persons (alwasy visible)
@@ -29,17 +29,25 @@ export class User {
         return msg;
     }
 
-    reset() {
-        this.mail = '';
-        this.name = '';
-        this.password = '';
-        this.id = '0';
-
-        this.isAuthenticated = false;
-        this.isAdmin = false;
-
-        // Lists of tweeters whom this user wants to follow
-        this.vips = []; // Very Important Persons (alwasy visible)
-        this.nips = []; // Normal Important Persons (visible on demand)
+    becomeFollower(id, isVeryImportantPerson) {
+        if (isVeryImportantPerson) {
+            this.vips.push(id);
+        } else {
+            this.nips.push(id);
+        }
     }
+
+reset() {
+    this.mail = '';
+    this.name = '';
+    this.password = '';
+    this.id = '0';
+
+    this.isAuthenticated = false;
+    this.isAdmin = false;
+
+    // Lists of tweeters whom this user wants to follow
+    this.vips = []; // Very Important Persons (alwasy visible)
+    this.nips = []; // Normal Important Persons (visible on demand)
+}
 }

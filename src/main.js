@@ -5,7 +5,8 @@ export function configure(aurelia) {
     .standardConfiguration()
     .plugin('aurelia-validation')
  //   .feature('validation')
-    .feature('resources');
+   .feature('administration')
+   .feature('resources');
   
   if (environment.debug) {
     aurelia.use.developmentLogging();
