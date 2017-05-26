@@ -21,7 +21,7 @@ define('app',['exports', 'authorization-step'], function (exports, _authorizatio
       this.router = router;
       config.title = 'Postillion';
       config.addPipelineStep('authorize', _authorizationStep.AuthorizationStep);
-      config.map([{ route: '', redirect: 'home' }, { route: 'home', name: 'home', moduleId: 'welcome-screen', nav: false }, { route: 'login', name: 'login', moduleId: 'login', nav: true, title: 'Login' }, { route: 'signup', name: 'signup', moduleId: 'signup', nav: true, title: 'Signup' }, { route: 'account', name: 'account', moduleId: 'edit-account', nav: true, title: 'Edit Account' }, { route: 'tweet', name: 'tweet', moduleId: 'tweet', nav: true, title: 'Postoffice', settings: { logonRequired: true } }, { route: 'administration', name: 'administration', moduleId: 'administration/adm', nav: true, title: 'Management', settings: { restrictedToAdmins: true } }, { route: 'logout', name: 'logout', moduleId: 'logout', nav: true, title: 'Logout', settings: { logoutRequired: true } }]);
+      config.map([{ route: '', redirect: 'home' }, { route: 'home', name: 'home', moduleId: 'welcome-screen', nav: false }, { route: 'login', name: 'login', moduleId: 'login', nav: true, title: 'Login' }, { route: 'signup', name: 'signup', moduleId: 'signup', nav: true, title: 'Signup' }, { route: 'account', name: 'account', moduleId: 'edit-account', nav: true, title: 'Edit Account' }, { route: 'tweet', name: 'tweet', moduleId: 'tweet', nav: true, title: 'Postoffice', settings: { logonRequired: true } }, { route: 'logout', name: 'logout', moduleId: 'logout', nav: true, title: 'Logout', settings: { logoutRequired: true } }]);
       config.mapUnknownRoutes('not-found');
       config.fallbackRoute('home');
     };
@@ -56,9 +56,8 @@ define('authorization-step',['exports', 'aurelia-framework', 'aurelia-router', '
             console.log("Checking route permissions of user " + this.user.mail);
             var instructions = instruction.getAllInstructions();
 
-            var isRestrictedRoute = instructions.some(function (i) {
-                return i.config.settings.restrictedToAdmins;
-            });
+            var isRestrictedRoute = false;
+
 
             console.log('Is route restricted for admins ? ' + isRestrictedRoute);
             if (isRestrictedRoute) {
@@ -71,10 +70,6 @@ define('authorization-step',['exports', 'aurelia-framework', 'aurelia-router', '
                     return next.cancel(new _aureliaRouter.Redirect('login'));
                 }
             }
-
-            isRestrictedRoute = instructions.some(function (i) {
-                return i.config.settings.logonRequired;
-            });
 
             console.log('Does route require login ? ' + isRestrictedRoute);
             if (isRestrictedRoute) {
@@ -303,7 +298,7 @@ define('main',['exports', './environment'], function (exports, _environment) {
   }
 
   function configure(aurelia) {
-    aurelia.use.standardConfiguration().plugin('aurelia-validation').feature('administration').feature('resources');
+    aurelia.use.standardConfiguration().plugin('aurelia-validation').feature('validation').feature('resources').feature('administration');
 
     if (_environment2.default.debug) {
       aurelia.use.developmentLogging();
@@ -481,33 +476,14 @@ define('administration/index',['exports', 'aurelia-router'], function (exports, 
         value: true
     });
     exports.configure = configure;
-
-
-    var routes = [{
-        route: 'administration', name: 'administration',
-        moduleId: 'administration/adm', nav: false, title: 'Administration'
-    }, {
-        route: 'administration/increase', name: 'add-user',
-        moduleId: 'administration/components/add-user', title: 'Add User'
-    }, {
-        route: 'administration/decrease', name: 'remove-user',
-        moduleId: 'administration/components/remove-user', title: 'Remove User'
-    }, {
-        route: 'administration/:id', name: 'cleanup-content',
-        moduleId: 'administration/components/cleanup-content', title: 'Cleanup'
-    }, {
-        route: 'administration/:id/edit', name: 'statistics',
-        moduleId: 'administration/components/statistics', title: "Statistics"
-    }];
-
     function configure(config) {
         var router = config.container.get(_aureliaRouter.Router);
-        routes.forEach(function (r) {
-            return router.addRoute(r);
+        router.addRoute({
+            route: 'administration', name: 'administration', moduleId: 'administration/main', nav: true, title: 'xAdministration'
         });
     }
 });
-define('administration/_main.1',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
+define('administration/main',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -529,65 +505,7 @@ define('administration/_main.1',['exports', 'aurelia-framework'], function (expo
         }
 
         Administration.prototype.configureRouter = function configureRouter(config) {
-            config.map([{
-                route: '', name: 'administration',
-                moduleId: './components/home', title: 'Administration'
-            }, {
-                route: 'new', name: 'add-user',
-                moduleId: './components/add-user', title: 'Add User'
-            }, {
-                route: ':id', name: 'remove-user',
-                moduleId: './components/remove-user', title: "Remove User"
-            }, {
-                route: ':id/edit', name: 'cleanup-content',
-                moduleId: './components/cleanup-content', title: "Cleanup"
-            }, {
-                route: ':id/photo', name: 'statistics',
-                moduleId: './components/statistics', title: "Statistics"
-            }]);
-        };
-
-        return Administration;
-    }()) || _class);
-});
-define('administration/_main',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.Administration = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    var _dec, _class;
-
-    var Administration = exports.Administration = (_dec = (0, _aureliaFramework.inlineView)('<template><router-view></router-view></template>'), _dec(_class = function () {
-        function Administration() {
-            _classCallCheck(this, Administration);
-        }
-
-        Administration.prototype.configureRouter = function configureRouter(config) {
-            config.map([{
-                route: '', name: 'administration',
-                moduleId: './components/home', title: 'Administration'
-            }, {
-                route: 'new', name: 'add-user',
-                moduleId: './components/add-user', title: 'Add User'
-            }, {
-                route: ':id', name: 'remove-user',
-                moduleId: './components/remove-user', title: "Remove User"
-            }, {
-                route: ':id/edit', name: 'cleanup-content',
-                moduleId: './components/cleanup-content', title: "Cleanup"
-            }, {
-                route: ':id/photo', name: 'statistics',
-                moduleId: './components/statistics', title: "Statistics"
-            }]);
+            config.map([{ route: '', name: 'administration', moduleId: './components/admin-menu', title: 'Toolkit' }, { route: 'populate', name: 'populate', moduleId: './components/populate', title: 'Add User' }, { route: 'cleanup', name: 'cleanup', moduleId: './components/cleanup', title: "Cleanup" }, { route: 'statistics', name: 'statistics', moduleId: './components/statistics', title: "Statistics" }]);
         };
 
         return Administration;
@@ -840,33 +758,201 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-c
         return UserGateway;
     }()) || _class);
 });
-define('validation/index',['exports'], function (exports) {
-    'use strict';
+define('validation/bootstrap-form-validation-renderer',['exports', 'aurelia-validation'], function (exports, _aureliaValidation) {
+  'use strict';
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.configure = configure;
-    function configure(config) {
-        config.plugin('aurelia-validation');
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.BootstrapFormValidationRenderer = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
     }
-});
-define('administration/components/add-user',["exports"], function (exports) {
-    "use strict";
+  }
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
+  var BootstrapFormValidationRenderer = exports.BootstrapFormValidationRenderer = function () {
+    function BootstrapFormValidationRenderer() {
+      _classCallCheck(this, BootstrapFormValidationRenderer);
+    }
 
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
+    BootstrapFormValidationRenderer.prototype.render = function render(instruction) {
+      for (var _iterator = instruction.unrender, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref2;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref2 = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref2 = _i.value;
         }
-    }
 
-    var AddUser = exports.AddUser = function AddUser() {
-        _classCallCheck(this, AddUser);
+        var _ref5 = _ref2;
+        var error = _ref5.error,
+            elements = _ref5.elements;
+
+        for (var _iterator3 = elements, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+          var _ref6;
+
+          if (_isArray3) {
+            if (_i3 >= _iterator3.length) break;
+            _ref6 = _iterator3[_i3++];
+          } else {
+            _i3 = _iterator3.next();
+            if (_i3.done) break;
+            _ref6 = _i3.value;
+          }
+
+          var element = _ref6;
+
+          this.remove(element, error);
+        }
+      }
+
+      for (var _iterator2 = instruction.render, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+        var _ref4;
+
+        if (_isArray2) {
+          if (_i2 >= _iterator2.length) break;
+          _ref4 = _iterator2[_i2++];
+        } else {
+          _i2 = _iterator2.next();
+          if (_i2.done) break;
+          _ref4 = _i2.value;
+        }
+
+        var _ref7 = _ref4;
+        var error = _ref7.error,
+            elements = _ref7.elements;
+
+        for (var _iterator4 = elements, _isArray4 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+          var _ref8;
+
+          if (_isArray4) {
+            if (_i4 >= _iterator4.length) break;
+            _ref8 = _iterator4[_i4++];
+          } else {
+            _i4 = _iterator4.next();
+            if (_i4.done) break;
+            _ref8 = _i4.value;
+          }
+
+          var _element = _ref8;
+
+          this.add(_element, error);
+        }
+      }
     };
+
+    BootstrapFormValidationRenderer.prototype.add = function add(element, error) {
+      var formGroup = element.closest('.form-group');
+      if (!formGroup) {
+        return;
+      }
+
+      formGroup.classList.add('has-error');
+
+      var message = document.createElement('span');
+      message.className = 'help-block validation-message';
+      message.textContent = error.message;
+      message.id = 'bs-validation-message-' + error.id;
+      element.parentNode.insertBefore(message, element.nextSibling);
+    };
+
+    BootstrapFormValidationRenderer.prototype.remove = function remove(element, error) {
+      var formGroup = element.closest('.form-group');
+      if (!formGroup) {
+        return;
+      }
+
+      var message = formGroup.querySelector('#bs-validation-message-' + error.id);
+      if (message) {
+        element.parentNode.removeChild(message);
+
+        if (formGroup.querySelectorAll('.help-block.validation-message').length === 0) {
+          formGroup.classList.remove('has-error');
+        }
+      }
+    };
+
+    return BootstrapFormValidationRenderer;
+  }();
+});
+define('validation/index',['exports', './bootstrap-form-validation-renderer', './rules'], function (exports, _bootstrapFormValidationRenderer) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {
+    config.plugin('aurelia-validation');
+
+    config.container.registerHandler('bootstrap-form', function (container) {
+      return container.get(_bootstrapFormValidationRenderer.BootstrapFormValidationRenderer);
+    });
+  }
+});
+define('validation/rules',['aurelia-validation'], function (_aureliaValidation) {
+  'use strict';
+
+  _aureliaValidation.ValidationRules.customRule('date', function (value, obj) {
+    return value === null || value === undefined || value === '' || !isNaN(Date.parse(value));
+  }, '${$displayName} must be a valid date.');
+
+  _aureliaValidation.ValidationRules.customRule('notEmpty', function (value, obj) {
+    return value && value.length && value.length > 0;
+  }, '${$displayName} must contain at least one item.');
+
+  _aureliaValidation.ValidationRules.customRule('maxFileSize', function (value, obj, maxSize) {
+    return !(value instanceof FileList) || value.length === 0 || Array.from(value).every(function (file) {
+      return file.size <= maxSize;
+    });
+  }, '${$displayName} must be smaller than ${$config.maxSize} bytes.', function (maxSize) {
+    return { maxSize: maxSize };
+  });
+
+  function hasOneOfExtensions(file, extensions) {
+    var fileName = file.name.toLowerCase();
+    return extensions.some(function (ext) {
+      return fileName.endsWith(ext);
+    });
+  }
+
+  function allHaveOneOfExtensions(files, extensions) {
+    extensions = extensions.map(function (ext) {
+      return ext.toLowerCase();
+    });
+    return Array.from(files).every(function (file) {
+      return hasOneOfExtensions(file, extensions);
+    });
+  }
+
+  _aureliaValidation.ValidationRules.customRule('fileExtension', function (value, obj, extensions) {
+    return !(value instanceof FileList) || value.length === 0 || allHaveOneOfExtensions(value, extensions);
+  }, '${$displayName} must have one of the following extensions: ${$config.extensions.join(\', \')}.', function (extensions) {
+    return { extensions: extensions };
+  });
+});
+define('administration/components/adm-home',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var AdmHome = exports.AdmHome = function AdmHome() {
+    _classCallCheck(this, AdmHome);
+  };
 });
 define('administration/components/admin-menu',['exports'], function (exports) {
     'use strict';
@@ -895,6 +981,23 @@ define('administration/components/admin-menu',['exports'], function (exports) {
         return AdminMenu;
     }();
 });
+define('administration/components/admin',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Adm = exports.Adm = function Adm() {
+    _classCallCheck(this, Adm);
+  };
+});
 define('administration/components/cleanup-content',["exports"], function (exports) {
     "use strict";
 
@@ -910,6 +1013,40 @@ define('administration/components/cleanup-content',["exports"], function (export
 
     var CleanupContent = exports.CleanupContent = function CleanupContent() {
         _classCallCheck(this, CleanupContent);
+    };
+});
+define('administration/components/cleanup',["exports"], function (exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var Cleanup = exports.Cleanup = function Cleanup() {
+        _classCallCheck(this, Cleanup);
+    };
+});
+define('administration/components/populate',["exports"], function (exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var AddUser = exports.AddUser = function AddUser() {
+        _classCallCheck(this, AddUser);
     };
 });
 define('administration/components/remove-user',["exports"], function (exports) {
@@ -971,6 +1108,132 @@ define('resources/elements/account-detail',["exports"], function (exports) {
         return AccountDetail;
     }();
 });
+define('resources/value-converters/filter-by',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var FilterByValueConverter = exports.FilterByValueConverter = function () {
+    function FilterByValueConverter() {
+      _classCallCheck(this, FilterByValueConverter);
+    }
+
+    FilterByValueConverter.prototype.toView = function toView(array, value) {
+      for (var _len = arguments.length, properties = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        properties[_key - 2] = arguments[_key];
+      }
+
+      value = (value || '').trim().toLowerCase();
+
+      if (!value) {
+        return array;
+      }
+      return array.filter(function (item) {
+        return properties.some(function (property) {
+          return (item[property] || '').toLowerCase().includes(value);
+        });
+      });
+    };
+
+    return FilterByValueConverter;
+  }();
+});
+define('resources/value-converters/group-by',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var GroupByValueConverter = exports.GroupByValueConverter = function () {
+    function GroupByValueConverter() {
+      _classCallCheck(this, GroupByValueConverter);
+    }
+
+    GroupByValueConverter.prototype.toView = function toView(array, property) {
+      var groups = new Map();
+      for (var _iterator = array, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var item = _ref;
+
+        var key = item[property];
+        var group = groups.get(key);
+        if (!group) {
+          group = { key: key, items: [] };
+          groups.set(key, group);
+        }
+        group.items.push(item);
+      }
+      return Array.from(groups.values());
+    };
+
+    return GroupByValueConverter;
+  }();
+});
+define('resources/value-converters/order-by',['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var OrderByValueConverter = exports.OrderByValueConverter = function () {
+    function OrderByValueConverter() {
+      _classCallCheck(this, OrderByValueConverter);
+    }
+
+    OrderByValueConverter.prototype.toView = function toView(array, property) {
+      var direction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'asc';
+
+      array = array.slice(0);
+      var directionFactor = direction === 'desc' ? -1 : 1;
+      array.sort(function (item1, item2) {
+        var value1 = item1[property];
+        var value2 = item2[property];
+        if (value1 > value2) {
+          return directionFactor;
+        } else if (value1 < value2) {
+          return -directionFactor;
+        } else {
+          return 0;
+        }
+      });
+      return array;
+    };
+
+    return OrderByValueConverter;
+  }();
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"app.css\"></require><compose view=\"nav-bar-main.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
 define('text!app.css', ['module'], function(module) { module.exports = ".page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}"; });
 define('text!edit-account.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"applyChanges()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"temporaryUser\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Update Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
@@ -983,13 +1246,13 @@ define('text!not-found.html', ['module'], function(module) { module.exports = "<
 define('text!signup.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"performSignup()\"><compose view=\"./resources/elements/account-detail.html\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Create Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
 define('text!tweet.html', ['module'], function(module) { module.exports = "<template><h1>Tweet</h1></template>"; });
 define('text!welcome-screen.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><div class=\"memo\"><h2>Welcome to Postillion!</h2></div><compose view=\"./resources/elements/blurb.html\"></compose></template>"; });
-define('text!administration/adm-home.html', ['module'], function(module) { module.exports = "<template><require from=\"./../app.css\"></require><h1>ADMIN's home page</h1><compose view=\"nav-bar-adm.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
-define('text!administration/adm.html', ['module'], function(module) { module.exports = "<template><require from=\"./../app.css\"></require><h1>ADMIN's adm component</h1><compose view=\"./components/admin-menu.html\"></compose></template>"; });
-define('text!administration/nav-bar-adm.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse\"><span class=\"sr-only\">Toggle Navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-home\"></i> <span>${router.title}</span></a></div><div class=\"collapse navbar-collapse\" id=\"skeleton-navigation-navbar-collapse\"><ul class=\"nav navbar-nav\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse.in\" href.bind=\"row.href\">${row.title}</a></li></ul><ul class=\"nav navbar-nav navbar-right\"><li class=\"loader\" if.bind=\"router.isNavigating\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></li></ul></div></nav></template>"; });
-define('text!administration/_index.html', ['module'], function(module) { module.exports = "<template><require from=\"./../app.css\"></require><h1>ADMIN's home</h1><compose view=\"nav-bar-adm.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
-define('text!administration/components/add-user.html', ['module'], function(module) { module.exports = "<template><h1>Add User</h1></template>"; });
-define('text!administration/components/admin-menu.html', ['module'], function(module) { module.exports = "<template><h1>ADMIN Menu</h1></template>"; });
+define('text!administration/adm.html', ['module'], function(module) { module.exports = "<template><require from=\"./../app.css\"></require><h1>ADMIN's adm component</h1></template>"; });
+define('text!administration/components/adm-home.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../app.css\"></require><h1>ADMIN's home page</h1></template>"; });
+define('text!administration/components/admin-menu.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Admin's Toolkit</h1><div class=\"row\"><div class=\"col-sm-2\"><a route-href=\"route: populate\" class=\"btn btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add User</a></div><div class=\"col-sm-2\"><a route-href=\"route: cleanup\" class=\"btn btn-primary\"><i class=\"fa fa-trash-o\"></i> Cleanup</a></div><div class=\"col-sm-2\"><a route-href=\"route: statistics\" class=\"btn btn-primary\"><i class=\"fa fa-pencil-square-o\"></i> Statistics</a></div></div></section></template>"; });
+define('text!administration/components/admin.html', ['module'], function(module) { module.exports = ""; });
 define('text!administration/components/cleanup-content.html', ['module'], function(module) { module.exports = "<template><h1>Cleanup Content</h1></template>"; });
+define('text!administration/components/cleanup.html', ['module'], function(module) { module.exports = "<template><h1>Cleanup</h1></template>"; });
+define('text!administration/components/populate.html', ['module'], function(module) { module.exports = "<template><h1>Add User</h1></template>"; });
 define('text!administration/components/remove-user.html', ['module'], function(module) { module.exports = "<template><h1>Remove User</h1></template>"; });
 define('text!administration/components/statistics.html', ['module'], function(module) { module.exports = "<template><h1>Statistics</h1></template>"; });
 define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.name\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });

@@ -4,10 +4,11 @@ export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin('aurelia-validation')
- //   .feature('validation')
-   .feature('administration')
-   .feature('resources');
-  
+    .feature('validation')
+    .feature('resources')
+  //  .feature('broadcasts')
+    .feature('administration');
+
   if (environment.debug) {
     aurelia.use.developmentLogging();
   }

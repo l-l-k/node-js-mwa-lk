@@ -1,3 +1,24 @@
 <template>
-    <h1>ADMIN Menu </h1>
+    <section class="container">
+        <h1>Admin's Toolkit </h1>
+        <div class="row">
+            <div class="col-sm-2">
+                <a route-href="route: populate" class="btn btn-primary">
+          <i class="fa fa-plus-square-o"></i> Add User
+        </a>
+            </div>
+
+            <div class="col-sm-2">
+                <a route-href="route: cleanup" class="btn btn-primary">
+          <i class="fa fa-trash-o"></i> Cleanup
+        </a>
+            </div>
+
+            <div class="col-sm-2">
+                <a route-href="route: statistics" class="btn btn-primary">
+          <i class="fa fa-pencil-square-o"></i> Statistics
+        </a>
+            </div>
+        </div>
+    </section>
 </template>

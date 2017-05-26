@@ -14,8 +14,9 @@ export class AuthorizationStep {
         var instructions = instruction.getAllInstructions()
 
         // Administration         
-        var isRestrictedRoute = instructions.some(
-            i => i.config.settings.restrictedToAdmins);
+        var isRestrictedRoute = false;
+        // isRestrictedRoute = instructions.some(
+        //     i => i.config.settings.restrictedToAdmins);
 
         console.log('Is route restricted for admins ? ' + isRestrictedRoute);
         if (isRestrictedRoute) {
@@ -30,8 +31,8 @@ export class AuthorizationStep {
         }
 
         // Run core application
-        isRestrictedRoute = instructions.some(
-            i => i.config.settings.logonRequired);
+        // isRestrictedRoute = instructions.some(
+        //     i => i.config.settings.logonRequired);
 
         console.log('Does route require login ? ' + isRestrictedRoute);
         if (isRestrictedRoute) {
