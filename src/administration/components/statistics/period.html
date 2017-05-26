@@ -1,0 +1,19 @@
+<template>
+    <!-- Statistic / Summary of user accounts -->
+    <section class="container">
+    <fieldset id="statistics" class="visible">
+        <legend>Select Period for Statistic</legend>
+        <form clss="form-group">
+            <div>
+                <label for="startDate" class="inputLabel" >From : </label>
+                <!--<a title="Select first day of time span to analyse">From :</a>-->
+                <input type="date"  class="inputField" placeholder="2000-12-30" maxlength="10" required />
+                <br></br>
+                <label for="endDate" class="inputLabel" >To :  </label>
+                <!--<a title="Select last day of time span to analyse">To :</a>-->
+                <input type="date" name="endDate" class="inputField" placeholder="2000-12-31" maxlength="10" required />
+            </div>
+        </form>
+    </fieldset>
+    </section>
+</template>

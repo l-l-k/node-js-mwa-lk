@@ -1,0 +1,19 @@
+<template>
+    <legend>Find user by mail or name</legend>
+    <fieldset>
+        <div class="form-group">
+            <!-- mail address === login mame -->
+            <label class="inputLabel">Login-name : </label>
+                <input type="email" class="inputField" placeholder="Type in a mail-address ..." value.bind="user.mail & validate">
+
+            <!--<br></br>
+            <label  class="inputLabel">or </label>-->
+
+            <!-- username === display name (e.g. nickname) -->
+            <br></br>
+            <label for="username" class="inputLabel">Display-name : </label>
+            <input id="username" type="text" name="username" class="inputField"  placeholder="Type in a name ..." 
+                value.bind="user.name" />
+
+    </fieldset>
+</template>

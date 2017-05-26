@@ -1,3 +1,9 @@
 <template>
-    <h1>Statistics </h1>
+    <require from="./../../css/mwa.css"></require>
+    <section class="container">
+        <h1>Statistics </h1>
+        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="retrieveSummary()">
+            <compose view="./statistics/summary.html"></compose>
+        </form>
+    </section>
 </template>

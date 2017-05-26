@@ -1,7 +1,11 @@
 <template>
-    <require from="mwa.css"></require>
-
-    <form submit.delegate="performLogin()">
-        <compose view="./resources/elements/login-data.html"></compose>
-    </form>
+    <section class="container">
+        <h1>Login</h1>
+        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="performLogin()">
+            <compose view="./resources/elements/login-data.html"></compose>
+            <br></br>
+            <submit-button> Login</submit-button>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+        </form>
+    </section>
 </template>

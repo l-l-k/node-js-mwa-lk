@@ -1,0 +1,10 @@
+<template>
+    <require from="mwa.css"></require>
+
+    <form submit.delegate="performSignup()">
+        <compose view-model="./resources/elements/account-detail" model.bind="newUser"></compose>
+        <br></br>
+        <input id="subscribe" class="submit" type="submit" name="subscribe" value="Create Account" disabled.bind="isBusy" />
+        <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+    </form>
+</template>

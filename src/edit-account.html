@@ -1,10 +1,11 @@
 <template>
-    <require from="mwa.css"></require>
-
-    <form submit.delegate="applyChanges()">
-        <compose view-model="./resources/elements/account-detail" model.bind="temporaryUser"></compose>
-        <br></br>
-        <input id="subscribe" class="submit" type="submit" name="subscribe" value="Update Account" disabled.bind="isBusy" />
-        <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
-    </form>
+    <section class="container">
+        <h1>Edit your account data</h1>
+        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="applyChanges()">
+            <compose view-model="./resources/elements/account-detail" model.bind="temporaryUser"></compose>
+            <br></br>
+            <submit-button> Update Account</submit-button>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+        </form>
+    </section>
 </template>

@@ -1,4 +1,4 @@
-import { inject, NewInstance } from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 

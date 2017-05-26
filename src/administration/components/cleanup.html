@@ -1,3 +1,23 @@
 <template>
-    <h1>Cleanup</h1>
+    <require from="./../../css/mwa.css"></require>
+    <section class="container">
+        <h1>Cleanup user or related items</h1>
+
+        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="searchUser()">
+            <compose view="./cleanup/userSearch.html"></compose>
+         <submit-button clickk.delegate="tryActivateUser()">
+                <i slot="icon" class="fa fa-search" aria-hidden="true"></i> Activate user</submit-button>
+            <label class="col-sm-4 checkbox-inline"><input type="checkbox" value="">Show messages</label>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+
+            <compose view="./cleanup/taskSelection.html"></compose>
+            <submit-button click.delegate="processTask()">
+                <i slot="icon" class="fa fa-trash" aria-hidden="true"></i> Delete selected data</submit-button>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+
+            <br></br>
+            <compose view="./cleanup/displayMessages.html"></compose>
+
+        </form>
+    </section>
 </template>

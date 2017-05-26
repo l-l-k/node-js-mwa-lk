@@ -1,17 +1,13 @@
-import { inject , NewInstance} from 'aurelia-framework';
-import { UserGateway } from './services/user-gateway';
-import { User } from './models/user';
+import { inject, NewInstance } from 'aurelia-framework';
+import { UserGateway } from './../../services/user-gateway';
+import { User } from './../../models/user';
 
-@inject(UserGateway, User)
-export class Signup {
-    constructor(userGateway, user) {
+@inject(UserGateway)
+export class UserCreation {
+    constructor(userGateway) {
         this.userGateway = userGateway;
-        this.user = user;
         this.newUser = NewInstance.of(User);
-        this.newUser.mail = "";
-        this.newUser.name = "";
-        this.newUser.password = "";
- }
+   }
 
     isBusy = false;
     validationFailed = false;
@@ -19,17 +15,8 @@ export class Signup {
     nameExists = false;
     isValidPassword = true; // ER: validate PW-Security
 
-    save() {
-        console.log("W");
-       alert('SAVE');
-    //    return this.userGateway.create(this.newUser)
-    //        .then(() => this.router.navigateToRoute('login'));
-       return this.newUser;    
-    }
-    
-
-    performSignup() {
-       var msg = "Signup  " + this.newUser.toString();
+    addUser() {
+        var msg = "Add user  " + newUser.user.toString();
         console.log(msg);
 
         // aurelia-validation is much more complex
@@ -52,9 +39,7 @@ export class Signup {
 
         // register as new user
         if (!addressExists && !nameExists) {
-            this.userGateway.add(this.newUser);
+            return this.userGateway.add(this.newUser);
         }
-
-        this.router.navigateToRoute('login');
     }
 }

@@ -364,7 +364,7 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
     var _dec, _class;
 
     var Signup = exports.Signup = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function Signup(userGateway, user, validationController) {
+        function Signup(userGateway, user) {
             _classCallCheck(this, Signup);
 
             this.isBusy = false;
@@ -375,27 +375,40 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
 
             this.userGateway = userGateway;
             this.user = user;
+            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
+            this.newUser.mail = "";
+            this.newUser.name = "";
+            this.newUser.password = "";
         }
 
+        Signup.prototype.save = function save() {
+            console.log("W");
+            alert('SAVE');
+
+            return this.newUser;
+        };
+
         Signup.prototype.performSignup = function performSignup() {
-            var msg = "Signup  " + this.user.toString();
+            var msg = "Signup  " + this.newUser.toString();
             console.log(msg);
 
-            this.validationFailed = this.user.mail.length == 0 || this.user.name.length == 0 || this.user.password.length == 0;
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
             if (this.validationFailed) {
                 console.log("Input-Validation failed");
 
                 return;
             }
 
-            var existingUser = this.userGateway.getByMailAddress(this.user.mailAddress);
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
             this.nameExists = existingUser.name != null && existingUser.name.length > 0;
 
             if (!addressExists && !nameExists) {
-                this.userGateway.add(this.user);
+                this.userGateway.add(this.newUser);
             }
+
+            this.router.navigateToRoute('login');
         };
 
         return Signup;
@@ -435,39 +448,63 @@ define('welcome-screen',["exports"], function (exports) {
     _classCallCheck(this, WelcomeScreen);
   };
 });
-define('administration/adm-home',["exports"], function (exports) {
-  "use strict";
+define('x',['exports', 'aurelia-framework', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _userGateway, _user) {
+    'use strict';
 
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.X = undefined;
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
     }
-  }
 
-  var AdmHome = exports.AdmHome = function AdmHome() {
-    _classCallCheck(this, AdmHome);
-  };
-});
-define('administration/adm',["exports"], function (exports) {
-  "use strict";
+    var _dec, _class;
 
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
+    var X = exports.X = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function X(userGateway, user) {
+            _classCallCheck(this, X);
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+            this.isBusy = false;
+            this.validationFailed = false;
+            this.addressExists = false;
+            this.nameExists = false;
+            this.isValidPassword = true;
 
-  var Adm = exports.Adm = function Adm() {
-    _classCallCheck(this, Adm);
-  };
+            this.userGateway = userGateway;
+            this.user = user;
+            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
+            this.newUser.mail = "";
+            this.newUser.name = "";
+            this.newUser.password = "";
+        }
+
+        X.prototype.performSignup = function performSignup() {
+            var msg = "Signup  " + newUser.user.toString();
+            console.log(msg);
+
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
+            if (this.validationFailed) {
+                console.log("Input-Validation failed");
+
+                return;
+            }
+
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+
+            this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
+            this.nameExists = existingUser.name != null && existingUser.name.length > 0;
+
+            if (!addressExists && !nameExists) {
+                this.userGateway.add(this.newUser);
+            }
+        };
+
+        return X;
+    }()) || _class);
 });
 define('administration/index',['exports', 'aurelia-router'], function (exports, _aureliaRouter) {
     'use strict';
@@ -479,7 +516,7 @@ define('administration/index',['exports', 'aurelia-router'], function (exports, 
     function configure(config) {
         var router = config.container.get(_aureliaRouter.Router);
         router.addRoute({
-            route: 'administration', name: 'administration', moduleId: 'administration/main', nav: true, title: 'xAdministration'
+            route: 'administration', name: 'administration', moduleId: 'administration/main', nav: true, title: 'Administration'
         });
     }
 });
@@ -505,7 +542,7 @@ define('administration/main',['exports', 'aurelia-framework'], function (exports
         }
 
         Administration.prototype.configureRouter = function configureRouter(config) {
-            config.map([{ route: '', name: 'administration', moduleId: './components/admin-menu', title: 'Toolkit' }, { route: 'populate', name: 'populate', moduleId: './components/populate', title: 'Add User' }, { route: 'cleanup', name: 'cleanup', moduleId: './components/cleanup', title: "Cleanup" }, { route: 'statistics', name: 'statistics', moduleId: './components/statistics', title: "Statistics" }]);
+            config.map([{ route: '', name: 'administration', moduleId: './components/admin-menu', title: '' }, { route: 'populate', name: 'populate', moduleId: './components/populate', title: 'Add User' }, { route: 'cleanup', name: 'cleanup', moduleId: './components/cleanup', title: "Cleanup" }, { route: 'statistics', name: 'statistics', moduleId: './components/statistics', title: "Statistics" }]);
         };
 
         return Administration;
@@ -660,14 +697,16 @@ define('models/user',['exports', './toolkit'], function (exports, _toolkit) {
         return User;
     }();
 });
-define('resources/index',["exports"], function (exports) {
-  "use strict";
+define('resources/index',['exports'], function (exports) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
   exports.configure = configure;
-  function configure(config) {}
+  function configure(config) {
+    config.globalResources(['./attributes/submit-task', './elements/group-list.html', './elements/list-editor', './elements/account-detail.html', './elements/login-data.html', './elements/submit-button.html', './value-converters/filter-by', './value-converters/group-by', './value-converters/order-by']);
+  }
 });
 define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-client', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaFetchClient, _user, _environment) {
     'use strict';
@@ -937,23 +976,6 @@ define('validation/rules',['aurelia-validation'], function (_aureliaValidation) 
     return { extensions: extensions };
   });
 });
-define('administration/components/adm-home',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var AdmHome = exports.AdmHome = function AdmHome() {
-    _classCallCheck(this, AdmHome);
-  };
-});
 define('administration/components/admin-menu',['exports'], function (exports) {
     'use strict';
 
@@ -981,23 +1003,6 @@ define('administration/components/admin-menu',['exports'], function (exports) {
         return AdminMenu;
     }();
 });
-define('administration/components/admin',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Adm = exports.Adm = function Adm() {
-    _classCallCheck(this, Adm);
-  };
-});
 define('administration/components/cleanup-content',["exports"], function (exports) {
     "use strict";
 
@@ -1015,12 +1020,13 @@ define('administration/components/cleanup-content',["exports"], function (export
         _classCallCheck(this, CleanupContent);
     };
 });
-define('administration/components/cleanup',["exports"], function (exports) {
-    "use strict";
+define('administration/components/cleanup',['exports', 'aurelia-framework', 'aurelia-validation', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaValidation, _userGateway, _user) {
+    'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    exports.Cleanup = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -1028,9 +1034,30 @@ define('administration/components/cleanup',["exports"], function (exports) {
         }
     }
 
-    var Cleanup = exports.Cleanup = function Cleanup() {
-        _classCallCheck(this, Cleanup);
-    };
+    var _dec, _class;
+
+    var Cleanup = exports.Cleanup = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _aureliaFramework.NewInstance.of(_aureliaValidation.ValidationController)), _dec(_class = function () {
+        function Cleanup(userGateway, validationController) {
+            _classCallCheck(this, Cleanup);
+
+            this.validationFailed = false;
+            this.displayMessages = false;
+
+            this.userGateway = userGateway;
+            this.validationController = validationController;
+            this.user = _aureliaFramework.NewInstance.of(_user.User);
+        }
+
+        Cleanup.prototype.tryActivateUser = function tryActivateUser() {
+            console.log("Activate user : ");
+        };
+
+        Cleanup.prototype.processTask = function processTask() {
+            console.log("Process deletion task : ");
+        };
+
+        return Cleanup;
+    }()) || _class);
 });
 define('administration/components/populate',["exports"], function (exports) {
     "use strict";
@@ -1049,12 +1076,13 @@ define('administration/components/populate',["exports"], function (exports) {
         _classCallCheck(this, AddUser);
     };
 });
-define('administration/components/remove-user',["exports"], function (exports) {
-    "use strict";
+define('administration/components/statistics',['exports', 'aurelia-framework', 'aurelia-validation', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaValidation, _userGateway, _user) {
+    'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    exports.Statistics = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -1062,26 +1090,83 @@ define('administration/components/remove-user',["exports"], function (exports) {
         }
     }
 
-    var RemoveUser = exports.RemoveUser = function RemoveUser() {
-        _classCallCheck(this, RemoveUser);
-    };
+    var _dec, _class;
+
+    var Statistics = exports.Statistics = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _aureliaFramework.NewInstance.of(_aureliaValidation.ValidationController)), _dec(_class = function () {
+        function Statistics(userGateway, validationController) {
+            _classCallCheck(this, Statistics);
+
+            this.validationFailed = false;
+            this.displayMessages = false;
+
+            this.userGateway = userGateway;
+            this.validationController = validationController;
+            this.user = _aureliaFramework.NewInstance.of(_user.User);
+        }
+
+        Statistics.prototype.retrieveSummary = function retrieveSummary() {
+            console.log("Retrieve summary : ");
+        };
+
+        return Statistics;
+    }()) || _class);
 });
-define('administration/components/statistics',["exports"], function (exports) {
-    "use strict";
+define('resources/attributes/submit-task',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
+  'use strict';
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.SubmitTaskCustomAttribute = undefined;
 
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var SubmitTaskCustomAttribute = exports.SubmitTaskCustomAttribute = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.DOM.Element), _dec(_class = function () {
+    function SubmitTaskCustomAttribute(element) {
+      _classCallCheck(this, SubmitTaskCustomAttribute);
+
+      this.element = element;
+      this.onSubmit = this.trySubmit.bind(this);
     }
 
-    var Statistics = exports.Statistics = function Statistics() {
-        _classCallCheck(this, Statistics);
+    SubmitTaskCustomAttribute.prototype.attached = function attached() {
+      this.element.addEventListener('submit', this.onSubmit);
+      this.element.isSubmitTaskExecuting = false;
     };
+
+    SubmitTaskCustomAttribute.prototype.trySubmit = function trySubmit(e) {
+      var _this = this;
+
+      e.preventDefault();
+      if (this.task) {
+        return;
+      }
+
+      this.element.isSubmitTaskExecuting = true;
+      this.task = Promise.resolve(this.value()).then(function () {
+        return _this.completeTask();
+      }, function () {
+        return _this.completeTask();
+      });
+    };
+
+    SubmitTaskCustomAttribute.prototype.completeTask = function completeTask() {
+      this.task = null;
+      this.element.isSubmitTaskExecuting = false;
+    };
+
+    SubmitTaskCustomAttribute.prototype.detached = function detached() {
+      this.element.removeEventListener('submit', this.onSubmit);
+    };
+
+    return SubmitTaskCustomAttribute;
+  }()) || _class);
 });
 define('resources/elements/account-detail',["exports"], function (exports) {
     "use strict";
@@ -1107,6 +1192,135 @@ define('resources/elements/account-detail',["exports"], function (exports) {
 
         return AccountDetail;
     }();
+});
+define('resources/elements/list-editor',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.ListEditorCustomElement = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _desc, _value, _class, _descriptor, _descriptor2;
+
+  var ListEditorCustomElement = exports.ListEditorCustomElement = (_class = function ListEditorCustomElement() {
+    _classCallCheck(this, ListEditorCustomElement);
+
+    _initDefineProp(this, 'items', _descriptor, this);
+
+    _initDefineProp(this, 'addItem', _descriptor2, this);
+  }, (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'items', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: function initializer() {
+      return [];
+    }
+  }), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'addItem', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class);
+});
+define('resources/elements/user-creation',['exports', 'aurelia-framework', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _userGateway, _user) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.UserCreation = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var _dec, _class;
+
+    var UserCreation = exports.UserCreation = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway), _dec(_class = function () {
+        function UserCreation(userGateway) {
+            _classCallCheck(this, UserCreation);
+
+            this.isBusy = false;
+            this.validationFailed = false;
+            this.addressExists = false;
+            this.nameExists = false;
+            this.isValidPassword = true;
+
+            this.userGateway = userGateway;
+            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
+        }
+
+        UserCreation.prototype.addUser = function addUser() {
+            var msg = "Add user  " + newUser.user.toString();
+            console.log(msg);
+
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
+            if (this.validationFailed) {
+                console.log("Input-Validation failed");
+
+                return;
+            }
+
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+
+            this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
+            this.nameExists = existingUser.name != null && existingUser.name.length > 0;
+
+            if (!addressExists && !nameExists) {
+                return this.userGateway.add(this.newUser);
+            }
+        };
+
+        return UserCreation;
+    }()) || _class);
 });
 define('resources/value-converters/filter-by',['exports'], function (exports) {
   'use strict';
@@ -1236,26 +1450,34 @@ define('resources/value-converters/order-by',['exports'], function (exports) {
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"app.css\"></require><compose view=\"nav-bar-main.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
 define('text!app.css', ['module'], function(module) { module.exports = ".page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}"; });
-define('text!edit-account.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"applyChanges()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"temporaryUser\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Update Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
+define('text!edit-account.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Edit your account data</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"applyChanges()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"temporaryUser\"></compose><br><br><submit-button>Update Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 600px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera {\r\n    position: 280px  center; \r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 300px; \r\n    height: auto;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
-define('text!login.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"performLogin()\"><compose view=\"./resources/elements/login-data.html\"></compose></form></template>"; });
+define('text!login.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Login</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"performLogin()\"><compose view=\"./resources/elements/login-data.html\"></compose><br><br><submit-button>Login</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
+define('text!css/mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 600px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera {\r\n    position: 280px  center; \r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 300px; \r\n    height: auto;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!logout.html', ['module'], function(module) { module.exports = "<template><h1>Thank you for using Postillion - Bye for now!</h1></template>"; });
 define('text!management.html', ['module'], function(module) { module.exports = "<template><h1>Management</h1></template>"; });
 define('text!nav-bar-main.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse\"><span class=\"sr-only\">Toggle Navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-home\"></i> <span>${router.title}</span></a></div><div class=\"collapse navbar-collapse\" id=\"skeleton-navigation-navbar-collapse\"><ul class=\"nav navbar-nav\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse.in\" href.bind=\"row.href\">${row.title}</a></li></ul><ul class=\"nav navbar-nav navbar-right\"><li class=\"loader\" if.bind=\"router.isNavigating\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></li></ul></div></nav></template>"; });
 define('text!not-found.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Something is broken…</h1><p>The page cannot be found.</p></section></template>"; });
-define('text!signup.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"performSignup()\"><compose view=\"./resources/elements/account-detail.html\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Create Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
+define('text!signup.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Sign up as new user</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"performSignup()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!tweet.html', ['module'], function(module) { module.exports = "<template><h1>Tweet</h1></template>"; });
 define('text!welcome-screen.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><div class=\"memo\"><h2>Welcome to Postillion!</h2></div><compose view=\"./resources/elements/blurb.html\"></compose></template>"; });
-define('text!administration/adm.html', ['module'], function(module) { module.exports = "<template><require from=\"./../app.css\"></require><h1>ADMIN's adm component</h1></template>"; });
-define('text!administration/components/adm-home.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../app.css\"></require><h1>ADMIN's home page</h1></template>"; });
+define('text!x.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"performSignup()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"newUser\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Create Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
 define('text!administration/components/admin-menu.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Admin's Toolkit</h1><div class=\"row\"><div class=\"col-sm-2\"><a route-href=\"route: populate\" class=\"btn btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add User</a></div><div class=\"col-sm-2\"><a route-href=\"route: cleanup\" class=\"btn btn-primary\"><i class=\"fa fa-trash-o\"></i> Cleanup</a></div><div class=\"col-sm-2\"><a route-href=\"route: statistics\" class=\"btn btn-primary\"><i class=\"fa fa-pencil-square-o\"></i> Statistics</a></div></div></section></template>"; });
-define('text!administration/components/admin.html', ['module'], function(module) { module.exports = ""; });
 define('text!administration/components/cleanup-content.html', ['module'], function(module) { module.exports = "<template><h1>Cleanup Content</h1></template>"; });
-define('text!administration/components/cleanup.html', ['module'], function(module) { module.exports = "<template><h1>Cleanup</h1></template>"; });
-define('text!administration/components/populate.html', ['module'], function(module) { module.exports = "<template><h1>Add User</h1></template>"; });
-define('text!administration/components/remove-user.html', ['module'], function(module) { module.exports = "<template><h1>Remove User</h1></template>"; });
-define('text!administration/components/statistics.html', ['module'], function(module) { module.exports = "<template><h1>Statistics</h1></template>"; });
-define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.name\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });
+define('text!administration/components/cleanup.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><section class=\"container\"><h1>Cleanup user or related items</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"searchUser()\"><compose view=\"./cleanup/userSearch.html\"></compose><submit-button clickk.delegate=\"tryActivateUser()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Activate user</submit-button><label class=\"col-sm-4 checkbox-inline\"><input type=\"checkbox\" value=\"\">Show messages</label><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div><compose view=\"./cleanup/taskSelection.html\"></compose><submit-button click.delegate=\"processTask()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected data</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div><br><br><compose view=\"./cleanup/displayMessages.html\"></compose></form></section></template>"; });
+define('text!administration/components/populate.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Add a new user</h1><compose view-model=\"./../../resources/elements/user-creation\"></compose></section></template>"; });
+define('text!administration/components/statistics.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><section class=\"container\"><h1>Statistics</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"retrieveSummary()\"><compose view=\"./statistics/summary.html\"></compose></form></section></template>"; });
+define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.name\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });
 define('text!resources/elements/blurb.html', ['module'], function(module) { module.exports = "<template><fieldset><legend class=\"note\"><h3>A Modern Web Application & Services using Node.js</h3><h3>Implemented as <abbr title=\"Single Page Application\">SPA</abbr>, based on Aurelia, Hapi and Heroku</h3><h3>Course - de Leastar</h3><h3><abbr title=\"Ostbayerische Technische Hochschule\">OTH</abbr> Regensburg, <abbr title=\"Medizinische Informatik\">IM</abbr> WiSe 16/17</h3></legend></fieldset></template>"; });
-define('text!resources/elements/login-data.html', ['module'], function(module) { module.exports = "<template><fieldset><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in your mail address ...\" required value.bind=\"user.mail\"><div hide.bind=\"addressExists\">Address unknown.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in your password ...\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Invalid Password. Try again ...</div></div></form><br><br><input class=\"submit\" type=\"submit\" name=\"login\" value=\"Login\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></fieldset></template>"; });
+define('text!resources/elements/group-list.html', ['module'], function(module) { module.exports = "<template bindable=\"items, groupBy, orderBy\"><div repeat.for=\"group of items | groupBy:groupBy | orderBy:'key'\" class=\"panel panel-default\"><div class=\"panel-heading\">${group.key}</div><ul class=\"list-group\"><li repeat.for=\"item of group.items | orderBy:orderBy\" class=\"list-group-item\"><template with.bind=\"item\"><template replaceable part=\"item\">${$this}</template></template></li></ul></div></template>"; });
+define('text!resources/elements/list-editor.html', ['module'], function(module) { module.exports = "<template><div class=\"form-group\" repeat.for=\"item of items\"><template with.bind=\"item\"><template replaceable part=\"item\"><div class=\"col-sm-2 col-sm-offset-1\"><template replaceable part=\"label\"></template></div><div class=\"col-sm-8\"><template replaceable part=\"value\">${$this}</template></div><div class=\"col-sm-1\"><template replaceable part=\"remove-btn\"><button type=\"button\" class=\"btn btn-danger\" title=\"Remove\" click.delegate=\"items.splice($index, 1)\"><i class=\"fa fa-times\"></i></button></template></div></template></template></div><div class=\"form-group\" show.bind=\"addItem\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"button\" class=\"btn btn-primary\" click.delegate=\"addItem()\"><slot name=\"add-button-content\"><i class=\"fa fa-plus-square-o\"></i><slot name=\"add-button-label\">Add</slot></slot></button></div></div></template>"; });
+define('text!resources/elements/login-data.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in your mail address ...\" required value.bind=\"user.mail\"><div hide.bind=\"addressExists\">Address unknown.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in your password ...\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Invalid Password. Try again ...</div></div></form></fieldset></template>"; });
+define('text!resources/elements/submit-button.html', ['module'], function(module) { module.exports = "<template bindable=\"disabled\"><button type=\"submit\" ref=\"button\" disabled.bind=\"disabled\" class=\"btn btn-success\"><span hide.bind=\"button.form.isSubmitTaskExecuting\"><slot name=\"icon\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i></slot></span><i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\" show.bind=\"button.form.isSubmitTaskExecuting\"></i><slot>Submit</slot></button></template>"; });
+define('text!resources/elements/user-creation.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"addUser()\"><compose view-model=\"./account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
+define('text!administration/components/cleanup/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
+define('text!administration/components/cleanup/taskSelection.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset id=\"cleanupTweets\" class=\"visible\"><form class=\"form-group\"><legend>Select deletion task</legend><p>Active user : ${user.name} / ${user.mail}</p><label class=\"radio-inline\"><input type=\"radio\" id=\"user\" name=\"optradio\">User (incl. all related data)</label><label class=\"radio-inline\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">All his messages</label><label class=\"radio-inline\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Selected messages</label></form></fieldset></section></template>"; });
+define('text!administration/components/cleanup/userSearch.html', ['module'], function(module) { module.exports = "<template><legend>Find user by mail or name</legend><fieldset><div class=\"form-group\"><label class=\"inputLabel\">Login-name :</label><input type=\"email\" class=\"inputField\" placeholder=\"Type in a mail-address ...\" value.bind=\"user.mail & validate\"><br><br><label for=\"username\" class=\"inputLabel\">Display-name :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" placeholder=\"Type in a name ...\" value.bind=\"user.name\"></div></fieldset></template>"; });
+define('text!administration/components/statistics/period.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset id=\"statistics\" class=\"visible\"><legend>Select Period for Statistic</legend><form clss=\"form-group\"><div><label for=\"startDate\" class=\"inputLabel\">From :</label><input type=\"date\" class=\"inputField\" placeholder=\"2000-12-30\" maxlength=\"10\" required><br><br><label for=\"endDate\" class=\"inputLabel\">To :</label><input type=\"date\" name=\"endDate\" class=\"inputField\" placeholder=\"2000-12-31\" maxlength=\"10\" required></div></form></fieldset></section></template>"; });
+define('text!administration/components/statistics/results.html', ['module'], function(module) { module.exports = "<template><table id=\"admStatisticsTable\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
+define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><compose view=\"./period.html\"></compose><br><br><form name=\"statistics\" action=\"#\" method=\"POST\"><div class=\"row\"><div class=\"col-sm-9\"><submit-button><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 //# sourceMappingURL=app-bundle.js.map
