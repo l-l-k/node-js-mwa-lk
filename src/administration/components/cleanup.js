@@ -8,17 +8,24 @@ export class Cleanup{
     constructor(userGateway, validationController) {
         this.userGateway = userGateway;
         this.validationController = validationController;
-       this.user = NewInstance.of(User);
+        this.temporaryUser = NewInstance.of(User);
+        this.temporaryUser.name = "X"; 
+        this.temporaryUser.mail = 'a@b.c';
+        this.temporaryUser.password = '1';
     }
 
     validationFailed = false;
-    displayMessages = false;
+    displayMessages = false;  
 
-    tryActivateUser() {
-        console.log("Activate user : ")
+    activateUser() {
+        console.log("Activate user " + this.temporaryUser.name + " with messages : " +this.displayMessages );
     }
 
     processTask() {
-        console.log("Process deletion task : ")
+       console.log("Process deletion task for user : " + this.temporaryUser.name);
+    }
+
+    testSubmitButton3() {
+        console.log("Test Submit Buton 3 : ");//+ this.temporaryUser.name);
     }
 }

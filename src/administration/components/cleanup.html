@@ -3,12 +3,19 @@
     <section class="container">
         <h1>Cleanup user or related items</h1>
 
-        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="searchUser()">
-            <compose view="./cleanup/userSearch.html"></compose>
-         <submit-button clickk.delegate="tryActivateUser()">
+        <form class="form-horizontal" validation-renderer="bootstrap-form">
+            <compose view="./cleanup/userSearch.html" view-model.bind="{ user:temporaryUser }"></compose>
+            <!-- Event handler doesn't get called'
+             <submit-button clickk.delegate="activateUser()">
                 <i slot="icon" class="fa fa-search" aria-hidden="true"></i> Activate user</submit-button>
             <label class="col-sm-4 checkbox-inline"><input type="checkbox" value="">Show messages</label>
             <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+            -->
+
+            <submit-button click.delegate="activateUser()">
+                <i slot="icon" class="fa fa-trash" aria-hidden="true"></i>Activate user</submit-button>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+            <label class="col-sm-4 checkbox-inline"><input type="checkbox"checked.bind="displayMessages">Show messages</label>
 
             <compose view="./cleanup/taskSelection.html"></compose>
             <submit-button click.delegate="processTask()">
