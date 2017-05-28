@@ -52,6 +52,11 @@ legend {
     background-color: #fffbf0;
 	border: 1px solid #e7c157;
 }
+.inputHelp {
+    width: 470px;
+    text-align: left;
+    padding-left: 130px;
+}
 
 
 .submit {

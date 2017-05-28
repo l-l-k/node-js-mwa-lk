@@ -1,21 +1,17 @@
 <template>
     <!-- Statistic / Summary of user accounts -->
         <fieldset id="statistics" class="visible">
-            <compose view="./period.html"></compose>
-            <br></br>
-            <form name="statistics" action="#" method="POST">
-                <!--<input class="submit" type="submit" name="accountSummary" value="Retrieve Summary" />
-            <img id='closeAdmStatView' src="img/trash.svg" alt="Close View" align="middle" width="30" height="30" <a id="close results view"
-                href="#" title="Quit Results View"></a>
-            </img>-->
+        <legend>Amount of messages per user</legend>
+           <compose view="./period.html"></compose>
+            <form>
                 <div class="row">
                     <div class="col-sm-9">
-                        <submit-button>
+                        <submit-button click.delegate="retrieveSummary()">
                             <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve summary</submit-button>
                         <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
                     </div>
                     <div class="col-sm-2">
-                        <submit-button>
+                        <submit-button click.delegate="emptyGrid()">
                         <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Empty results view</submit-button>
                     </div>
                 </div>
