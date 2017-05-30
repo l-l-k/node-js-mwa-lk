@@ -103,6 +103,14 @@ server.register(require('inert'), function (err) {
         }
     });
 
+    server.route({
+        method: 'GET',
+        path: '/test',
+        handler: function (request, reply) {
+            reply('Hello from Teugn!');
+        }
+    });
+
 });
 
 // start your server

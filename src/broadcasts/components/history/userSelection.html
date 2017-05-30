@@ -1,0 +1,24 @@
+<template>
+    <section>
+        <fieldset>
+            <form class="form-group">
+                <h4>Define filter</h4>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="column1of2" style="background-color:lavender;">
+                            <label class="radio columnIndent"><input type="radio" id="user" name="optradio">None</label>
+                            <label class="radio columnIndent"><input type="radio" id="allMessages" name="optradio">My tweets</label>
+                            <label class="radio columnIndent"><input type="radio" id="someMessages" name="optradio">Tweets of :</label>
+                            <input id="username" type="text" name="username" class="inputField columnIndent" placeholder="Type in a user's name ..." value.bind="user.name">
+                        </div>
+                        <div class="column1of2 columnIndent" style="background-color:lavenderblush;">
+                            <label class="checkbox"><input type="checkbox" checked.bind="includeVips">Include seleted VIPs</label>
+
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </form>
+        </fieldset>
+    </section>
+</template>

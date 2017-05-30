@@ -6,11 +6,11 @@ import environment from './../environment';
 @inject(HttpClient)
 export class UserGateway {
     constructor(httpClient) {
-        // this.httpClient = httpClient.configure(config => {
-        //     config
-        //         .useStandardConfiguration()
-        //         .withBaseUrl(environment.usersUrl);
-        // });
+        this.httpClient = httpClient.configure(config => {
+            config
+                .useStandardConfiguration()
+                .withBaseUrl(environment.usersUrl);
+        });
     }
 
     add(user) {
@@ -61,8 +61,10 @@ export class UserGateway {
 
        // TODO : retrieve user data from storage
         //  compare case insensitive  ;  mail address is stored as lower case string
-
-       return existingUser;
+       var x =  this.httpClient.fetch(`test`)
+           .then(response => response.json())
+           .then(User.fromObject);
+       return x;
    }
 
    getByName(name) {
