@@ -7,13 +7,17 @@
             <compose view="./userSelection.html"></compose>
             <div class="row">
                 <div class="col-sm-9">
-                    <submit-button click.delegate="retrieveSummary()">
-                        <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve summary</submit-button>
+                    <submit-button click.delegate="retrieveMessages()">
+                        <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve Messages</submit-button>
                     <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
                 </div>
                 <div class="col-sm-2">
-                    <submit-button click.delegate="emptyGrid()">
-                        <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Empty results view</submit-button>
+                    <submit-button click.delegate="removeMessages()">
+                        <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete selected messages</submit-button>
+                </div>
+                <div class="col-sm-2">
+                    <submit-button click.delegate="removeMessages()">
+                        <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete all my messages</submit-button>
                 </div>
             </div>
         </form>

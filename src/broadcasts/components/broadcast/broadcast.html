@@ -1,0 +1,40 @@
+<template>
+    <section class="container">
+        <fieldset>
+            <legend>New message</legend>
+            <form class="form-horizontal" validation-renderer="bootstrap-form">
+                <div class="container-fluid row">
+                    <div class="column1of2">
+                        <textarea class="form-control tweet" value.bind="message.text" placeholder="Type in your message ..." maxlength="140" rows="6"> </textarea>
+                        <span id="charCounter"></span>
+                        <br></br>
+                                        <button type="button" id="xcamera" class="btn btn-default camera" click.delegate="detachImage()">
+                            <span class="glyphicon glyphicon-remove"></span> Detach image
+                        </button>
+                                        <br></br>
+                                        <label for="picture"><span class="glyphicon glyphicon-paperclip camera"></span> Attach image : </label>
+                                        <input type="file" id='picture' name="picture" class="camera" accept="image/*" files.bind="selectedFiles" change.delegate="updatePreview()">
+
+                    </div>
+                    <div class="column2of2">
+                        <img id="preview" src.bind="computedImageUrl" class="img-responsive preview" alt="Photo" width="280" />
+                    </div>
+                </div>
+
+               <!-- use an icon instead default file selection -->
+                <!--<input type="file" id='addPicture' name="picture" accept="image/*" style="display:none" />
+                    <img id='detach' src="img/cut.svg" alt="Remove Picture" align="middle" width="30" height="30" <a id="removeFile" href="#"
+                        title="Detach picture"></a>
+                    </img>-->
+                </div>
+
+                <div class="col-sm-9">
+
+                    <submit-button click.delegate="sendMessage()">
+                        <i slot="icon" class=" fa fa-send" aria-hidden="true"></i> Send Message</submit-button>
+                    <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+                </div>
+            </form>
+        </fieldset>
+    </section>
+</template>

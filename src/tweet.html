@@ -1,7 +1,10 @@
 <template>
-    <section class="container">
+    <require from="./css/mwa.css"></require>
+
+ <section class="container">
     <h1>Tweet </h1>
-        <compose view="./broadcasts/components/vip.html"></compose>
-        <compose view="./broadcasts/components/history/history.html"></compose>
+        <compose view-model="./broadcasts/components/broadcast/broadcast"></compose>
+       <compose view="./broadcasts/components/vip.html"></compose>
+      <compose view="./broadcasts/components/history/history.html"></compose>
         </section>
 </template>

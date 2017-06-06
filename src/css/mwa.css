@@ -60,14 +60,16 @@ legend {
 
 .column1of2{
 float: left;
-width:300px;
+width:290px;
 margin:10px;
+background-color:lavender;
 }
 
 .column2of2{
 float: left;
-width:300px;
+width:280px;
 margin:10px;
+background-color:lavenderblush;
 }
 
 .columnIndent{
@@ -132,7 +134,7 @@ fieldset[value]:disabled {
 /* message in textaerea */
 .tweet {
     font-size: 120%;
-    width: 600px;
+    width: 290px;
 }
 /* hint referring to textaerea */
 #charCounter {font-size: 80%;}
@@ -149,13 +151,19 @@ fieldset[value]:disabled {
 .error b {color: #ff9966; background-color: #000;}
 
 /* attached image */
-#camera {
-    position: 280px  center; 
+#camera, .camera {
+    position:  280px  center; 
+    margin-left: 170px;
+}
+.camera {
+    position:  20px  center; 
+    margin-left: 20px;
 }
 
 .attachedImage .preview {
-    width: 300px; 
+    width: 280px; 
     height: auto;
+    max-width: 100%;
     border: 1px solid #000;
 }
 
