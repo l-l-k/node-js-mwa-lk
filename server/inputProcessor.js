@@ -1,6 +1,6 @@
 function inputValidation() {
     // Private properties
-    var Nes = require('nes/client');
+    var Nes = require('nes');
     var nesClient = new Nes.Client('ws://localhost:3000');
 
 

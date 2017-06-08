@@ -17,7 +17,8 @@ server.ext('onPreResponse', corsHeaders);
 var pg = require("pg");
 var conString = "pg://Karlheinz:k@localhost:5432/mwa2";
 var response;
-
+var conStringRemote = "postgres://asqxhbjfrvowud:a77c4272ba2680644502a2038c337c0fa97630f526a9a41592ec5620c0984697@ec2-54-221-217-158.compute-1.amazonaws.com:5432/d9qfa07k8iog8e";
+// DATABASE_URL in .env
 
 server.register(Nes, function (err) {
     if (err) {
@@ -160,7 +161,7 @@ server.register(require('inert'), function (err) {
     });    
     // create an account : TODO <<id>>
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/Signup/{mailnamepasswort*3}',
         handler: function (request, reply) {
             const userParts = request.params.mailnamepasswort.split('/');
@@ -200,7 +201,7 @@ server.register(require('inert'), function (err) {
     });        
     // edit Account    
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/AccountEdit/{idmailnamepasswort*4}',
         handler: function (request, reply) {
             const userParts = request.params.idmailnamepasswort.split('/');
@@ -218,7 +219,7 @@ server.register(require('inert'), function (err) {
     });    
     // delete Account    
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/AccountRemove/{id}',
         handler: function (request, reply) {           
             var result;
@@ -238,7 +239,7 @@ server.register(require('inert'), function (err) {
     });        
     //add Administrator
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/AdminAdd/{id}',
         handler: function (request, reply) {
             var result;
@@ -255,7 +256,7 @@ server.register(require('inert'), function (err) {
     });  
     //delete Administrator
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/AdminRemove/{id}',
         handler: function (request, reply) {
             var result;
@@ -273,7 +274,7 @@ server.register(require('inert'), function (err) {
 //_________TWEETS____________   
 //addTweet
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/TweetAdd/{UidTimeMessage*3}/{Picture?}',
         handler: function (request, reply) {
             const tweetParts = request.params.UidTimeMessage.split('/');
@@ -297,7 +298,7 @@ server.register(require('inert'), function (err) {
     });  
 //removeTweet
     server.route({
-        method: 'GET',
+        method: 'POST',
         path: '/TweetRemove/{idTime*2}',
         handler: function (request, reply) {
             const tweetIdentifier = request.params.idTime.split('/');

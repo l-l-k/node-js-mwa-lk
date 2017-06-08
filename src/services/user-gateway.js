@@ -1,5 +1,5 @@
 import { inject, NewInstance } from 'aurelia-framework';
-import { HttpClient } from 'aurelia-fetch-client';
+import { HttpClient } from 'aurelia-http-client';
 import { User } from './../models/user';
 import environment from './../environment';
 
@@ -8,38 +8,52 @@ export class UserGateway {
     constructor(httpClient) {
         this.httpClient = httpClient.configure(config => {
             config
-                .useStandardConfiguration()
+                //  .useStandardConfiguration()
                 .withBaseUrl(environment.usersUrl);
         });
     }
 
     add(user) {
-        // TODO : complete user data with id
-        // TODO : add user data to storage
-                // TODO : store mail address as lower case string    
-
+        // add user data to storage
+        // store mail address as lower case string    
+        var success = true;
+        this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLwerCase() + '/' + user.name + '/' + user.password)
+            .then(res => {
+                success = boolean.parse(res.content);
+            });
+        return success;
     }
 
     // TODO update accout data : mail, name, password    
     update(currentUser, modifiedUser) {
-        var success = true;
-// validate changes
-        // TODO : compare case insensitive    
-        if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() ) {
-            var existingUser = getByMailAddress(modifi)
-
-        }
+        // validate changes
         var hasChanges =
-            this.user.mail.toLwerCase() !== this.temporaryUser.mail.toLwerCase() ||
-            this.user.name.toLwerCase() !== this.temporaryUser.name.toLwerCase() ||
-            this.user.password !== this.temporaryUser.password;
-        
-        var existingUser = getByMailAddress(modifi)
+            currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() ||
+            currentUser.name !== modifiedUser.name ||
+            currentUser.password !== modifiedUser.password;
+        if (hasChanges == false) {
+            return true;
+        }
+
+        if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase()) {
+            var existingUser = getByMailAddress(modifiedUser.mail)
+            if (existingUser != null) {
+                return false;
+            }
+        }
+
+        var success = true;
+        if (hasChanges) {
+            this.httpClient.post('/AccountEdit/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.name + '/' + modifiedUser.password)
+                .then(res => {
+                    success = boolean.parse(res.content);
+                });
+        }
         return success;
     }
-    
-     // TODO validate login data : mail and password    
-   verify(user) {
+
+    // TODO validate login data : mail and password    
+    verify(user) {
         console.log("Called : getLoginDummy");
         var existingUser = NewInstance.of(User);
         existingUser.mail = 'm@w.a';
@@ -56,27 +70,62 @@ export class UserGateway {
         return existingUser.isAuthenticated;
     }
 
-   getByMailAddress(mailAddress) {
-       var existingUser = NewInstance.of(User);
+    validateLogin(user) {
+        var success = true;
+        this.httpClient.get('/Login/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.password)
+            .then(res => {
+                success = boolean.parse(res.content);
+            });
+        return success;
+    }
 
-       // TODO : retrieve user data from storage
+    testServerConnection() {
+        var x;
+        this.httpClient.get('/test').then(res => {
+            x = res.content;
+        });
+        return x; // expected result = Welcome ....
+    }
+
+    testLocalHerokuDB() {
+        var x;
+        this.httpClient.get('/db').then(res => {
+            x = res.content;
+        });
+        return x;  // expected result = tbl:2
+    }
+
+    getByMailAddress(mailAddress) {
+        var existingUser = User; //NewInstance.of(User);
+        // TODO : retrieve user data from storage
         //  compare case insensitive  ;  mail address is stored as lower case string
-       var x =  this.httpClient.fetch(`test`)
-           .then(response => response.json())
-           .then(User.fromObject);
-       return x;
-   }
+        this.httpClient.get('/UserGetByMail/' + mailAddress.toLwerCase()).then(res => {
+            try {
+                existingUser = JSON.parse(res.content);
+                //  existingUser = transferContentToUser(res.content, existingUser);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+        return existingUser;
+    }
 
-   getByName(name) {
-       var existingUser = NewInstance.of(User);
+    getByName(name) {
+        var existingUser = User; //NewInstance.of(User);
 
-       // TODO : retrieve user data from storage
-       //  compare case insensitive  ;  mail address is stored as lower case string
+        // TODO : retrieve user data from storage     
+        this.httpClient.get('/UserGetByName/' + name).then(res => {
+            try {
+                existingUser = JSON.parse(res.content);
+                // existingUser = transferContentToUser(res.content, existingUser);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+        return existingUser;
+    }
 
-       return existingUser;
-   }
-    
-
+    // TODO: delete, demo-code only
     getAll() {
         return this.httpClient.fetch('users')
             .then(response => response.json())
@@ -84,9 +133,29 @@ export class UserGateway {
     }
 
     getById(id) {
-        return this.httpClient.fetch(`users/${id}`)
-            .then(response => response.json())
-            .then(User.fromObject);
+        var existingUser = User; // NewInstance.of(User);
+
+        // TODO : retrieve user data from storage     
+        this.httpClient.get('/UserGetByUid/' + id).then(res => {
+            try {
+                existingUser = JSON.parse(res.content);
+                //   existingUser = transferContentToUser(res.content, existingUser);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+        return existingUser;
+    }
+
+
+    // temporary code:    
+    transferContentToUser(content, existingUser) {
+        var obj = JSON.parse(content);
+        existingUser.id = x.rows[0];
+        existingUser.mail = x.rows[1];
+        existingUser.password = x.rows[2];
+        existingUser.name = x.rows[3];
+        return existingUser;
     }
 
 

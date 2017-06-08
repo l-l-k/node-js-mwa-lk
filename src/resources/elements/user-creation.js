@@ -31,7 +31,7 @@ export class UserCreation {
         }
 
         // try retrieving user data from storage
-        var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+        var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
         // display hints if registration fails
         this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;

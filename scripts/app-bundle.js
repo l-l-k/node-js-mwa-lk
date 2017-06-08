@@ -399,7 +399,9 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
                 return;
             }
 
-            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+            var msg = this.userGateway.testServerConnection();
+            var txt = this.userGateway.testLocalHerokuDB();
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
             this.nameExists = existingUser.name != null && existingUser.name.length > 0;
@@ -493,7 +495,7 @@ define('x',['exports', 'aurelia-framework', './services/user-gateway', './models
                 return;
             }
 
-            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
             this.nameExists = existingUser.name != null && existingUser.name.length > 0;
@@ -749,32 +751,32 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             this.userGateway = userGateway;
         }
 
-        BroadcastGateway.prototype.addVIP = function addVIP(myID, vipName) {
+        BroadcastGateway.prototype.addVIP = function addVIP(userID, vipName) {
             var ToFollow = this.userGateway.getByName(vipName);
 
             var x;
-            this.httpClient.get('/FollowerAdd/' + myID + '/' + ToFollow.id).then(function (res) {
+            this.httpClient.get('/FollowerAdd/' + userID + '/' + ToFollow.id).then(function (res) {
                 x = res.content;
                 console.log(x);
                 return x;
             });
         };
 
-        BroadcastGateway.prototype.removeVIP = function removeVIP(myID, vipName) {
+        BroadcastGateway.prototype.removeVIP = function removeVIP(userID, vipName) {
             var ToUnFollow = this.userGateway.getByName(vipName);
             var x;
-            this.httpClient.get('/FollowerRemove/' + myID + '/' + ToUnFollow.id).then(function (res) {
+            this.httpClient.get('/FollowerRemove/' + userID + '/' + ToUnFollow.id).then(function (res) {
                 x = res.content;
                 console.log(x);
                 return x;
             });
         };
 
-        BroadcastGateway.prototype.updateVIPStatus = function updateVIPStatus(myID, vipName, isVeryImportant) {
+        BroadcastGateway.prototype.updateVIPStatus = function updateVIPStatus(userID, vipName, isActiveVIP) {
             var PriorityChanger = this.userGateway.getByName(vipName);
 
             var x;
-            this.httpClient.get('/FollowerActivate/' + myID + '/' + PriorityChanger.id + '/' + isVeryImportant).then(function (res) {
+            this.httpClient.get('/FollowerActivate/' + userID + '/' + PriorityChanger.id + '/' + isActiveVIP).then(function (res) {
                 x = res.content;
                 console.log(x);
                 return x;
@@ -784,7 +786,7 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
         return BroadcastGateway;
     }()) || _class);
 });
-define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-client', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaFetchClient, _user, _environment) {
+define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-http-client', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaHttpClient, _user, _environment) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -808,26 +810,42 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-c
 
     var _dec, _class;
 
-    var UserGateway = exports.UserGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaFetchClient.HttpClient), _dec(_class = function () {
+    var UserGateway = exports.UserGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient), _dec(_class = function () {
         function UserGateway(httpClient) {
             _classCallCheck(this, UserGateway);
 
             this.httpClient = httpClient.configure(function (config) {
-                config.useStandardConfiguration().withBaseUrl(_environment2.default.usersUrl);
+                config.withBaseUrl(_environment2.default.usersUrl);
             });
         }
 
-        UserGateway.prototype.add = function add(user) {};
+        UserGateway.prototype.add = function add(user) {
+            var success = true;
+            this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLwerCase() + '/' + user.name + '/' + user.password).then(function (res) {
+                success = boolean.parse(res.content);
+            });
+            return success;
+        };
 
         UserGateway.prototype.update = function update(currentUser, modifiedUser) {
-            var success = true;
+            var hasChanges = currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() || currentUser.name !== modifiedUser.name || currentUser.password !== modifiedUser.password;
+            if (hasChanges == false) {
+                return true;
+            }
 
             if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase()) {
-                var existingUser = getByMailAddress(modifi);
+                var existingUser = getByMailAddress(modifiedUser.mail);
+                if (existingUser != null) {
+                    return false;
+                }
             }
-            var hasChanges = this.user.mail.toLwerCase() !== this.temporaryUser.mail.toLwerCase() || this.user.name.toLwerCase() !== this.temporaryUser.name.toLwerCase() || this.user.password !== this.temporaryUser.password;
 
-            var existingUser = getByMailAddress(modifi);
+            var success = true;
+            if (hasChanges) {
+                this.httpClient.post('/AccountEdit/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.name + '/' + modifiedUser.password).then(function (res) {
+                    success = boolean.parse(res.content);
+                });
+            }
             return success;
         };
 
@@ -848,18 +866,51 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-c
             return existingUser.isAuthenticated;
         };
 
-        UserGateway.prototype.getByMailAddress = function getByMailAddress(mailAddress) {
-            var existingUser = _aureliaFramework.NewInstance.of(_user.User);
+        UserGateway.prototype.validateLogin = function validateLogin(user) {
+            var success = true;
+            this.httpClient.get('/Login/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.password).then(function (res) {
+                success = boolean.parse(res.content);
+            });
+            return success;
+        };
 
-            var x = this.httpClient.fetch('test').then(function (response) {
-                return response.json();
-            }).then(_user.User.fromObject);
+        UserGateway.prototype.testServerConnection = function testServerConnection() {
+            var x;
+            this.httpClient.get('/test').then(function (res) {
+                x = res.content;
+            });
             return x;
         };
 
-        UserGateway.prototype.getByName = function getByName(name) {
-            var existingUser = _aureliaFramework.NewInstance.of(_user.User);
+        UserGateway.prototype.testLocalHerokuDB = function testLocalHerokuDB() {
+            var x;
+            this.httpClient.get('/db').then(function (res) {
+                x = res.content;
+            });
+            return x;
+        };
 
+        UserGateway.prototype.getByMailAddress = function getByMailAddress(mailAddress) {
+            var existingUser = _user.User;
+            this.httpClient.get('/UserGetByMail/' + mailAddress.toLwerCase()).then(function (res) {
+                try {
+                    existingUser = JSON.parse(res.content);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+            return existingUser;
+        };
+
+        UserGateway.prototype.getByName = function getByName(name) {
+            var existingUser = _user.User;
+            this.httpClient.get('/UserGetByName/' + name).then(function (res) {
+                try {
+                    existingUser = JSON.parse(res.content);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
             return existingUser;
         };
 
@@ -872,9 +923,24 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-fetch-c
         };
 
         UserGateway.prototype.getById = function getById(id) {
-            return this.httpClient.fetch('users/' + id).then(function (response) {
-                return response.json();
-            }).then(_user.User.fromObject);
+            var existingUser = _user.User;
+            this.httpClient.get('/UserGetByUid/' + id).then(function (res) {
+                try {
+                    existingUser = JSON.parse(res.content);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+            return existingUser;
+        };
+
+        UserGateway.prototype.transferContentToUser = function transferContentToUser(content, existingUser) {
+            var obj = JSON.parse(content);
+            existingUser.id = x.rows[0];
+            existingUser.mail = x.rows[1];
+            existingUser.password = x.rows[2];
+            existingUser.name = x.rows[3];
+            return existingUser;
         };
 
         return UserGateway;
@@ -1502,7 +1568,7 @@ define('resources/elements/user-creation',['exports', 'aurelia-framework', './..
                 return;
             }
 
-            var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+            var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
             this.nameExists = existingUser.name != null && existingUser.name.length > 0;
@@ -1680,33 +1746,6 @@ define('administration/components/statistics/summary',['exports', 'aurelia-frame
         return Statistics;
     }()) || _class);
 });
-define('broadcasts/components/broadcast/broadcast-image',['exports', 'aurelia-router', 'aurelia-validation', './../../../services/broadcast-gateway'], function (exports, _aureliaRouter, _aureliaValidation, _broadcastGateway) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.BroadcastImage = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    var _dec, _class;
-
-    var BroadcastImage = exports.BroadcastImage = (_dec = inject(_broadcastGateway.BroadcastGateway, _aureliaRouter.Router, NewInstance.of(_aureliaValidation.ValidationController)), _dec(_class = function BroadcastImage(broadcastGateway, router, validationController) {
-        _classCallCheck(this, BroadcastImage);
-
-        this.image = null;
-
-        validationController.validateTrigger = _aureliaValidation.validateTrigger.change;
-        this.broadcastGateway = broadcastGateway;
-        this.router = router;
-        this.validationController = validationController;
-    }) || _class);
-});
 define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framework', './../../../services/broadcast-gateway', './../../../models/user', './../../../models/message', './../../../models/toolkit'], function (exports, _aureliaFramework, _broadcastGateway, _user, _message, _toolkit) {
     'use strict';
 
@@ -1854,144 +1893,6 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/broadcast/contact-photo',['exports', 'aurelia-framework', 'aurelia-router', 'aurelia-validation', './../../../services/user-gateway'], function (exports, _aureliaFramework, _aureliaRouter, _aureliaValidation, _userGateway) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.ContactPhoto = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var ContactPhoto = exports.ContactPhoto = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _aureliaRouter.Router, _aureliaFramework.NewInstance.of(_aureliaValidation.ValidationController)), _dec(_class = function () {
-    function ContactPhoto(userGateway, router, validationController) {
-      _classCallCheck(this, ContactPhoto);
-
-      this.photo = null;
-
-      validationController.validateTrigger = _aureliaValidation.validateTrigger.change;
-      this.userGateway = userGateway;
-      this.router = router;
-      this.validationController = validationController;
-    }
-
-    ContactPhoto.prototype.save = function save() {
-      console.log("Save");
-    };
-
-    return ContactPhoto;
-  }()) || _class);
-});
-define('broadcasts/components/broadcast/tweet',[], function () {
-    'use strict';
-
-    function tweetCreation() {
-        var tweetsTable = document.getElementById("extractedTweets");
-        var tweetTbl = new tweetTable(tweetsTable);
-        var tableUpdateRequested = false;
-
-        function addImage(selectedFile) {
-            var reader = new FileReader();
-            reader.onload = function (selectedImage) {
-                return function (e) {
-                    var img = document.getElementById('preview');
-                    img.className = 'preview';
-                    img.src = e.target.result;
-                    img.title = selectedImage.name;
-
-                    var preview = document.getElementById('attachedImage');
-                    preview.className = "preview";
-                    preview.insertBefore(img, null);
-                };
-            }(selectedFile);
-
-            reader.readAsDataURL(selectedFile);
-        }
-
-        function tweetRecord(userID, day, time, message, picture) {
-            this.userID = userID;
-            this.day = day;
-            this.time = time;
-            this.message = message;
-            this.attachment = picture;
-        }
-
-        var tweetCreationObject = {
-
-            createTweet: function createTweet(userID, day, time, message, picture) {
-                return new tweetRecord(userID, day, time, message, picture);
-            },
-
-            selectFile: function selectFile(e) {
-                var openFileDialog = document.getElementById('addPicture');
-                if (openFileDialog) {
-                    openFileDialog.click();
-                }
-                e.preventDefault();
-            },
-
-            evaluateFileDialog: function evaluateFileDialog(e) {
-                var selectedFiles = e.target.files;
-                if (selectedFiles.length > 0) {
-                    addImage(selectedFiles[0]);
-                }
-            },
-
-            detachImage: function detachImage() {
-                var preview = document.getElementById('attachedImage');
-                preview.innerHTML = '';
-                preview.className = 'hidden';
-            },
-
-            publishTweet: function publishTweet(e) {
-                var msg = document.forms.defineTweet.elements.message.value.trim();
-                var img = document.getElementById('preview');
-                console.log(msg.value);
-                console.log(img.currentSrc.substring(0, 10));
-
-                var newTweet = new tweetRecord(activeUser.id, mwaToolset.getDay(), mwaToolset.getTime(), msg, img.currentSrc);
-
-                if (storageWriter.uploadTweet(newTweet)) {
-                    tableUpdateRequested = true;
-
-                    if (tableUpdateRequested) {
-                        tweets = availableTweets;
-                        tweetTbl.updateTable(tweets);
-                        tweetsTable.addEventListener('click', tweetTbl.findTweets, false);
-                        tableUpdateRequested = false;
-                    }
-                } else {
-                    alert("Publishing tweet failed. Please try again.");
-                }
-            }
-
-        };
-        return tweetCreationObject;
-    }
-
-    (function () {
-        var tweetCreator = new tweetCreation();
-
-        var uploadCommand = document.getElementById('sendMsg');
-        uploadCommand.addEventListener('click', tweetCreator.publishTweet, false);
-
-        var fileSelectorProxy = document.getElementById('camera');
-        fileSelectorProxy.addEventListener('click', tweetCreator.selectFile, false);
-
-        var fileSelector = document.getElementById('addPicture');
-        fileSelector.addEventListener('change', tweetCreator.evaluateFileDialog, false);
-
-        var wasteBasket = document.getElementById('detach');
-        wasteBasket.addEventListener('click', tweetCreator.detachImage, false);
-    })();
-});
 define('broadcasts/components/history/history',['exports', 'aurelia-framework', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _broadcastGateway, _user) {
     'use strict';
 
@@ -2032,10 +1933,10 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"app.css\"></require><compose view=\"nav-bar-main.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
 define('text!app.css', ['module'], function(module) { module.exports = ".page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}"; });
-define('text!mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 600px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera {\r\n    position: 280px  center; \r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 300px; \r\n    height: auto;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!edit-account.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Edit your account data</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"applyChanges()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"temporaryUser\"></compose><br><br><submit-button>Update Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
-define('text!css/mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n.inputHelp {\r\n    width: 470px;\r\n    text-align: left;\r\n    padding-left: 130px;\r\n}\r\n\r\n.column1of2{\r\nfloat: left;\r\nwidth:290px;\r\nmargin:10px;\r\nbackground-color:lavender;\r\n}\r\n\r\n.column2of2{\r\nfloat: left;\r\nwidth:280px;\r\nmargin:10px;\r\nbackground-color:lavenderblush;\r\n}\r\n\r\n.columnIndent{\r\n    padding-left:20px;\r\n}\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 290px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera, .camera {\r\n    position:  280px  center; \r\n    margin-left: 170px;\r\n}\r\n.camera {\r\n    position:  20px  center; \r\n    margin-left: 20px;\r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 280px; \r\n    height: auto;\r\n    max-width: 100%;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
+define('text!mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 600px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera {\r\n    position: 280px  center; \r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 300px; \r\n    height: auto;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!login.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Login</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"performLogin()\"><compose view=\"./resources/elements/login-data.html\"></compose><br><br><submit-button>Login</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
+define('text!css/mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n.inputHelp {\r\n    width: 470px;\r\n    text-align: left;\r\n    padding-left: 130px;\r\n}\r\n\r\n.column1of2{\r\nfloat: left;\r\nwidth:290px;\r\nmargin:10px;\r\nbackground-color:lavender;\r\n}\r\n\r\n.column2of2{\r\nfloat: left;\r\nwidth:280px;\r\nmargin:10px;\r\nbackground-color:lavenderblush;\r\n}\r\n\r\n.columnIndent{\r\n    padding-left:20px;\r\n}\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 290px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera, .camera {\r\n    position:  280px  center; \r\n    margin-left: 170px;\r\n}\r\n.camera {\r\n    position:  20px  center; \r\n    margin-left: 20px;\r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 280px; \r\n    height: auto;\r\n    max-width: 100%;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!logout.html', ['module'], function(module) { module.exports = "<template><h1>Thank you for using Postillion - Bye for now!</h1></template>"; });
 define('text!management.html', ['module'], function(module) { module.exports = "<template><h1>Management</h1></template>"; });
 define('text!nav-bar-main.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse\"><span class=\"sr-only\">Toggle Navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-home\"></i> <span>${router.title}</span></a></div><div class=\"collapse navbar-collapse\" id=\"skeleton-navigation-navbar-collapse\"><ul class=\"nav navbar-nav\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse.in\" href.bind=\"row.href\">${row.title}</a></li></ul><ul class=\"nav navbar-nav navbar-right\"><li class=\"loader\" if.bind=\"router.isNavigating\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></li></ul></div></nav></template>"; });
@@ -2065,7 +1966,6 @@ define('text!administration/components/statistics/period.html', ['module'], func
 define('text!administration/components/statistics/results.html', ['module'], function(module) { module.exports = "<template><table id=\"admStatisticsTable\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
-define('text!broadcasts/components/broadcast/contact-photo.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>contact.fullName</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit.delegate=\"save()\"><div class=\"form-group\"><label class=\"col-sm-3 control-label\" for=\"photo\">Photo</label><div class=\"col-sm-9\"><input type=\"file\" id=\"photo\" accept=\"image/*\" files.bind=\"photo & validate\"></div></div><div class=\"form-group\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"submit\" class=\"btn btn-success\">Save</button> <a class=\"btn btn-danger\">Cancel</a></div></div></form></section></template>"; });
 define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br></fieldset></section></template>"; });
 define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.name\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

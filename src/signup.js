@@ -44,7 +44,9 @@ export class Signup {
         }
 
         // try retrieving user data from storage
-        var existingUser = this.userGateway.getByMailAddress(this.newUser.mailAddress);
+        var msg = this.userGateway.testServerConnection();
+        var txt = this.userGateway.testLocalHerokuDB();
+        var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
         // display hints if registration fails
         this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
