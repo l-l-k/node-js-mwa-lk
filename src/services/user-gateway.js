@@ -1,162 +1,210 @@
 import { inject, NewInstance } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+
 import { HttpClient } from 'aurelia-http-client';
 import { User } from './../models/user';
 import environment from './../environment';
 
-@inject(HttpClient)
+@inject(HttpClient, EventAggregator)
 export class UserGateway {
-    constructor(httpClient) {
+
+    users = [];
+    admins = [];
+    followers = [];
+
+    constructor(httpClient, eventAggregator) {
+
         this.httpClient = httpClient.configure(config => {
             config
                 //  .useStandardConfiguration()
                 .withBaseUrl(environment.usersUrl);
         });
+        this.ea = eventAggregator;
     }
 
     add(user) {
         // add user data to storage
-        // store mail address as lower case string    
-        var success = true;
-        this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLwerCase() + '/' + user.name + '/' + user.password)
+        console.log('/Signup/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password);
+        this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password)
             .then(res => {
-                success = boolean.parse(res.content);
+                try {
+                    var success = Boolean(res.content);
+                    console.log("content:" + res.content + " - success:" + success);
+                    console.log("Raise Event 2 " + user);
+                    if (success)
+                        this.ea.publish('user-added', { user });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+    }
+
+    remove(user) {
+        // remove user and related data from storage
+        var success = true;
+        this.httpClient.post('/AccountRemove/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password)
+            .then(res => {
+                success = Boolean(res.content);
             });
         return success;
     }
 
-    // TODO update accout data : mail, name, password    
-    update(currentUser, modifiedUser) {
-        // validate changes
-        var hasChanges =
-            currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() ||
-            currentUser.name !== modifiedUser.name ||
-            currentUser.password !== modifiedUser.password;
-        if (hasChanges == false) {
-            return true;
-        }
+   // update accout data : mail, name, password    
+    update(currentUser, modifiedUser){
+     
+                this.httpClient.post('/AccountEdit/' + currentUser.id + '/' + modifiedUser.mail.toLowerCase() + '/' + modifiedUser.nickname + '/' + modifiedUser.password)
+                    .then(() => {
+                       this.ea.publish('user-updated', { modifiedUser });
+                    });
 
-        if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase()) {
-            var existingUser = getByMailAddress(modifiedUser.mail)
-            if (existingUser != null) {
-                return false;
-            }
-        }
+           
+    }
+    
 
-        var success = true;
-        if (hasChanges) {
-            this.httpClient.post('/AccountEdit/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.name + '/' + modifiedUser.password)
-                .then(res => {
-                    success = boolean.parse(res.content);
-                });
-        }
-        return success;
+    CheckNameAndMail(mail, username)
+    {
+        this.httpClient.get('/MailNameCheck/' + mail + '/' + username)
+            .then(res => {
+                var content = JSON.parse(res.content);
+              this.ea.publish('user-mailNameCheck', { content });
+            });
+        
     }
 
-    // TODO validate login data : mail and password    
+        // TODO validate login data : mail and password    
     verify(user) {
-        console.log("Called : getLoginDummy");
-        var existingUser = NewInstance.of(User);
-        existingUser.mail = 'm@w.a';
-        console.log("Created : " + existingUser.mail);
-        existingUser.name = 'dummy';
-        existingUser.password = '1';
-        existingUser.id = '1';
+        var existingUser = new User();
+            console.log('/Login/' + user.mail.toLowerCase() + '/' + user.password);
+            this.httpClient.post('/Login/' + user.mail.toLowerCase() + '/' + user.password)
+                .then(res => {
+                    try {
+                        var cont = res.content;
+                        console.log("content:" + cont);
 
-        existingUser.isAuthenticated = true;
-        existingUser.isAdmin = false;
-        var msg = "Return : " + existingUser.isAuthenticated;
-        console.log(msg);
+                        console.log("Raise Event verify " + cont);
+                        this.transferContentToUser(cont, existingUser);
+                        this.ea.publish('login-check', { existingUser });
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
 
-        return existingUser.isAuthenticated;
-    }
+        }
 
-    validateLogin(user) {
-        var success = true;
-        this.httpClient.get('/Login/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.password)
-            .then(res => {
-                success = boolean.parse(res.content);
+        getByMailAddress(mailAddress) {
+            var existingUser = new User();
+            // TODO : retrieve user data from storage
+            //  compare case insensitive  ;  mail address is stored as lower case string
+            this.httpClient.get('/UserGetByMail/' + mailAddress.toLowerCase())
+                .then(res => {
+                    try {
+                        this.transferContentToUser(res.content, existingUser);
+                        this.ea.publish('user-detected', { existingUser });
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            // return existingUser;
+        }
+
+        getByName(username) {
+            var existingUser = new User();
+
+            // TODO : retrieve user data from storage     
+            this.httpClient.get('/UserGetByName/' + username).then(res => {
+                try {
+                    this.transferContentToUser(res.content, existingUser);
+                    this.ea.publish('user-detected', { existingUser });
+                } catch (error) {
+                    console.log(error);
+                }
             });
-        return success;
-    }
+            return existingUser;
+        }
 
-    testServerConnection() {
-        var x;
-        this.httpClient.get('/test').then(res => {
-            x = res.content;
-        });
-        return x; // expected result = Welcome ....
-    }
+        // TODO: delete, demo-code only
+        getAll() {
+            return this.httpClient.fetch('users')
+                .then(response => response.json())
+                .then(dto => dto.map(User.fromObject));
+        }
 
-    testLocalHerokuDB() {
-        var x;
-        this.httpClient.get('/db').then(res => {
-            x = res.content;
-        });
-        return x;  // expected result = tbl:2
-    }
+        getById(id) {
+            var existingUser = User;
 
-    getByMailAddress(mailAddress) {
-        var existingUser = User; //NewInstance.of(User);
-        // TODO : retrieve user data from storage
-        //  compare case insensitive  ;  mail address is stored as lower case string
-        this.httpClient.get('/UserGetByMail/' + mailAddress.toLwerCase()).then(res => {
-            try {
-                existingUser = JSON.parse(res.content);
-                //  existingUser = transferContentToUser(res.content, existingUser);
-            } catch (error) {
-                console.log(error);
+            // TODO : retrieve user data from storage     
+            this.httpClient.get('/UserGetByUid/' + id).then(res => {
+                try {
+                    transferContentToUser(res.content, existingUser);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+            return existingUser;
+        }
+
+
+        transferContentToUser(content, existingUser) {
+            console.log("transferContentToUser : "+content);
+            if (content == "" || content === "[]") {
+                return;
             }
-        });
-        return existingUser;
-    }
-
-    getByName(name) {
-        var existingUser = User; //NewInstance.of(User);
-
-        // TODO : retrieve user data from storage     
-        this.httpClient.get('/UserGetByName/' + name).then(res => {
-            try {
-                existingUser = JSON.parse(res.content);
-                // existingUser = transferContentToUser(res.content, existingUser);
-            } catch (error) {
-                console.log(error);
+            var dbusers = JSON.parse(content);
+            if (dbusers.length == 0) {
+                return;
             }
-        });
-        return existingUser;
+            existingUser.id = dbusers[0].uid;
+            existingUser.mail = dbusers[0].mail;
+            existingUser.password = dbusers[0].password;
+            existingUser.nickname = dbusers[0].name;
+        }
+
+        isAdmin(userID) {
+            this.httpClient.get('/AdminCheck/' + userID).then(res => {
+                try {
+                    this.ea.publish('admin-check', { res });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+
+        }
+
+        getVIPs(userID) {
+            this.httpClient.get('/FollowerGetAR/' + userID).then(res => {
+                var x = JSON.parse(res.content);
+                try {
+                    this.ea.publish('vips-incoming', { x }); 
+                    console.log(res);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+           
+        }
+
+        testServerConnection() {
+            var x = new Object();
+            this.httpClient.get('/test').then(res => {
+                x = res.content
+                //    res.send(res.content);
+                // await x.value = res.content;
+                // return await x;
+            });
+            return x; // expected result = Welcome ....
+        }
+
+        testLocalHerokuDB() {
+            var x;
+            this.httpClient.get('/db').then(res => {
+                x = res.content;
+            });
+            return x;  // expected result = tbl:2
+        }
+
+        setupDB() {
+            this.httpClient.post('/setupdb').then(res => {
+                x = res.content;
+            });
+        }
     }
-
-    // TODO: delete, demo-code only
-    getAll() {
-        return this.httpClient.fetch('users')
-            .then(response => response.json())
-            .then(dto => dto.map(User.fromObject));
-    }
-
-    getById(id) {
-        var existingUser = User; // NewInstance.of(User);
-
-        // TODO : retrieve user data from storage     
-        this.httpClient.get('/UserGetByUid/' + id).then(res => {
-            try {
-                existingUser = JSON.parse(res.content);
-                //   existingUser = transferContentToUser(res.content, existingUser);
-            } catch (error) {
-                console.log(error);
-            }
-        });
-        return existingUser;
-    }
-
-
-    // temporary code:    
-    transferContentToUser(content, existingUser) {
-        var obj = JSON.parse(content);
-        existingUser.id = x.rows[0];
-        existingUser.mail = x.rows[1];
-        existingUser.password = x.rows[2];
-        existingUser.name = x.rows[3];
-        return existingUser;
-    }
-
-
-}

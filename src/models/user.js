@@ -6,11 +6,11 @@ export class User {
         return user;
     }
 
-    mail = 'a@b.c';
-    name = 'otto';
-    password = '1';
+    mail = ''; //a@b.c';
+    nickname = ''; //otto';
+    password = ''; //1';
     id = "0";
-
+    
     isAuthenticated = false;
     isAdmin = true;
 
@@ -25,7 +25,7 @@ export class User {
     }
 
     toString() {
-        var msg = "Current user (ID = " + this.id + ") : " + this.mail + " " + this.name + " " + this.password;
+        var msg = "Current user (ID = " + this.id + ") : " + this.mail + " " + this.nickname + " " + this.password;
         return msg;
     }
 
@@ -39,7 +39,7 @@ export class User {
 
 reset() {
     this.mail = '';
-    this.name = '';
+    this.nickname = '';
     this.password = '';
     this.id = '0';
 

@@ -89,7 +89,7 @@ define('authorization-step',['exports', 'aurelia-framework', 'aurelia-router', '
         return AuthorizationStep;
     }()) || _class);
 });
-define('edit-account',['exports', 'aurelia-framework', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _userGateway, _user) {
+define('edit-account',['exports', 'aurelia-framework', './services/user-gateway', './models/user', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _userGateway, _user, _aureliaEventAggregator) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -105,28 +105,70 @@ define('edit-account',['exports', 'aurelia-framework', './services/user-gateway'
 
     var _dec, _class;
 
-    var EditAccount = exports.EditAccount = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function EditAccount(userGateway, user) {
+    var EditAccount = exports.EditAccount = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function EditAccount(eventAggregator, userGateway, user) {
             _classCallCheck(this, EditAccount);
 
+            this.nameAlreadyChecked = false;
+            this.mailAlreadyChecked = false;
+            this.hasAdressChanged = false;
+            this.hasNameChanged = false;
+            this.hasPasswordChanged = false;
             this.isBusy = false;
             this.validationFailed = false;
             this.addressExists = false;
             this.nameExists = false;
             this.isValidPassword = true;
 
+            this.ea = eventAggregator;
             this.userGateway = userGateway;
             this.user = user;
-            this.temporaryUser = _aureliaFramework.NewInstance.of(_user.User);
+            console.log(user.toString());
+            this.temporaryUser = new _user.User();
             this.temporaryUser.mail = this.user.mail;
-            this.temporaryUser.name = this.user.name;
+            this.temporaryUser.nickname = this.user.nickname;
             this.temporaryUser.password = this.user.password;
         }
+
+        EditAccount.prototype.activate = function activate() {
+            console.log("Edit-Account activted");
+            var self = this;
+            this.subscription = this.ea.subscribe('user-updated', function (updatedUser) {
+                self.user.mail = updatedUser.mail;
+                self.user.nickname = updatedUser.nickname;
+                self.user.password = updatedUser.password;
+                console.log("Changed user data : " + self.user.toString());
+            });
+
+            this.subscription3 = this.ea.subscribe('user-mailNameCheck', function (c) {
+                var uarray = c.content;
+                uarray.forEach(function (element) {
+                    if (element.uid != self.user.id) {
+                        if (element.name == self.user.nickname) {
+
+                            self.nameExists = true;
+                        }
+                        if (element.mail == self.user.mail) {
+                            self.addressExists = true;
+                        }
+                    }
+                }, self);
+
+                if (self.addressExists == false && self.nameExists == false) {
+                    self.userGateway.update(self.user, self.temporaryUser);
+                }
+            });
+        };
+
+        EditAccount.prototype.deactivate = function deactivate() {
+            this.subscription.dispose();
+            this.subscription3.dispose();
+        };
 
         EditAccount.prototype.applyChanges = function applyChanges() {
             var msg1 = "Original user : " + this.user.toString();
             console.log(msg1);
-            var msg = "Input :  " + this.temporaryUser.mail + " " + this.temporaryUser.name + " " + this.temporaryUser.password;
+            var msg = "Input :  " + this.temporaryUser.mail + " " + this.temporaryUser.nickname + " " + this.temporaryUser.password;
             console.log(msg);
 
             this.validateInputFields();
@@ -139,45 +181,27 @@ define('edit-account',['exports', 'aurelia-framework', './services/user-gateway'
                 return;
             }
 
-            if (this.userGateway.update(this.user, this.temporaryUser)) {
-                this.user.mail = this.temporaryUser.mail;
-                this.user.name = this.temporaryUser.name;
-                this.user.password = this.temporaryUser.password;
-
-                console.log("Changed user data : " + this.user.toString());
-            }
+            this.nameAlreadyChecked = false;
+            this.mailAlreadyChecked = false;
+            this.userGateway.CheckNameAndMail(this.temporaryUser.mail, this.temporaryUser.nickname);
         };
 
         EditAccount.prototype.validateInputFields = function validateInputFields() {
-            this.validationFailed = this.temporaryUser.mail.length == 0 || this.temporaryUser.name.length == 0 || this.temporaryUser.password.length == 0;
+            this.validationFailed = this.temporaryUser.mail.length == 0 || this.temporaryUser.nickname.length == 0 || this.temporaryUser.password.length == 0;
         };
 
         EditAccount.prototype.hasValidChanges = function hasValidChanges() {
-            var hasAdressChanged = this.user.mail.toLwerCase() !== this.temporaryUser.mail.toLwerCase();
-            var hasNameChanged = this.user.name.toLwerCase() !== this.temporaryUser.name.toLwerCase();
-            var hasPasswordChanged = this.user.password !== this.temporaryUser.password;
+            this.hasAdressChanged = this.user.mail.toLowerCase() !== this.temporaryUser.mail.toLowerCase();
+            this.hasNameChanged = this.user.nickname.toLowerCase() !== this.temporaryUser.nickname.toLowerCase();
+            this.hasPasswordChanged = this.user.password !== this.temporaryUser.password;
 
-            var hasChanges = hasAdressChanged || hasNameChanged || hasPasswordChanged;
+            var hasChanges = this.hasAdressChanged || this.hasNameChanged || this.hasPasswordChanged;
             if (!hasChanges) {
                 console.log("Input-Validation result : No changes");
                 return false;
             }
 
-            var anyUser = _user.User;
-            if (hasAdressChanged) {
-                anyUser = this.userGateway.getByMailAddress(this.temporaryUser.mailAddress);
-                this.addressExists = this.user.id !== anyUser.id;
-            }
-
-            if (hasNameChanged) {
-                anyUser = this.userGateway.getByName(this.temporaryUser.name);
-                this.nameExists = this.user.id !== anyUser.id;
-            }
-
-            if (addressExists || nameExists || !hasPasswordChanged) {
-                console.log("Input-Validation result : Invalid changes");
-                return false;
-            }
+            return true;
         };
 
         return EditAccount;
@@ -195,7 +219,7 @@ define('environment',['exports'], function (exports) {
     usersUrl: 'http://localhost:3000/'
   };
 });
-define('login',['exports', 'aurelia-framework', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _userGateway, _user) {
+define('login',['exports', 'aurelia-framework', './services/user-gateway', './models/user', 'aurelia-event-aggregator', 'aurelia-router'], function (exports, _aureliaFramework, _userGateway, _user, _aureliaEventAggregator, _aureliaRouter) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -211,8 +235,8 @@ define('login',['exports', 'aurelia-framework', './services/user-gateway', './mo
 
     var _dec, _class;
 
-    var Login = exports.Login = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function Login(userGateway, user) {
+    var Login = exports.Login = (_dec = (0, _aureliaFramework.inject)(_aureliaRouter.Router, _aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function Login(router, eventAggregator, userGateway, user) {
             _classCallCheck(this, Login);
 
             this.isBusy = false;
@@ -220,11 +244,66 @@ define('login',['exports', 'aurelia-framework', './services/user-gateway', './mo
             this.addressExists = true;
             this.isValidPassword = true;
 
+            this.Lrouter = router;
+            this.ea = eventAggregator;
             this.userGateway = userGateway;
             this.user = user;
+            this.user.mail = "a@a.a";
+            this.user.password = "a";
         }
 
+        Login.prototype.activate = function activate() {
+            console.log("Login activted");
+            var self = this;
+            this.subscription = this.ea.subscribe('login-check', function (e) {
+                console.log("Login Event raised");
+                console.log(e);
+                if (e != "[]") {
+                    self.user.id = e.existingUser.id;
+                    self.user.mail = e.existingUser.mail;
+                    self.user.nickname = e.existingUser.nickname;
+                    self.user.password = e.existingUser.password;
+                    self.user.isAuthenticated = "true";
+
+                    self.userGateway.isAdmin(self.user.id);
+                }
+            });
+
+            this.subscription1 = this.ea.subscribe('admin-check', function (e) {
+                console.log("AdminCheck Event raised");
+                console.log(e);
+                self.user.isAdmin = e.isSuccess;
+                var msg = "After Login : " + self.user.toString();
+                console.log(msg);
+                self.userGateway.getVIPs(self.user.id);
+            });
+
+            this.subscription2 = this.ea.subscribe('vips-incoming', function (e) {
+                console.log(e.x);
+                if (!(e.x == "[]" || e.x == "")) {
+
+                    var a = e.x;
+                    console.log("wir haben " + a);
+                    a.forEach(function (element) {
+                        if (element.active == true) {
+                            self.user.vips.push(elemnt.vip);
+                        } else {
+                            self.user.nips.push(element.vip);
+                        }
+                    }, this);
+                }
+                self.Lrouter.navigateToRoute('tweet');
+            });
+        };
+
+        Login.prototype.deactivate = function deactivate() {
+            this.subscription.dispose();
+            this.subscription1.dispose();
+            this.subscription2.dispose();
+        };
+
         Login.prototype.performLogin = function performLogin() {
+
             var msg = "Before Login : " + this.user.toString();
             console.log(msg);
 
@@ -234,12 +313,7 @@ define('login',['exports', 'aurelia-framework', './services/user-gateway', './mo
                 return;
             }
 
-            this.user.isAuthenticated = true;
-            this.user.isAdmin = true;
-
-
-            msg = "After Login : " + this.user.toString();
-            console.log(msg);
+            this.userGateway.verify(this.user);
         };
 
         return Login;
@@ -347,7 +421,7 @@ define('not-found',["exports"], function (exports) {
     _classCallCheck(this, NotFound);
   };
 });
-define('signup',['exports', 'aurelia-framework', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _userGateway, _user) {
+define('signup',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './services/user-gateway', './models/user', 'aurelia-router'], function (exports, _aureliaFramework, _aureliaEventAggregator, _userGateway, _user, _aureliaRouter) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -363,8 +437,8 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
 
     var _dec, _class;
 
-    var Signup = exports.Signup = (_dec = (0, _aureliaFramework.inject)(_userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function Signup(userGateway, user) {
+    var Signup = exports.Signup = (_dec = (0, _aureliaFramework.inject)(_aureliaRouter.Router, _aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function Signup(router, eventAggregator, userGateway, user) {
             _classCallCheck(this, Signup);
 
             this.isBusy = false;
@@ -373,13 +447,46 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
             this.nameExists = false;
             this.isValidPassword = true;
 
+            this.router = router;
+            this.ea = eventAggregator;
             this.userGateway = userGateway;
             this.user = user;
-            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
-            this.newUser.mail = "";
-            this.newUser.name = "";
-            this.newUser.password = "";
+            this.newUser = new _user.User();
+            this.newUser.mail = "a@a.a";
+            this.newUser.nickname = "aa";
+            this.newUser.password = "a";
         }
+
+        Signup.prototype.activate = function activate() {
+            console.log("Signup activted");
+            var self = this;
+            this.subscription = this.ea.subscribe('user-detected', function (e) {
+                console.log("Event raised");
+                console.log(e);
+
+                var existingUser = e.existingUser;
+
+                self.addressExists = existingUser.mail != "";
+                self.nameExists = existingUser.nickname != "";
+
+                if (!self.addressExists && !self.nameExists) {
+                    console.log("Add user");
+                    self.userGateway.add(self.newUser);
+                }
+            });
+
+            this.subscription2 = this.ea.subscribe('user-added', function (e) {
+                console.log("Event 2 raised");
+                console.log(e);
+
+                self.SUrouter.navigateToRoute('login');
+            });
+        };
+
+        Signup.prototype.deactivate = function deactivate() {
+            this.subscription.dispose();
+            this.subscription2.dispose();
+        };
 
         Signup.prototype.save = function save() {
             console.log("W");
@@ -392,25 +499,14 @@ define('signup',['exports', 'aurelia-framework', './services/user-gateway', './m
             var msg = "Signup  " + this.newUser.toString();
             console.log(msg);
 
-            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.nickname.length == 0 || this.newUser.password.length == 0;
             if (this.validationFailed) {
                 console.log("Input-Validation failed");
 
                 return;
             }
 
-            var msg = this.userGateway.testServerConnection();
-            var txt = this.userGateway.testLocalHerokuDB();
-            var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
-
-            this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
-            this.nameExists = existingUser.name != null && existingUser.name.length > 0;
-
-            if (!addressExists && !nameExists) {
-                this.userGateway.add(this.newUser);
-            }
-
-            this.router.navigateToRoute('login');
+            this.userGateway.getByMailAddress(this.newUser.mail);
         };
 
         return Signup;
@@ -478,9 +574,9 @@ define('x',['exports', 'aurelia-framework', './services/user-gateway', './models
 
             this.userGateway = userGateway;
             this.user = user;
-            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
+            this.newUser = new _user.User();
             this.newUser.mail = "";
-            this.newUser.name = "";
+            this.newUser.nickname = "";
             this.newUser.password = "";
         }
 
@@ -488,7 +584,7 @@ define('x',['exports', 'aurelia-framework', './services/user-gateway', './models
             var msg = "Signup  " + newUser.user.toString();
             console.log(msg);
 
-            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.nickname.length == 0 || this.newUser.password.length == 0;
             if (this.validationFailed) {
                 console.log("Input-Validation failed");
 
@@ -498,7 +594,7 @@ define('x',['exports', 'aurelia-framework', './services/user-gateway', './models
             var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
-            this.nameExists = existingUser.name != null && existingUser.name.length > 0;
+            this.nameExists = existingUser.nickname != null && existingUser.nickname.length > 0;
 
             if (!addressExists && !nameExists) {
                 this.userGateway.add(this.newUser);
@@ -663,9 +759,9 @@ define('models/user',['exports', './toolkit'], function (exports, _toolkit) {
         function User() {
             _classCallCheck(this, User);
 
-            this.mail = 'a@b.c';
-            this.name = 'otto';
-            this.password = '1';
+            this.mail = '';
+            this.nickname = '';
+            this.password = '';
             this.id = "0";
             this.isAuthenticated = false;
             this.isAdmin = true;
@@ -678,7 +774,7 @@ define('models/user',['exports', './toolkit'], function (exports, _toolkit) {
         }
 
         User.prototype.toString = function toString() {
-            var msg = "Current user (ID = " + this.id + ") : " + this.mail + " " + this.name + " " + this.password;
+            var msg = "Current user (ID = " + this.id + ") : " + this.mail + " " + this.nickname + " " + this.password;
             return msg;
         };
 
@@ -692,7 +788,7 @@ define('models/user',['exports', './toolkit'], function (exports, _toolkit) {
 
         User.prototype.reset = function reset() {
             this.mail = '';
-            this.name = '';
+            this.nickname = '';
             this.password = '';
             this.id = '0';
 
@@ -741,10 +837,13 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
 
     var _dec, _class;
 
-    var BroadcastGateway = exports.BroadcastGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient, _userGateway.UserGateway), _dec(_class = function () {
-        function BroadcastGateway(httpClient, userGateway) {
+    var BroadcastGateway = exports.BroadcastGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function BroadcastGateway(httpClient, userGateway, user) {
             _classCallCheck(this, BroadcastGateway);
 
+            this.broadcasts = [];
+
+            this.user = user;
             this.httpClient = httpClient.configure(function (config) {
                 config.withBaseUrl(_environment2.default.usersUrl);
             });
@@ -783,10 +882,58 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             });
         };
 
+        BroadcastGateway.prototype.addMessage = function addMessage(text, image) {
+            var _this = this;
+
+            this.httpClient.push('/TweetAdd/' + this.user.id + '/' + text + '/' + image).then(function (res) {
+                try {
+                    var success = Boolean(res.content);
+                    console.log("content:" + res.content + " - success:" + success);
+                    console.log("Raise Event message-sent ");
+                    if (success) {
+                        _this.ea.publish('message-sent', { sucess: sucess });
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        BroadcastGateway.prototype.getMessages = function getMessages(persons) {
+            var _this2 = this;
+
+            var currentUser = persons[0];
+            this.httpClient.get('/TweetsGet/' + currentUser).then(function (res) {
+                try {
+                    console.log("content:" + res.content);
+                    _this2.ea.publish('messages-downloaded', { messages: messages });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        BroadcastGateway.prototype.removeMessages = function removeMessages(useriD) {
+            var _this3 = this;
+
+            this.httpClient.post('/TweetsRemove/' + userID).then(function (res) {
+                try {
+                    var success = Boolean(res.content);
+                    console.log("content:" + res.content + " - success:" + success);
+                    console.log("Raise Event message-removed ");
+                    if (success) {
+                        _this3.ea.publish('message-removed', { sucess: sucess });
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
         return BroadcastGateway;
     }()) || _class);
 });
-define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-http-client', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaHttpClient, _user, _environment) {
+define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 'aurelia-http-client', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaEventAggregator, _aureliaHttpClient, _user, _environment) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -810,103 +957,105 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-http-cl
 
     var _dec, _class;
 
-    var UserGateway = exports.UserGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient), _dec(_class = function () {
-        function UserGateway(httpClient) {
+    var UserGateway = exports.UserGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient, _aureliaEventAggregator.EventAggregator), _dec(_class = function () {
+        function UserGateway(httpClient, eventAggregator) {
             _classCallCheck(this, UserGateway);
+
+            this.users = [];
+            this.admins = [];
+            this.followers = [];
+
 
             this.httpClient = httpClient.configure(function (config) {
                 config.withBaseUrl(_environment2.default.usersUrl);
             });
+            this.ea = eventAggregator;
         }
 
         UserGateway.prototype.add = function add(user) {
+            var _this = this;
+
+            console.log('/Signup/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password);
+            this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password).then(function (res) {
+                try {
+                    var success = Boolean(res.content);
+                    console.log("content:" + res.content + " - success:" + success);
+                    console.log("Raise Event 2 " + user);
+                    if (success) _this.ea.publish('user-added', { user: user });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        UserGateway.prototype.remove = function remove(user) {
             var success = true;
-            this.httpClient.post('/Signup/' + user.id + '/' + user.mail.toLwerCase() + '/' + user.name + '/' + user.password).then(function (res) {
-                success = boolean.parse(res.content);
+            this.httpClient.post('/AccountRemove/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password).then(function (res) {
+                success = Boolean(res.content);
             });
             return success;
         };
 
         UserGateway.prototype.update = function update(currentUser, modifiedUser) {
-            var hasChanges = currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase() || currentUser.name !== modifiedUser.name || currentUser.password !== modifiedUser.password;
-            if (hasChanges == false) {
-                return true;
-            }
+            var _this2 = this;
 
-            if (currentUser.mail.toLwerCase() !== modifiedUser.mail.toLwerCase()) {
-                var existingUser = getByMailAddress(modifiedUser.mail);
-                if (existingUser != null) {
-                    return false;
-                }
-            }
+            this.httpClient.post('/AccountEdit/' + currentUser.id + '/' + modifiedUser.mail.toLowerCase() + '/' + modifiedUser.nickname + '/' + modifiedUser.password).then(function () {
+                _this2.ea.publish('user-updated', { modifiedUser: modifiedUser });
+            });
+        };
 
-            var success = true;
-            if (hasChanges) {
-                this.httpClient.post('/AccountEdit/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.name + '/' + modifiedUser.password).then(function (res) {
-                    success = boolean.parse(res.content);
-                });
-            }
-            return success;
+        UserGateway.prototype.CheckNameAndMail = function CheckNameAndMail(mail, username) {
+            var _this3 = this;
+
+            this.httpClient.get('/MailNameCheck/' + mail + '/' + username).then(function (res) {
+                var content = JSON.parse(res.content);
+                _this3.ea.publish('user-mailNameCheck', { content: content });
+            });
         };
 
         UserGateway.prototype.verify = function verify(user) {
-            console.log("Called : getLoginDummy");
-            var existingUser = _aureliaFramework.NewInstance.of(_user.User);
-            existingUser.mail = 'm@w.a';
-            console.log("Created : " + existingUser.mail);
-            existingUser.name = 'dummy';
-            existingUser.password = '1';
-            existingUser.id = '1';
+            var _this4 = this;
 
-            existingUser.isAuthenticated = true;
-            existingUser.isAdmin = false;
-            var msg = "Return : " + existingUser.isAuthenticated;
-            console.log(msg);
-
-            return existingUser.isAuthenticated;
-        };
-
-        UserGateway.prototype.validateLogin = function validateLogin(user) {
-            var success = true;
-            this.httpClient.get('/Login/' + modifiedUser.mail.toLwerCase() + '/' + modifiedUser.password).then(function (res) {
-                success = boolean.parse(res.content);
-            });
-            return success;
-        };
-
-        UserGateway.prototype.testServerConnection = function testServerConnection() {
-            var x;
-            this.httpClient.get('/test').then(function (res) {
-                x = res.content;
-            });
-            return x;
-        };
-
-        UserGateway.prototype.testLocalHerokuDB = function testLocalHerokuDB() {
-            var x;
-            this.httpClient.get('/db').then(function (res) {
-                x = res.content;
-            });
-            return x;
-        };
-
-        UserGateway.prototype.getByMailAddress = function getByMailAddress(mailAddress) {
-            var existingUser = _user.User;
-            this.httpClient.get('/UserGetByMail/' + mailAddress.toLwerCase()).then(function (res) {
+            var existingUser = new _user.User();
+            console.log('/Login/' + user.mail.toLowerCase() + '/' + user.password);
+            this.httpClient.post('/Login/' + user.mail.toLowerCase() + '/' + user.password).then(function (res) {
                 try {
-                    existingUser = JSON.parse(res.content);
+                    var cont = res.content;
+                    console.log("content:" + cont);
+
+                    console.log("Raise Event verify " + cont);
+                    _this4.transferContentToUser(cont, existingUser);
+                    _this4.ea.publish('login-check', { existingUser: existingUser });
                 } catch (error) {
                     console.log(error);
                 }
             });
-            return existingUser;
         };
 
-        UserGateway.prototype.getByName = function getByName(name) {
-            var existingUser = _user.User;
-            this.httpClient.get('/UserGetByName/' + name).then(function (res) {
+        UserGateway.prototype.getByMailAddress = function getByMailAddress(mailAddress) {
+            var _this5 = this;
+
+            var existingUser = new _user.User();
+
+            this.httpClient.get('/UserGetByMail/' + mailAddress.toLowerCase()).then(function (res) {
                 try {
-                    existingUser = JSON.parse(res.content);
+                    _this5.transferContentToUser(res.content, existingUser);
+                    _this5.ea.publish('user-detected', { existingUser: existingUser });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        UserGateway.prototype.getByName = function getByName(username) {
+            var _this6 = this;
+
+            var existingUser = new _user.User();
+
+            this.httpClient.get('/UserGetByName/' + username).then(function (res) {
+                try {
+                    _this6.transferContentToUser(res.content, existingUser);
+                    _this6.ea.publish('user-detected', { existingUser: existingUser });
                 } catch (error) {
                     console.log(error);
                 }
@@ -924,9 +1073,10 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-http-cl
 
         UserGateway.prototype.getById = function getById(id) {
             var existingUser = _user.User;
+
             this.httpClient.get('/UserGetByUid/' + id).then(function (res) {
                 try {
-                    existingUser = JSON.parse(res.content);
+                    transferContentToUser(res.content, existingUser);
                 } catch (error) {
                     console.log(error);
                 }
@@ -935,12 +1085,66 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-http-cl
         };
 
         UserGateway.prototype.transferContentToUser = function transferContentToUser(content, existingUser) {
-            var obj = JSON.parse(content);
-            existingUser.id = x.rows[0];
-            existingUser.mail = x.rows[1];
-            existingUser.password = x.rows[2];
-            existingUser.name = x.rows[3];
-            return existingUser;
+            console.log("transferContentToUser : " + content);
+            if (content == "" || content === "[]") {
+                return;
+            }
+            var dbusers = JSON.parse(content);
+            if (dbusers.length == 0) {
+                return;
+            }
+            existingUser.id = dbusers[0].uid;
+            existingUser.mail = dbusers[0].mail;
+            existingUser.password = dbusers[0].password;
+            existingUser.nickname = dbusers[0].name;
+        };
+
+        UserGateway.prototype.isAdmin = function isAdmin(userID) {
+            var _this7 = this;
+
+            this.httpClient.get('/AdminCheck/' + userID).then(function (res) {
+                try {
+                    _this7.ea.publish('admin-check', { res: res });
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        UserGateway.prototype.getVIPs = function getVIPs(userID) {
+            var _this8 = this;
+
+            this.httpClient.get('/FollowerGetAR/' + userID).then(function (res) {
+                var x = JSON.parse(res.content);
+                try {
+                    _this8.ea.publish('vips-incoming', { x: x });
+                    console.log(res);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        UserGateway.prototype.testServerConnection = function testServerConnection() {
+            var x = new Object();
+            this.httpClient.get('/test').then(function (res) {
+                x = res.content;
+            });
+            return x;
+        };
+
+        UserGateway.prototype.testLocalHerokuDB = function testLocalHerokuDB() {
+            var x;
+            this.httpClient.get('/db').then(function (res) {
+                x = res.content;
+            });
+            return x;
+        };
+
+        UserGateway.prototype.setupDB = function setupDB() {
+            this.httpClient.post('/setupdb').then(function (res) {
+                x = res.content;
+            });
         };
 
         return UserGateway;
@@ -1125,12 +1329,13 @@ define('validation/rules',['aurelia-validation'], function (_aureliaValidation) 
     return { extensions: extensions };
   });
 });
-define('administration/components/admin-menu',['exports'], function (exports) {
+define('administration/components/admin-menu',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _userGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    exports.AdminMenu = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -1138,9 +1343,15 @@ define('administration/components/admin-menu',['exports'], function (exports) {
         }
     }
 
-    var AdminMenu = exports.AdminMenu = function () {
-        function AdminMenu() {
+    var _dec, _class;
+
+    var AdminMenu = exports.AdminMenu = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function AdminMenu(router, eventAggregator, userGateway, user) {
             _classCallCheck(this, AdminMenu);
+
+            this.router = router;
+            this.ea = eventAggregator;
+            this.userGateway = userGateway;
         }
 
         AdminMenu.prototype.tryAddUser = function tryAddUser() {};
@@ -1150,7 +1361,7 @@ define('administration/components/admin-menu',['exports'], function (exports) {
         };
 
         return AdminMenu;
-    }();
+    }()) || _class);
 });
 define('administration/components/cleanup-content',["exports"], function (exports) {
     "use strict";
@@ -1194,18 +1405,18 @@ define('administration/components/cleanup',['exports', 'aurelia-framework', 'aur
 
             this.userGateway = userGateway;
             this.validationController = validationController;
-            this.temporaryUser = _aureliaFramework.NewInstance.of(_user.User);
-            this.temporaryUser.name = "X";
+            this.temporaryUser = new _user.User();
+            this.temporaryUser.nickname = "X";
             this.temporaryUser.mail = 'a@b.c';
             this.temporaryUser.password = '1';
         }
 
         Cleanup.prototype.activateUser = function activateUser() {
-            console.log("Activate user " + this.temporaryUser.name + " with messages : " + this.displayMessages);
+            console.log("Activate user " + this.temporaryUser.nickname + " with messages : " + this.displayMessages);
         };
 
         Cleanup.prototype.processTask = function processTask() {
-            console.log("Process deletion task for user : " + this.temporaryUser.name);
+            console.log("Process deletion task for user : " + this.temporaryUser.nickname);
         };
 
         Cleanup.prototype.testSubmitButton3 = function testSubmitButton3() {
@@ -1257,7 +1468,7 @@ define('administration/components/statistics',['exports', 'aurelia-framework', '
         this.validationController = validationController;
     }) || _class);
 });
-define('broadcasts/components/vip-editor',['exports', 'aurelia-framework'], function (exports, _aureliaFramework) {
+define('broadcasts/components/vip-editor',['exports', 'aurelia-framework', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _aureliaEventAggregator) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -1332,7 +1543,7 @@ define('broadcasts/components/vip-editor',['exports', 'aurelia-framework'], func
         initializer: null
     })), _class);
 });
-define('broadcasts/components/vip',['exports', 'aurelia-framework', './../../services/broadcast-gateway', './../../models/user'], function (exports, _aureliaFramework, _broadcastGateway, _user) {
+define('broadcasts/components/vip',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../services/broadcast-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -1348,23 +1559,24 @@ define('broadcasts/components/vip',['exports', 'aurelia-framework', './../../ser
 
     var _dec, _class;
 
-    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_broadcastGateway.BroadcastGateway, _user.User), _dec(_class = function () {
-        function History(broadcastGateway, user) {
+    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _broadcastGateway.BroadcastGateway, _user.User), _dec(_class = function () {
+        function History(eventAggregator, broadcastGateway, user) {
             _classCallCheck(this, History);
 
             this.vipName = "";
             this.isVeryImportant = false;
 
-            this.user = _user.User;
-            this.broadcastGateway = _broadcastGateway.BroadcastGateway;
+            this.ea = eventAggregator;
+            this.user = user;
+            this.broadcastGateway = broadcastGateway;
         }
 
         History.prototype.addVIP = function addVIP(name, status) {
-            var vip = _aureliaFramework.NewInstance.of(_user.User);
+            var vip = new _user.User();
         };
 
         History.prototype.removeVIP = function removeVIP(name, status) {
-            var vip = _aureliaFramework.NewInstance.of(_user.User);
+            var vip = new _user.User();
         };
 
         return History;
@@ -1554,14 +1766,14 @@ define('resources/elements/user-creation',['exports', 'aurelia-framework', './..
             this.isValidPassword = true;
 
             this.userGateway = userGateway;
-            this.newUser = _aureliaFramework.NewInstance.of(_user.User);
+            this.newUser = new _user.User();
         }
 
         UserCreation.prototype.addUser = function addUser() {
             var msg = "Add user  " + newUser.user.toString();
             console.log(msg);
 
-            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.name.length == 0 || this.newUser.password.length == 0;
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.nickname.length == 0 || this.newUser.password.length == 0;
             if (this.validationFailed) {
                 console.log("Input-Validation failed");
 
@@ -1571,7 +1783,7 @@ define('resources/elements/user-creation',['exports', 'aurelia-framework', './..
             var existingUser = this.userGateway.getByMailAddress(this.newUser.mail);
 
             this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
-            this.nameExists = existingUser.name != null && existingUser.name.length > 0;
+            this.nameExists = existingUser.nickname != null && existingUser.nickname.length > 0;
 
             if (!addressExists && !nameExists) {
                 return this.userGateway.add(this.newUser);
@@ -1732,7 +1944,7 @@ define('administration/components/statistics/summary',['exports', 'aurelia-frame
 
             this.userGateway = userGateway;
             this.validationController = validationController;
-            this.user = _aureliaFramework.NewInstance.of(_user.User);
+            this.user = new _user.User();
         }
 
         Statistics.prototype.retrieveSummary = function retrieveSummary() {
@@ -1746,7 +1958,7 @@ define('administration/components/statistics/summary',['exports', 'aurelia-frame
         return Statistics;
     }()) || _class);
 });
-define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framework', './../../../services/broadcast-gateway', './../../../models/user', './../../../models/message', './../../../models/toolkit'], function (exports, _aureliaFramework, _broadcastGateway, _user, _message, _toolkit) {
+define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../models/user', './../../../models/message', './../../../models/toolkit'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user, _message, _toolkit) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -1809,21 +2021,35 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
 
     var _dec, _dec2, _class, _desc, _value, _class2;
 
-    var Broadcast = exports.Broadcast = (_dec = (0, _aureliaFramework.inject)(_broadcastGateway.BroadcastGateway, _user.User, _aureliaFramework.NewInstance.of(_message.Message)), _dec2 = (0, _aureliaFramework.computedFrom)('isImageAttached'), _dec(_class = (_class2 = function () {
-        function Broadcast(broadcastGateway, user, message) {
+    var Broadcast = exports.Broadcast = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _broadcastGateway.BroadcastGateway, _user.User, _aureliaFramework.NewInstance.of(_message.Message)), _dec2 = (0, _aureliaFramework.computedFrom)('isImageAttached'), _dec(_class = (_class2 = function () {
+        function Broadcast(eventAggregator, broadcastGateway, user, message) {
             _classCallCheck(this, Broadcast);
 
-            this.isSending = false;
+            this.isBusy = false;
             this.isImageAttached = false;
             this.imageUrl = null;
             this.selectedFiles = null;
             this.selectedImage = null;
 
-            this.broadcastGateway = _broadcastGateway.BroadcastGateway;
-            this.user = _user.User;
+            this.ea = eventAggregator;
+            this.broadcastGateway = broadcastGateway;
+            this.user = user;
             this.message = message;
             this.toolkit = new _toolkit.Toolkit();
         }
+
+        Broadcast.prototype.activate = function activate() {
+            var self = this;
+
+            this.subscription = this.ea.subscribe('message-stored', function (e) {
+                console.log("Event handler for message-stored");
+                self.isBusy = false;
+            });
+        };
+
+        Broadcast.prototype.deactivate = function deactivate() {
+            this.subscription.dispose();
+        };
 
         Broadcast.prototype.detachImage = function detachImage() {
             this.imageUrl = null;
@@ -1856,22 +2082,24 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
                     broadcast.imageUrl = e.target.result;
                 };
             }(selectedFile);
-
             reader.readAsDataURL(selectedFile);
         };
 
         Broadcast.prototype.sendMessage = function sendMessage() {
-            isSending = true;
+            if (this.isBusy) {
+                return;
+            };
+
+            this.isBusy = true;
             console.log("Send message");
-            if (isValidMessage()) {
+            if (this.isValidMessage()) {
                 this.message.image = this.imageUrl;
                 this.message.userId = this.user.id;
                 this.message.day = this.toolkit.getDay();
                 this.message.time = this.toolkit.getTime();
 
-                this.message.reset();
+                this.broadcastGateway.addMessage(this.message.text, encodeURIComponent(this.imageUrl));
             }
-            isSending = false;
         };
 
         Broadcast.prototype.isValidMessage = function isValidMessage() {
@@ -1893,7 +2121,7 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/history/history',['exports', 'aurelia-framework', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _broadcastGateway, _user) {
+define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -1909,23 +2137,59 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
 
     var _dec, _class;
 
-    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_broadcastGateway.BroadcastGateway, _user.User), _dec(_class = function () {
-        function History(broadcastGateway, user) {
+    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _broadcastGateway.BroadcastGateway, _user.User), _dec(_class = function () {
+        function History(eventAggregator, broadcastGateway, user) {
             _classCallCheck(this, History);
 
+            this.isBusy = false;
             this.vipName = "";
             this.isVeryImportant = false;
 
-            this.user = _user.User;
-            this.broadcastGateway = _broadcastGateway.BroadcastGateway;
+            this.ea = eventAggregator;
+            this.user = user;
+            this.broadcastGateway = broadcastGateway;
         }
 
+        History.prototype.activate = function activate() {
+            var self = this;
+
+            this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
+                console.log("Event handler for messages-downloaded");
+                self.isBusy = false;
+            });
+
+            this.subscription2 = this.ea.subscribe('messages-removed', function (e) {
+                console.log("Event handler for messages-deletion");
+                self.isBusy = false;
+            });
+        };
+
+        History.prototype.deactivate = function deactivate() {
+            this.subscription1.dispose();
+            this.subscription2.dispose();
+        };
+
         History.prototype.retrieveMessages = function retrieveMessages() {
+            if (this.isBusy) {
+                return;
+            };
+
             var persons = new array();
+            persons.push(this.user.id);
+
+            this.isBusy = true;
+            console.log("Request messages");
+            this.broadcastGateway.retrieveMessages(persons);
         };
 
         History.prototype.removeMessages = function removeMessages() {
-            var messages = new array();
+            if (this.isBusy) {
+                return;
+            };
+
+            this.isBusy = true;
+            console.log("Request message-deletion");
+            this.broadcastGateway.removeMessages(this.user.id);
         };
 
         return History;
@@ -1952,7 +2216,7 @@ define('text!administration/components/populate.html', ['module'], function(modu
 define('text!administration/components/statistics.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><section class=\"container\"><h1>Statistics</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view-model=\"./statistics/summary\"></compose></form></section></template>"; });
 define('text!broadcasts/components/vip-editor.html', ['module'], function(module) { module.exports = "<template><div class=\"form-group\" repeat.for=\"item of items\"><template with.bind=\"item\"><template replaceable part=\"item\"><div class=\"col-sm-2 col-sm-offset-1\"><template replaceable part=\"label\"></template></div><div class=\"col-sm-8\"><template replaceable part=\"value\">${$this}</template></div><div class=\"col-sm-1\"><template replaceable part=\"remove-btn\"><button type=\"button\" class=\"btn btn-danger\" title=\"Remove\" click.delegate=\"items.splice($index, 1)\"><i class=\"fa fa-times\"></i></button></template></div></template></template></div><div class=\"form-group\" show.bind=\"addItem\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"button\" class=\"btn btn-primary\" click.delegate=\"addItem()\"><slot name=\"add-button-content\"><i class=\"fa fa-plus-square-o\"></i><slot name=\"add-button-label\">Add</slot></slot></button></div></div></template>"; });
 define('text!broadcasts/components/vip.html', ['module'], function(module) { module.exports = "<template><fieldset><legend>Important persons to follow</legend><form><list-editor items.bind=\"contact.socialProfiles\" add-item.call=\"contact.addSocialProfile()\"><template replace-part=\"label\"><select value.bind=\"type & validate\" class=\"form-control\"><option value=\"GitHub\">GitHub</option><option value=\"Twitter\">Twitter</option></select></template><template replace-part=\"value\"><input type=\"text\" class=\"form-control\" placeholder=\"Username\" value.bind=\"username & validate\"></template><span slot=\"add-button-label\">Add an important person</span></list-editor><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"addVip(name, status)\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Add or Change important person</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeVip(name)\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Forget person</submit-button></div></div></form><br><br></fieldset></template>"; });
-define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.name\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });
+define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.nickname\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });
 define('text!resources/elements/blurb.html', ['module'], function(module) { module.exports = "<template><fieldset><legend class=\"note\"><h3>A Modern Web Application & Services using Node.js</h3><h3>Implemented as <abbr title=\"Single Page Application\">SPA</abbr>, based on Aurelia, Hapi and Heroku</h3><h3>Course - de Leastar</h3><h3><abbr title=\"Ostbayerische Technische Hochschule\">OTH</abbr> Regensburg, <abbr title=\"Medizinische Informatik\">IM</abbr> WiSe 16/17</h3></legend></fieldset></template>"; });
 define('text!resources/elements/group-list.html', ['module'], function(module) { module.exports = "<template bindable=\"items, groupBy, orderBy\"><div repeat.for=\"group of items | groupBy:groupBy | orderBy:'key'\" class=\"panel panel-default\"><div class=\"panel-heading\">${group.key}</div><ul class=\"list-group\"><li repeat.for=\"item of group.items | orderBy:orderBy\" class=\"list-group-item\"><template with.bind=\"item\"><template replaceable part=\"item\">${$this}</template></template></li></ul></div></template>"; });
 define('text!resources/elements/list-editor.html', ['module'], function(module) { module.exports = "<template><div class=\"form-group\" repeat.for=\"item of items\"><template with.bind=\"item\"><template replaceable part=\"item\"><div class=\"col-sm-2 col-sm-offset-1\"><template replaceable part=\"label\"></template></div><div class=\"col-sm-8\"><template replaceable part=\"value\">${$this}</template></div><div class=\"col-sm-1\"><template replaceable part=\"remove-btn\"><button type=\"button\" class=\"btn btn-danger\" title=\"Remove\" click.delegate=\"items.splice($index, 1)\"><i class=\"fa fa-times\"></i></button></template></div></template></template></div><div class=\"form-group\" show.bind=\"addItem\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"button\" class=\"btn btn-primary\" click.delegate=\"addItem()\"><slot name=\"add-button-content\"><i class=\"fa fa-plus-square-o\"></i><slot name=\"add-button-label\">Add</slot></slot></button></div></div></template>"; });
@@ -1960,12 +2224,12 @@ define('text!resources/elements/login-data.html', ['module'], function(module) {
 define('text!resources/elements/submit-button.html', ['module'], function(module) { module.exports = "<template bindable=\"disabled\"><button type=\"submit\" ref=\"button\" disabled.bind=\"disabled\" class=\"btn btn-success\"><span hide.bind=\"button.form.isSubmitTaskExecuting\"><slot name=\"icon\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i></slot></span><i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\" show.bind=\"button.form.isSubmitTaskExecuting\"></i><slot>Submit</slot></button></template>"; });
 define('text!resources/elements/user-creation.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"addUser()\"><compose view-model=\"./account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!administration/components/cleanup/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
-define('text!administration/components/cleanup/taskSelection.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><form class=\"form-group\"><legend>Select deletion task</legend><p>Active user : ${user.name} / ${user.mail}</p><label class=\"radio-inline\"><input type=\"radio\" id=\"user\" name=\"optradio\">User (incl. all related data)</label><label class=\"radio-inline\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">All his messages</label><label class=\"radio-inline\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Selected messages</label></form></fieldset></section></template>"; });
-define('text!administration/components/cleanup/userSearch.html', ['module'], function(module) { module.exports = "<template><legend>Find user by mail or name</legend><fieldset><div class=\"form-group\"><label class=\"inputLabel\">Login-name :</label><input type=\"email\" class=\"inputField\" placeholder=\"Type in a mail-address ...\" value.bind=\"user.mail\"><br><br><label for=\"username\" class=\"inputLabel\">Display-name :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" placeholder=\"Type in a name ...\" value.bind=\"user.name\"></div></fieldset></template>"; });
+define('text!administration/components/cleanup/taskSelection.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><form class=\"form-group\"><legend>Select deletion task</legend><p>Active user : ${user.nickname} / ${user.mail}</p><label class=\"radio-inline\"><input type=\"radio\" id=\"user\" name=\"optradio\">User (incl. all related data)</label><label class=\"radio-inline\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">All his messages</label><label class=\"radio-inline\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Selected messages</label></form></fieldset></section></template>"; });
+define('text!administration/components/cleanup/userSearch.html', ['module'], function(module) { module.exports = "<template><legend>Find user by mail or name</legend><fieldset><div class=\"form-group\"><label class=\"inputLabel\">Login-name :</label><input type=\"email\" class=\"inputField\" placeholder=\"Type in a mail-address ...\" value.bind=\"user.mail\"><br><br><label for=\"username\" class=\"inputLabel\">Display-name :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" placeholder=\"Type in a name ...\" value.bind=\"user.nickname\"></div></fieldset></template>"; });
 define('text!administration/components/statistics/period.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset id=\"statistics\" class=\"visible\"><h4>Select Period for Statistic</h4><form clss=\"form-group\"><div><label for=\"startDate\" class=\"inputLabel\">From :</label><input type=\"date\" class=\"inputField\" placeholder=\"2000-12-30\" maxlength=\"10\" required> <span class=\"help-block inputHelp\">First day of time span to analyse</span><label for=\"endDate\" class=\"inputLabel\">To :</label><input type=\"date\" name=\"endDate\" class=\"inputField\" placeholder=\"2000-12-31\" maxlength=\"10\" required> <span class=\"help-block inputHelp\">Last day of time span to analyse</span></div></form></fieldset></section></template>"; });
 define('text!administration/components/statistics/results.html', ['module'], function(module) { module.exports = "<template><table id=\"admStatisticsTable\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
 define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br></fieldset></section></template>"; });
-define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.name\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
+define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.nickname\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

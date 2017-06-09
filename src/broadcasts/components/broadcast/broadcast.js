@@ -1,30 +1,49 @@
 import { inject, NewInstance } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
 import { computedFrom } from 'aurelia-framework';
 import { BroadcastGateway } from './../../../services/broadcast-gateway';
 import { User } from './../../../models/user';
 import { Message } from './../../../models/message';
 import { Toolkit } from './../../../models/toolkit';
 
-@inject(BroadcastGateway, User, NewInstance.of(Message))
+@inject(EventAggregator, BroadcastGateway, User, NewInstance.of(Message))
 export class Broadcast {
-    constructor( broadcastGateway, user, message) {
-        this.broadcastGateway = BroadcastGateway;
-       this.user = User;
-        this.message = message;
-        this.toolkit =  new Toolkit();
-    }
 
-    isSending = false;
+    isBusy = false;
     isImageAttached = false;
     imageUrl = null;
     selectedFiles = null;
     selectedImage = null;
 
-   
+    constructor(eventAggregator,broadcastGateway, user, message) {
+        this.ea = eventAggregator;
+        this.broadcastGateway = broadcastGateway;
+        this.user = user;
+        this.message = message;
+        this.toolkit = new Toolkit();
+    }
+
+    activate() {
+        var self = this;
+
+        this.subscription = this.ea.subscribe('message-stored', function (e) {
+            console.log("Event handler for message-stored");
+            self.isBusy = false;
+            //this.message.reset();
+            //  this.router.navigateToRoute('login'));
+        });
+
+    }
+
+    deactivate() {
+        this.subscription.dispose();
+    }
+    
+
     @computedFrom('isImageAttached')
-    get computedImageUrl() { 
+    get computedImageUrl() {
         console.log("Return image URL :" + this.imageUrl);
-      return this.imageUrl;
+        return this.imageUrl;
     }
 
     detachImage() {
@@ -34,19 +53,19 @@ export class Broadcast {
 
     updateImageUrl() {
         console.log("Update Image URL");
-       if (this.selectedFiles.length > 0) {
+        if (this.selectedFiles.length > 0) {
             this.isImageAttached = false;
             this.selectedImage = this.selectedFiles[0];
             this.readFileURL(this.selectedImage, this);
-            this.isImageAttached = this.imageUrl!=null; 
-       } else {
-           detachImage();
+            this.isImageAttached = this.imageUrl != null;
+        } else {
+            detachImage();
         }
     }
-    
+
     updatePreview() {
         console.log("Update Preview");
-       this.updateImageUrl();
+        this.updateImageUrl();
         console.log("Updated Image URL :" + this.imageUrl);
     }
 
@@ -59,25 +78,25 @@ export class Broadcast {
                 broadcast.imageUrl = e.target.result;
             };
         })(selectedFile);
-
         reader.readAsDataURL(selectedFile);
+
     }
 
     sendMessage() {
-        isSending = true;
+        if (this.isBusy) {
+            return;
+        };
+
+        this.isBusy = true;
         console.log("Send message");
-        if (isValidMessage()) {
+        if (this.isValidMessage()) {
             this.message.image = this.imageUrl;
             this.message.userId = this.user.id;
             this.message.day = this.toolkit.getDay();
             this.message.time = this.toolkit.getTime();
-            // TODO : send message --> add message to table 'tweets'
-            //    return this.broadcastGateway.addMessage(text, image)
-            //        .then(() => this.router.navigateToRoute('login'));
-            this.message.reset();
-        }   
-        isSending = false;
-
+            // send message --> add message to table 'tweets'
+            this.broadcastGateway.addMessage(this.message.text, encodeURIComponent(this.imageUrl));
+        }
     }
 
     isValidMessage() {

@@ -1,12 +1,18 @@
 import { inject } from 'aurelia-framework';
 import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { Router } from 'aurelia-router';
 
-@inject(UserGateway, User)
+@inject(Router, EventAggregator, UserGateway, User)
 export class Login {
-    constructor(userGateway, user) {
+    constructor(router, eventAggregator, userGateway, user) {
+        this.Lrouter = router;
+        this.ea = eventAggregator;
         this.userGateway = userGateway;
         this.user = user;
+        this.user.mail = "a@a.a";
+        this.user.password = "a";
     }
 
     isBusy = false;
@@ -14,7 +20,62 @@ export class Login {
     addressExists = true;
     isValidPassword = true; // ER: validate PW-Security
 
+    activate() {
+        console.log("Login activted");
+        var self = this;
+        this.subscription = this.ea.subscribe('login-check', function (e) {
+            console.log("Login Event raised");
+            console.log(e);
+            if (e != "[]") {
+                self.user.id = e.existingUser.id;
+                self.user.mail = e.existingUser.mail;
+                self.user.nickname = e.existingUser.nickname;
+                self.user.password = e.existingUser.password;
+                self.user.isAuthenticated = "true";
+
+                self.userGateway.isAdmin(self.user.id);
+
+            }
+        });
+
+        this.subscription1 = this.ea.subscribe('admin-check', function (e) {
+            console.log("AdminCheck Event raised");
+            console.log(e);
+            self.user.isAdmin = e.isSuccess;
+            var msg = "After Login : " + self.user.toString();
+            console.log(msg);
+            self.userGateway.getVIPs(self.user.id);
+
+        });
+
+
+        this.subscription2 = this.ea.subscribe('vips-incoming', function (e) {
+            console.log(e.x);
+            if (!(e.x == "[]" || e.x == "")) {
+
+
+                var a = e.x;
+                console.log("wir haben " + a);
+                a.forEach(function (element) {
+                    if (element.active == true) {
+                        self.user.vips.push(elemnt.vip);
+                    } else {
+                        self.user.nips.push(element.vip);
+                    }
+                }, this);
+            }
+            self.Lrouter.navigateToRoute('tweet');
+        });
+
+    }
+    deactivate() {
+        this.subscription.dispose();
+        this.subscription1.dispose();
+        this.subscription2.dispose();
+    }
     performLogin() {
+
+
         var msg = "Before Login : " + this.user.toString();
         console.log(msg);
         //alert(msg);
@@ -26,18 +87,7 @@ export class Login {
             return;
         }
 
-        // Enable all
-        // TODO: set properties isAuthenticated, isAdmin
-        this.user.isAuthenticated = true;
-        this.user.isAdmin = true;
-        //this.user = this.userGateway.verify(this.user);
-        // this.userGateway.verify(this.user);
-
-        msg = "After Login : " + this.user.toString();
-        console.log(msg);
-
-        // TODO Logout any active user : cleanup broadcast-feature
-        //this.user.reset();
+        this.userGateway.verify(this.user);
 
     }
 }

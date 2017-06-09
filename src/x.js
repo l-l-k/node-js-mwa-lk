@@ -7,9 +7,9 @@ export class X {
     constructor(userGateway, user) {
         this.userGateway = userGateway;
         this.user = user;
-        this.newUser = NewInstance.of(User);
+        this.newUser = new User();  
         this.newUser.mail = "";
-        this.newUser.name = "";
+        this.newUser.nickname = "";
         this.newUser.password = "";
     }
 
@@ -26,7 +26,7 @@ export class X {
         // aurelia-validation is much more complex
         this.validationFailed =
             this.newUser.mail.length == 0 ||
-            this.newUser.name.length == 0 ||
+            this.newUser.nickname.length == 0 ||
             this.newUser.password.length == 0;
         if (this.validationFailed) {
             console.log("Input-Validation failed");
@@ -39,7 +39,7 @@ export class X {
 
         // display hints if registration fails
         this.addressExists = existingUser.mail != null && existingUser.mail.length > 0;
-        this.nameExists = existingUser.name != null && existingUser.name.length > 0;
+        this.nameExists = existingUser.nickname != null && existingUser.nickname.length > 0;
 
         // register as new user
         if (!addressExists && !nameExists) {

@@ -8,7 +8,7 @@ export class Statistics {
     constructor(userGateway, validationController) {
         this.userGateway = userGateway;
         this.validationController = validationController;
-        this.user = NewInstance.of(User);
+        this.user = new User();
     }
 
     validationFailed = false;

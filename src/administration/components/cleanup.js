@@ -8,8 +8,8 @@ export class Cleanup{
     constructor(userGateway, validationController) {
         this.userGateway = userGateway;
         this.validationController = validationController;
-        this.temporaryUser = NewInstance.of(User);
-        this.temporaryUser.name = "X"; 
+        this.temporaryUser = new User();
+        this.temporaryUser.nickname = "X"; 
         this.temporaryUser.mail = 'a@b.c';
         this.temporaryUser.password = '1';
     }
@@ -18,14 +18,14 @@ export class Cleanup{
     displayMessages = false;  
 
     activateUser() {
-        console.log("Activate user " + this.temporaryUser.name + " with messages : " +this.displayMessages );
+        console.log("Activate user " + this.temporaryUser.nickname + " with messages : " +this.displayMessages );
     }
 
     processTask() {
-       console.log("Process deletion task for user : " + this.temporaryUser.name);
+       console.log("Process deletion task for user : " + this.temporaryUser.nickname);
     }
 
     testSubmitButton3() {
-        console.log("Test Submit Buton 3 : ");//+ this.temporaryUser.name);
+        console.log("Test Submit Buton 3 : ");//+ this.temporaryUser.nickname);
     }
 }
