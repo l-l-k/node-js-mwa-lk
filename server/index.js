@@ -51,10 +51,10 @@ server.register(require('inert'), function (err) {
         handler: function (request, reply) {
             var client = new pg.Client(conString);
             client.connect();
-            var query = client.query("create table admins (id integer)");
-            var query = client.query("create table users (uid character[50], mail character[50], password character[50], name character[50])");
-            var query = client.query("create table followers (uid character[50], vip character[50], active boolean)");
-            var query = client.query("create table tweets (uid character[50],timestamp timestamp without time zone, message character[140], image text )");
+            var query = client.query("create table admins (uid text)");
+            var query = client.query("create table users (uid text, mail text, password text, name text)");
+            var query = client.query("create table followers (uid text, vip text, active boolean)");
+            var query = client.query("create table tweets (uid text,timestamp timestamp without time zone, message text, image text )");
             reply("");
             client.end();
         }
