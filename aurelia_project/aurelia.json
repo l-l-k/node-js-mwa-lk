@@ -106,6 +106,8 @@
           "aurelia-history",
           "aurelia-history-browser",
           "aurelia-http-client",
+          //"aurelia-api",
+         // "extend",
           "aurelia-loader",
           "aurelia-loader-default",
           "aurelia-logging",
@@ -120,7 +122,9 @@
           "aurelia-task-queue",
           "aurelia-templating",
           "aurelia-templating-binding",
+        //  "aurelia-view-manager",
           "text",
+        //  "get-prop",
           {
             "name": "aurelia-templating-resources",
             "path": "../node_modules/aurelia-templating-resources/dist/amd",
@@ -131,11 +135,46 @@
             "path": "../node_modules/aurelia-templating-router/dist/amd",
             "main": "aurelia-templating-router"
           },
+          // {
+          //   "name": "aurelia-orm",
+          //   "path": "../node_modules/aurelia-orm/dist/amd",
+          //   "main": "aurelia-orm",
+          //   "resources": [
+          //     "component/view/bootstrap/association-select.html",
+          //     "component/view/bootstrap/paged.html"
+          //   ]
+          // },
+          // {
+          //   "name": "aurelia-validation",
+          //   "path": "../node_modules/aurelia-validation/dist/amd",
+          //   "main": "index"
+          //  },
           {
             "name": "aurelia-validation",
             "path": "../node_modules/aurelia-validation/dist/amd",
             "main": "aurelia-validation"
           },
+          // {
+          //   "name": "homefront",
+          //   "path": "../node_modules/homefront/dist/",
+          //   "main": "index"
+          // },
+          // {
+          //   "name": "aurelia-datatable",
+          //   "path": "../node_modules/aurelia-datatable/dist/amd",
+          //   "main": "aurelia-datatable",
+          //   "resources": [
+          //     "bootstrap/datatable.html"
+          //   ]
+          // },
+          // {
+          //   "name": "aurelia-pager",
+          //   "path": "../node_modules/aurelia-pager/dist/amd",
+          //   "main": "aurelia-pager",
+          //   "resources": [
+          //     "bootstrap/pager.html"
+          //   ]
+          // },
           {
             "name": "aurelia-testing",
             "path": "../node_modules/aurelia-testing/dist/amd",

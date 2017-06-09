@@ -114,7 +114,7 @@ server.register(require('inert'), function (err) {
             var result;
             var client = new pg.Client(conString);
             client.connect();
-            client.query("SELECT * FROM users WHERE mail='" + Parts[0] + "' OR name ='" + Parts[1]+"'").then(res => reply(JSON.stringify(res.rows)))
+            client.query("SELECT * FROM users WHERE mail='" + Parts[0] + "' OR name ='" + Parts[1] + "'").then(res => reply(JSON.stringify(res.rows)))
                 .then(() => client.end());
         }
     });
@@ -127,7 +127,7 @@ server.register(require('inert'), function (err) {
             var client = new pg.Client(conString);
             client.connect();
             client.query("SELECT * FROM users WHERE mail='" + request.params.email + "'").then(res => reply(JSON.stringify(res.rowCount == 0)))
-                .then(() => client.end());          
+                .then(() => client.end());
         }
     });
     // check if username already exists
@@ -162,19 +162,19 @@ server.register(require('inert'), function (err) {
         path: '/Signup/{idmailnamepassword*4}',
         handler: function (request, reply) {
             const userParts = request.params.idmailnamepassword.split('/');
-         
+
             pg.connect(conString, function onConnect(err, client, done) {
                 //Err - This means something went wrong connecting to the database.               
-            var qs = "INSERT into users (uid,mail, name, password) VALUES($1, $2, $3, $4)";// + userParts[0] + "', '" + userParts[1] + "','" + userParts[2] + "', '" + userParts[3] + "')";
-           try {
-               client.query(qs, userParts);               
-               done();
-               reply("true");
-           } catch (error) {           
-               reply("false");
-            }             
+                var qs = "INSERT into users (uid,mail, name, password) VALUES($1, $2, $3, $4)";// + userParts[0] + "', '" + userParts[1] + "','" + userParts[2] + "', '" + userParts[3] + "')";
+                try {
+                    client.query(qs, userParts);
+                    done();
+                    reply("true");
+                } catch (error) {
+                    reply("false");
+                }
             });
-           
+
 
         }
     });
@@ -189,8 +189,8 @@ server.register(require('inert'), function (err) {
             client.connect();
             var qs = "SELECT * FROM users WHERE mail ='" + userParts[0] + "' AND password ='" + userParts[1] + "'";
             console.log(qs);
-           client.query(qs).then(res =>reply(JSON.stringify(res.rows)))
-                .then(() => client.end());            
+            client.query(qs).then(res => reply(JSON.stringify(res.rows)))
+                .then(() => client.end());
         }
     });
     // edit Account    
@@ -201,8 +201,8 @@ server.register(require('inert'), function (err) {
             const userParts = request.params.idmailnamepassword.split('/');
             pg.connect(conString, function onConnect(err, client, done) {
                 //Err - This means something went wrong connecting to the database.               
-                var qs = "UPDATE users SET mail='" + userParts[1] + "', name='" + userParts[2] + "', password='" + userParts[3] + "' WHERE uid='" + userParts[0]+"'";
-                
+                var qs = "UPDATE users SET mail='" + userParts[1] + "', name='" + userParts[2] + "', password='" + userParts[3] + "' WHERE uid='" + userParts[0] + "'";
+
                 try {
                     client.query(qs);
                     done();
@@ -212,7 +212,7 @@ server.register(require('inert'), function (err) {
                 }
             });
         }
-        
+
     });
     // delete Account    
     server.route({
@@ -274,12 +274,12 @@ server.register(require('inert'), function (err) {
     //_________TWEETS____________   
     //addTweet
     server.route({
-        method: 'POST',
+        method: 'PUSH',
         path: '/TweetAdd/{UidMessage*2}/{Picture?}',
         handler: function (request, reply) {
             const tweetParts = request.params.UidMessage.split('/');
             const Picture = request.params.Picture ? encodeURIComponent(request.params.Picture) : 'false';
-           
+
 
             pg.connect(conString, function onConnect(err, client, done) {
                 //Err - This means something went wrong connecting to the database.
@@ -287,10 +287,10 @@ server.register(require('inert'), function (err) {
                 if (Picture == "false") {
                     qs = "INSERT into tweets (uid,timestamp,message) VALUES($1, now(), $2)";
                 } else {
-                    qs = "INSERT into tweets (uid,timestamp,message,image) VALUES($1, now(), $2, '"+Picture+"')";
+                    qs = "INSERT into tweets (uid,timestamp,message,image) VALUES($1, now(), $2, '" + Picture + "')";
                 }
-               try {
-                   client.query(qs, tweetParts);
+                try {
+                    client.query(qs, tweetParts);
                     done();
                     reply("true");
                 } catch (error) {
@@ -303,13 +303,16 @@ server.register(require('inert'), function (err) {
     server.route({
         method: 'POST',
         path: '/TweetRemove/{idTime*2}',
-        handler: function (request, reply) {
+        handler: function (request, reply, done) {
             const tweetIdentifier = request.params.idTime.split('/');
             var result;
             var client = new pg.Client(conString);
             client.connect();
+            var qs = "DELETE FROM tweets WHERE uid =" + tweetIdentifier[0] + " AND timestamp =" + tweetIdentifier[1] + ")";
             try {
-                var insert = client.query("DELETE FROM tweets WHERE uid =" + tweetIdentifier[0] + " AND timestamp =" + tweetIdentifier[1] + ")");
+                var insert = client.query(qs, tweetIdentifier);
+                console.log(insert);
+                done();
                 reply("true");
             } catch (error) {
                 reply("false");
@@ -317,40 +320,82 @@ server.register(require('inert'), function (err) {
             client.end();
         }
     });
+
     //getTweets
     server.route({
         method: 'GET',
-        path: '/TweetGet/{uidstartEnd*3}',
+        path: '/TweetGetVIP/{uid}',//startEnd*3}',
         handler: function (request, reply) {
-            const queryParts = request.params.mailpassword.split('/');
-            var result;
-            var result_vip;
+            const queryParts = request.params.uid;//.split('/');
+            var result=[];
+            var result_vip=[];
             var client = new pg.Client(conString);
             client.connect();
+            var qs = '';
             // getting all active vips
-            var query_vip = client.query("SELECT vip FROM followers WHERE uid =" + queryParts[0] + " AND active = 'true')").then(res => result_vip= res)
-                .then(() => client.end());
-            // getting all tweets of the vips in between the given timespan
-            result_vip.forEach(function (element) {
-                var query_tweets = client.query("SELECT * FROM tweets WHERE uid =" + element + " AND timestamp > " + queryParts[1] + " AND timepstampe < " + queryParts[2] + ")")
-                    .then(res => result.push(res))
-                    .then(() => client.end());
-            }, this);
-           
-                reply(JSON.stringify(result));
-           
+            qs = "SELECT vip FROM followers WHERE uid ='" + queryParts/*[0]*/ + "' AND active = 'true'";
+            console.log(qs);
+
+            var query_vip = client.query(qs)
+                .then(res => {
+                    res.rows.forEach(function (element) {
+                        console.log(element);
+                        console.log(element.vip);
+                        result_vip.push(element.vip);
+                    }, this);
+                    console.log(res);
+                })
+                .then(() => client.end())
+            
+                    console.log("resultvip: "+result_vip);
+                    // getting all tweets of the vips in between the given timespan          
+                    result_vip.forEach(function (element) {
+                        qs = "SELECT * FROM tweets WHERE uid ='" + element + "'";//+ " AND timestamp > " + queryParts[1] + " AND timepstampe < " + queryParts[2] + ")";
+                        console.log(qs);
+                        var query_tweets = client.query(qs)
+                            .then(res => {
+                                console.log(res);
+                                res.rows.forEach(function (element) {   
+                                    console.log(element);
+                                    result.push(element);
+                                }, this);
+                               
+                            })
+                            .then(() => client.end());
+                    }, this);
+                    console.log(result);
+                    reply(JSON.stringify(result));
+               
         }
     });
+
+    //getTweets
+    server.route({
+        method: 'GET',
+        path: '/TweetGet/{uid}',
+        handler: function (request, reply) {
+            var qs = "SELECT * FROM tweets WHERE uid='" + request.params.uid + "'";
+            console.log("Query: " + qs);
+            var client = new pg.Client(conString);
+            client.connect();
+            // getting all tweets
+            client.query(qs)
+                .then(res => reply(JSON.stringify(res.rows)))
+                .then(() => client.end());
+        }
+    });
+    
+
     //__________FOLLOWERS_____________
-    // get all followers 
+    // get all related followers 
     server.route({
         method: 'GET',
         path: '/FollowerGetAR/{uid}',
-        handler: function (request, reply) {           
+        handler: function (request, reply) {
             var result;
             var client = new pg.Client(conString);
             client.connect();
- client.query("SELECT * FROM followers WHERE uid='" + request.params.uid + "'")
+            client.query("SELECT * FROM followers WHERE uid='" + request.params.uid + "'")
                 .then(res => reply(JSON.stringify(res.rows)))
                 .then(() => client.end());
         }

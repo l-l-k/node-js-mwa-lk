@@ -58,7 +58,7 @@ export class Login {
                 console.log("wir haben " + a);
                 a.forEach(function (element) {
                     if (element.active == true) {
-                        self.user.vips.push(elemnt.vip);
+                        self.user.vips.push(element.vip);
                     } else {
                         self.user.nips.push(element.vip);
                     }

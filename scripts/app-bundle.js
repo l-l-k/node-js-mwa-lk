@@ -286,7 +286,7 @@ define('login',['exports', 'aurelia-framework', './services/user-gateway', './mo
                     console.log("wir haben " + a);
                     a.forEach(function (element) {
                         if (element.active == true) {
-                            self.user.vips.push(elemnt.vip);
+                            self.user.vips.push(element.vip);
                         } else {
                             self.user.nips.push(element.vip);
                         }
@@ -813,7 +813,7 @@ define('resources/index',['exports'], function (exports) {
     config.globalResources(['./attributes/submit-task', './elements/group-list.html', './elements/list-editor', './elements/account-detail.html', './elements/login-data.html', './elements/submit-button.html', './value-converters/filter-by', './value-converters/group-by', './value-converters/order-by']);
   }
 });
-define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-http-client', './user-gateway', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaHttpClient, _userGateway, _user, _environment) {
+define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-http-client', './user-gateway', 'aurelia-event-aggregator', './../models/user', './../environment'], function (exports, _aureliaFramework, _aureliaHttpClient, _userGateway, _aureliaEventAggregator, _user, _environment) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -837,12 +837,13 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
 
     var _dec, _class;
 
-    var BroadcastGateway = exports.BroadcastGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaHttpClient.HttpClient, _userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function BroadcastGateway(httpClient, userGateway, user) {
+    var BroadcastGateway = exports.BroadcastGateway = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _aureliaHttpClient.HttpClient, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function BroadcastGateway(eventAggregator, httpClient, userGateway, user) {
             _classCallCheck(this, BroadcastGateway);
 
             this.broadcasts = [];
 
+            this.ea = eventAggregator;
             this.user = user;
             this.httpClient = httpClient.configure(function (config) {
                 config.withBaseUrl(_environment2.default.usersUrl);
@@ -903,8 +904,12 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             var _this2 = this;
 
             var currentUser = persons[0];
-            this.httpClient.get('/TweetsGet/' + currentUser).then(function (res) {
+            this.httpClient.get('/TweetGet/' + currentUser).then(function (res) {
                 try {
+                    var messages = [];
+                    if (!(res.content == "" || res.content == "[]")) {
+                        messages = JSON.parse(res.content);
+                    }
                     console.log("content:" + res.content);
                     _this2.ea.publish('messages-downloaded', { messages: messages });
                 } catch (error) {
@@ -1329,7 +1334,7 @@ define('validation/rules',['aurelia-validation'], function (_aureliaValidation) 
     return { extensions: extensions };
   });
 });
-define('administration/components/admin-menu',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './services/user-gateway', './models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _userGateway, _user) {
+define('administration/components/admin-menu',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _userGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -1352,6 +1357,7 @@ define('administration/components/admin-menu',['exports', 'aurelia-framework', '
             this.router = router;
             this.ea = eventAggregator;
             this.userGateway = userGateway;
+            this.user = user;
         }
 
         AdminMenu.prototype.tryAddUser = function tryAddUser() {};
@@ -2041,8 +2047,8 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         Broadcast.prototype.activate = function activate() {
             var self = this;
 
-            this.subscription = this.ea.subscribe('message-stored', function (e) {
-                console.log("Event handler for message-stored");
+            this.subscription = this.ea.subscribe('message-sent', function (e) {
+                console.log("Event handler for message-sent");
                 self.isBusy = false;
             });
         };
@@ -2121,7 +2127,7 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user) {
+define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 'aurelia-view-manager', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _aureliaViewManager, _broadcastGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2144,6 +2150,7 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
             this.isBusy = false;
             this.vipName = "";
             this.isVeryImportant = false;
+            this.tweets = [];
 
             this.ea = eventAggregator;
             this.user = user;
@@ -2155,6 +2162,11 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
 
             this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
                 console.log("Event handler for messages-downloaded");
+                console.log(e);
+                e.messages.forEach(function (element) {
+                    tweets.push(element);
+                }, this);
+
                 self.isBusy = false;
             });
 
@@ -2174,12 +2186,12 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
                 return;
             };
 
-            var persons = new array();
+            var persons = new Array();
             persons.push(this.user.id);
 
             this.isBusy = true;
             console.log("Request messages");
-            this.broadcastGateway.retrieveMessages(persons);
+            this.broadcastGateway.getMessages(persons);
         };
 
         History.prototype.removeMessages = function removeMessages() {
@@ -2206,7 +2218,7 @@ define('text!management.html', ['module'], function(module) { module.exports = "
 define('text!nav-bar-main.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse\"><span class=\"sr-only\">Toggle Navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-home\"></i> <span>${router.title}</span></a></div><div class=\"collapse navbar-collapse\" id=\"skeleton-navigation-navbar-collapse\"><ul class=\"nav navbar-nav\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse.in\" href.bind=\"row.href\">${row.title}</a></li></ul><ul class=\"nav navbar-nav navbar-right\"><li class=\"loader\" if.bind=\"router.isNavigating\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></li></ul></div></nav></template>"; });
 define('text!not-found.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Something is broken…</h1><p>The page cannot be found.</p></section></template>"; });
 define('text!signup.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Sign up as new user</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"performSignup()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
-define('text!tweet.html', ['module'], function(module) { module.exports = "<template><require from=\"./css/mwa.css\"></require><section class=\"container\"><h1>Tweet</h1><compose view-model=\"./broadcasts/components/broadcast/broadcast\"></compose><compose view=\"./broadcasts/components/vip.html\"></compose><compose view=\"./broadcasts/components/history/history.html\"></compose></section></template>"; });
+define('text!tweet.html', ['module'], function(module) { module.exports = "<template><require from=\"./css/mwa.css\"></require><section class=\"container\"><h1>Tweet</h1><compose view-model=\"./broadcasts/components/broadcast/broadcast\"></compose><compose view=\"./broadcasts/components/vip.html\"></compose><compose view-model=\"./broadcasts/components/history/history\"></compose></section></template>"; });
 define('text!welcome-screen.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><div class=\"memo\"><h2>Welcome to Postillion!</h2></div><compose view=\"./resources/elements/blurb.html\"></compose></template>"; });
 define('text!x.html', ['module'], function(module) { module.exports = "<template><require from=\"mwa.css\"></require><form submit.delegate=\"performSignup()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"newUser\"></compose><br><br><input id=\"subscribe\" class=\"submit\" type=\"submit\" name=\"subscribe\" value=\"Create Account\" disabled.bind=\"isBusy\"><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></template>"; });
 define('text!administration/components/admin-menu.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Admin's Toolkit</h1><div class=\"row\"><div class=\"col-sm-2\"><a route-href=\"route: populate\" class=\"btn btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add User</a></div><div class=\"col-sm-2\"><a route-href=\"route: cleanup\" class=\"btn btn-primary\"><i class=\"fa fa-trash-o\"></i> Cleanup</a></div><div class=\"col-sm-2\"><a route-href=\"route: statistics\" class=\"btn btn-primary\"><i class=\"fa fa-pencil-square-o\"></i> Statistics</a></div></div></section></template>"; });
@@ -2230,6 +2242,7 @@ define('text!administration/components/statistics/period.html', ['module'], func
 define('text!administration/components/statistics/results.html', ['module'], function(module) { module.exports = "<template><table id=\"admStatisticsTable\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
-define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br></fieldset></section></template>"; });
+define('text!broadcasts/components/history/displayMessages.html', ['module'], function(module) { module.exports = "<template><datatable columns=\"name as 'Name' , timestamp as 'Time',message as 'Message'\" data.bind=\"tweets\"></datatable></template>"; });
+define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><datatable columns=\"name as 'Name' , timestamp as 'Time',message as 'Message'\" data.bind=\"tweets\"></datatable></fieldset></section></template>"; });
 define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.nickname\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

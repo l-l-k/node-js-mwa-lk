@@ -26,8 +26,8 @@ export class Broadcast {
     activate() {
         var self = this;
 
-        this.subscription = this.ea.subscribe('message-stored', function (e) {
-            console.log("Event handler for message-stored");
+        this.subscription = this.ea.subscribe('message-sent', function (e) {
+            console.log("Event handler for message-sent");
             self.isBusy = false;
             //this.message.reset();
             //  this.router.navigateToRoute('login'));

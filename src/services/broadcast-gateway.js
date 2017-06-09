@@ -1,15 +1,17 @@
 import { inject, NewInstance } from 'aurelia-framework';
 import { HttpClient } from 'aurelia-http-client';
 import { UserGateway } from './user-gateway';
+import { EventAggregator } from 'aurelia-event-aggregator';
 import { User } from './../models/user';
 import environment from './../environment';
 
-@inject(HttpClient, UserGateway, User)
+@inject(EventAggregator,HttpClient, UserGateway, User)
 export class BroadcastGateway {
 
     broadcasts = [];
 
-    constructor(httpClient, userGateway, user) {
+    constructor(eventAggregator, httpClient, userGateway, user) {
+        this.ea = eventAggregator;
         this.user = user;
         this.httpClient = httpClient.configure(config => {
             config
@@ -89,9 +91,12 @@ export class BroadcastGateway {
     getMessages(persons) {
         // TODO  
         var currentUser = persons[0]; // ids
-        this.httpClient.get('/TweetsGet/' + currentUser)
+        this.httpClient.get('/TweetGet/' + currentUser)
             .then(res => {
                 try {
+                    var messages=[];
+                    if (!(res.content == "" || res.content == "[]"))
+                    {  messages = JSON.parse(res.content); }
                     console.log("content:" + res.content);
                     this.ea.publish('messages-downloaded', { messages });
 

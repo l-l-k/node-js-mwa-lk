@@ -1,7 +1,7 @@
 import { inject, NewInstance } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { UserGateway } from './services/user-gateway';
-import { User } from './models/user';
+import { UserGateway } from './../../services/user-gateway';
+import { User } from './../../models/user';
 
 @inject(EventAggregator, UserGateway, User)
 export class AdminMenu {
@@ -9,6 +9,7 @@ export class AdminMenu {
         this.router = router;
         this.ea = eventAggregator;
         this.userGateway = userGateway;
+        this.user = user;
     }
 
     tryAddUser() {

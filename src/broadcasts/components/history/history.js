@@ -1,5 +1,6 @@
 import { inject, NewInstance } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
+//import { ViewManager } from 'aurelia-view-manager';
 import { BroadcastGateway } from './../../../services/broadcast-gateway';
 import { User } from './../../../models/user';
 
@@ -9,6 +10,7 @@ export class History {
     isBusy = false;
     vipName = "";
     isVeryImportant = false; // vipStatus
+    tweets = [];
 
     constructor(eventAggregator, broadcastGateway, user) {
         this.ea = eventAggregator;
@@ -22,6 +24,11 @@ export class History {
 
         this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
             console.log("Event handler for messages-downloaded");
+            console.log(e);
+            e.messages.forEach(function(element) {
+                tweets.push(element);
+            }, this);
+            
             self.isBusy = false;
         });
 
@@ -43,12 +50,12 @@ export class History {
         };
         // TODO Create message filter from input 
         // Current version : My tweets only, no vips
-        var persons = new array();
+        var persons = new Array();
         persons.push(this.user.id);
 
         this.isBusy = true;
         console.log("Request messages");
-        this.broadcastGateway.retrieveMessages(persons);
+        this.broadcastGateway.getMessages(persons);
     }
 
 
