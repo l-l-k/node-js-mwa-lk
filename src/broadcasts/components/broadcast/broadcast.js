@@ -87,7 +87,7 @@ export class Broadcast {
             return;
         };
 
-        this.isBusy = true;
+     //   this.isBusy = true;
         console.log("Send message");
         if (this.isValidMessage()) {
             this.message.image = this.imageUrl;

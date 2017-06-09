@@ -12531,263 +12531,6 @@ define('aurelia-event-aggregator',['exports', 'aurelia-logging'], function (expo
     config.instance(EventAggregator, includeEventsIn(config.aurelia));
   }
 });
-define('aurelia-fetch-client',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.json = json;
-
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
-  
-
-  function json(body) {
-    return new Blob([JSON.stringify(body !== undefined ? body : {})], { type: 'application/json' });
-  }
-
-  var HttpClientConfiguration = exports.HttpClientConfiguration = function () {
-    function HttpClientConfiguration() {
-      
-
-      this.baseUrl = '';
-      this.defaults = {};
-      this.interceptors = [];
-    }
-
-    HttpClientConfiguration.prototype.withBaseUrl = function withBaseUrl(baseUrl) {
-      this.baseUrl = baseUrl;
-      return this;
-    };
-
-    HttpClientConfiguration.prototype.withDefaults = function withDefaults(defaults) {
-      this.defaults = defaults;
-      return this;
-    };
-
-    HttpClientConfiguration.prototype.withInterceptor = function withInterceptor(interceptor) {
-      this.interceptors.push(interceptor);
-      return this;
-    };
-
-    HttpClientConfiguration.prototype.useStandardConfiguration = function useStandardConfiguration() {
-      var standardConfig = { credentials: 'same-origin' };
-      Object.assign(this.defaults, standardConfig, this.defaults);
-      return this.rejectErrorResponses();
-    };
-
-    HttpClientConfiguration.prototype.rejectErrorResponses = function rejectErrorResponses() {
-      return this.withInterceptor({ response: rejectOnError });
-    };
-
-    return HttpClientConfiguration;
-  }();
-
-  function rejectOnError(response) {
-    if (!response.ok) {
-      throw response;
-    }
-
-    return response;
-  }
-
-  var HttpClient = exports.HttpClient = function () {
-    function HttpClient() {
-      
-
-      this.activeRequestCount = 0;
-      this.isRequesting = false;
-      this.isConfigured = false;
-      this.baseUrl = '';
-      this.defaults = null;
-      this.interceptors = [];
-
-      if (typeof fetch === 'undefined') {
-        throw new Error('HttpClient requires a Fetch API implementation, but the current environment doesn\'t support it. You may need to load a polyfill such as https://github.com/github/fetch.');
-      }
-    }
-
-    HttpClient.prototype.configure = function configure(config) {
-      var normalizedConfig = void 0;
-
-      if ((typeof config === 'undefined' ? 'undefined' : _typeof(config)) === 'object') {
-        normalizedConfig = { defaults: config };
-      } else if (typeof config === 'function') {
-        normalizedConfig = new HttpClientConfiguration();
-        normalizedConfig.baseUrl = this.baseUrl;
-        normalizedConfig.defaults = Object.assign({}, this.defaults);
-        normalizedConfig.interceptors = this.interceptors;
-
-        var c = config(normalizedConfig);
-        if (HttpClientConfiguration.prototype.isPrototypeOf(c)) {
-          normalizedConfig = c;
-        }
-      } else {
-        throw new Error('invalid config');
-      }
-
-      var defaults = normalizedConfig.defaults;
-      if (defaults && Headers.prototype.isPrototypeOf(defaults.headers)) {
-        throw new Error('Default headers must be a plain object.');
-      }
-
-      this.baseUrl = normalizedConfig.baseUrl;
-      this.defaults = defaults;
-      this.interceptors = normalizedConfig.interceptors || [];
-      this.isConfigured = true;
-
-      return this;
-    };
-
-    HttpClient.prototype.fetch = function (_fetch) {
-      function fetch(_x, _x2) {
-        return _fetch.apply(this, arguments);
-      }
-
-      fetch.toString = function () {
-        return _fetch.toString();
-      };
-
-      return fetch;
-    }(function (input, init) {
-      var _this = this;
-
-      trackRequestStart.call(this);
-
-      var request = Promise.resolve().then(function () {
-        return buildRequest.call(_this, input, init, _this.defaults);
-      });
-      var promise = processRequest(request, this.interceptors).then(function (result) {
-        var response = null;
-
-        if (Response.prototype.isPrototypeOf(result)) {
-          response = result;
-        } else if (Request.prototype.isPrototypeOf(result)) {
-          request = Promise.resolve(result);
-          response = fetch(result);
-        } else {
-          throw new Error('An invalid result was returned by the interceptor chain. Expected a Request or Response instance, but got [' + result + ']');
-        }
-
-        return request.then(function (_request) {
-          return processResponse(response, _this.interceptors, _request);
-        });
-      });
-
-      return trackRequestEndWith.call(this, promise);
-    });
-
-    return HttpClient;
-  }();
-
-  var absoluteUrlRegexp = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
-
-  function trackRequestStart() {
-    this.isRequesting = !! ++this.activeRequestCount;
-  }
-
-  function trackRequestEnd() {
-    this.isRequesting = !! --this.activeRequestCount;
-  }
-
-  function trackRequestEndWith(promise) {
-    var handle = trackRequestEnd.bind(this);
-    promise.then(handle, handle);
-    return promise;
-  }
-
-  function parseHeaderValues(headers) {
-    var parsedHeaders = {};
-    for (var name in headers || {}) {
-      if (headers.hasOwnProperty(name)) {
-        parsedHeaders[name] = typeof headers[name] === 'function' ? headers[name]() : headers[name];
-      }
-    }
-    return parsedHeaders;
-  }
-
-  function buildRequest(input, init) {
-    var defaults = this.defaults || {};
-    var request = void 0;
-    var body = void 0;
-    var requestContentType = void 0;
-
-    var parsedDefaultHeaders = parseHeaderValues(defaults.headers);
-    if (Request.prototype.isPrototypeOf(input)) {
-      request = input;
-      requestContentType = new Headers(request.headers).get('Content-Type');
-    } else {
-      init || (init = {});
-      body = init.body;
-      var bodyObj = body ? { body: body } : null;
-      var requestInit = Object.assign({}, defaults, { headers: {} }, init, bodyObj);
-      requestContentType = new Headers(requestInit.headers).get('Content-Type');
-      request = new Request(getRequestUrl(this.baseUrl, input), requestInit);
-    }
-    if (!requestContentType && new Headers(parsedDefaultHeaders).has('content-type')) {
-      request.headers.set('Content-Type', new Headers(parsedDefaultHeaders).get('content-type'));
-    }
-    setDefaultHeaders(request.headers, parsedDefaultHeaders);
-    if (body && Blob.prototype.isPrototypeOf(body) && body.type) {
-      request.headers.set('Content-Type', body.type);
-    }
-    return request;
-  }
-
-  function getRequestUrl(baseUrl, url) {
-    if (absoluteUrlRegexp.test(url)) {
-      return url;
-    }
-
-    return (baseUrl || '') + url;
-  }
-
-  function setDefaultHeaders(headers, defaultHeaders) {
-    for (var name in defaultHeaders || {}) {
-      if (defaultHeaders.hasOwnProperty(name) && !headers.has(name)) {
-        headers.set(name, defaultHeaders[name]);
-      }
-    }
-  }
-
-  function processRequest(request, interceptors) {
-    return applyInterceptors(request, interceptors, 'request', 'requestError');
-  }
-
-  function processResponse(response, interceptors, request) {
-    return applyInterceptors(response, interceptors, 'response', 'responseError', request);
-  }
-
-  function applyInterceptors(input, interceptors, successName, errorName) {
-    for (var _len = arguments.length, interceptorArgs = Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
-      interceptorArgs[_key - 4] = arguments[_key];
-    }
-
-    return (interceptors || []).reduce(function (chain, interceptor) {
-      var successHandler = interceptor[successName];
-      var errorHandler = interceptor[errorName];
-
-      return chain.then(successHandler && function (value) {
-        return successHandler.call.apply(successHandler, [interceptor, value].concat(interceptorArgs));
-      } || identity, errorHandler && function (reason) {
-        return errorHandler.call.apply(errorHandler, [interceptor, reason].concat(interceptorArgs));
-      } || thrower);
-    }, Promise.resolve(input));
-  }
-
-  function identity(x) {
-    return x;
-  }
-
-  function thrower(x) {
-    throw x;
-  }
-});
 define('aurelia-framework',['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-metadata', 'aurelia-templating', 'aurelia-loader', 'aurelia-task-queue', 'aurelia-path', 'aurelia-pal', 'aurelia-logging'], function (exports, _aureliaDependencyInjection, _aureliaBinding, _aureliaMetadata, _aureliaTemplating, _aureliaLoader, _aureliaTaskQueue, _aureliaPath, _aureliaPal, _aureliaLogging) {
   'use strict';
 
@@ -28018,93 +27761,263 @@ define('aurelia-templating-binding',['exports', 'aurelia-logging', 'aurelia-bind
   }
 });
 define('text',{});
-define('aurelia-templating-resources/aurelia-templating-resources',['exports', 'aurelia-pal', './compose', './if', './with', './repeat', './show', './hide', './sanitize-html', './replaceable', './focus', 'aurelia-templating', './css-resource', './html-sanitizer', './attr-binding-behavior', './binding-mode-behaviors', './throttle-binding-behavior', './debounce-binding-behavior', './self-binding-behavior', './signal-binding-behavior', './binding-signaler', './update-trigger-binding-behavior', './abstract-repeater', './repeat-strategy-locator', './html-resource-plugin', './null-repeat-strategy', './array-repeat-strategy', './map-repeat-strategy', './set-repeat-strategy', './number-repeat-strategy', './repeat-utilities', './analyze-view-factory', './aurelia-hide-style'], function (exports, _aureliaPal, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _aureliaTemplating, _cssResource, _htmlSanitizer, _attrBindingBehavior, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _selfBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior, _abstractRepeater, _repeatStrategyLocator, _htmlResourcePlugin, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy, _repeatUtilities, _analyzeViewFactory, _aureliaHideStyle) {
+define('aurelia-fetch-client',['exports'], function (exports) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.viewsRequireLifecycle = exports.unwrapExpression = exports.updateOneTimeBinding = exports.isOneTime = exports.getItemsSourceExpression = exports.updateOverrideContext = exports.createFullOverrideContext = exports.NumberRepeatStrategy = exports.SetRepeatStrategy = exports.MapRepeatStrategy = exports.ArrayRepeatStrategy = exports.NullRepeatStrategy = exports.RepeatStrategyLocator = exports.AbstractRepeater = exports.UpdateTriggerBindingBehavior = exports.BindingSignaler = exports.SignalBindingBehavior = exports.SelfBindingBehavior = exports.DebounceBindingBehavior = exports.ThrottleBindingBehavior = exports.TwoWayBindingBehavior = exports.OneWayBindingBehavior = exports.OneTimeBindingBehavior = exports.AttrBindingBehavior = exports.configure = exports.Focus = exports.Replaceable = exports.SanitizeHTMLValueConverter = exports.HTMLSanitizer = exports.Hide = exports.Show = exports.Repeat = exports.With = exports.If = exports.Compose = undefined;
+  exports.json = json;
 
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
-  function configure(config) {
-    (0, _aureliaHideStyle.injectAureliaHideStyleAtHead)();
+  
 
-    config.globalResources(_aureliaPal.PLATFORM.moduleName('./compose'), _aureliaPal.PLATFORM.moduleName('./if'), _aureliaPal.PLATFORM.moduleName('./with'), _aureliaPal.PLATFORM.moduleName('./repeat'), _aureliaPal.PLATFORM.moduleName('./show'), _aureliaPal.PLATFORM.moduleName('./hide'), _aureliaPal.PLATFORM.moduleName('./replaceable'), _aureliaPal.PLATFORM.moduleName('./sanitize-html'), _aureliaPal.PLATFORM.moduleName('./focus'), _aureliaPal.PLATFORM.moduleName('./binding-mode-behaviors'), _aureliaPal.PLATFORM.moduleName('./self-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./throttle-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./debounce-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./signal-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./update-trigger-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./attr-binding-behavior'));
+  function json(body) {
+    return new Blob([JSON.stringify(body !== undefined ? body : {})], { type: 'application/json' });
+  }
 
-    (0, _htmlResourcePlugin.configure)(config);
+  var HttpClientConfiguration = exports.HttpClientConfiguration = function () {
+    function HttpClientConfiguration() {
+      
 
-    var viewEngine = config.container.get(_aureliaTemplating.ViewEngine);
-    var styleResourcePlugin = {
-      fetch: function fetch(address) {
-        var _ref;
+      this.baseUrl = '';
+      this.defaults = {};
+      this.interceptors = [];
+    }
 
-        return _ref = {}, _ref[address] = (0, _cssResource._createCSSResource)(address), _ref;
-      }
+    HttpClientConfiguration.prototype.withBaseUrl = function withBaseUrl(baseUrl) {
+      this.baseUrl = baseUrl;
+      return this;
     };
-    ['.css', '.less', '.sass', '.scss', '.styl'].forEach(function (ext) {
-      return viewEngine.addResourcePlugin(ext, styleResourcePlugin);
+
+    HttpClientConfiguration.prototype.withDefaults = function withDefaults(defaults) {
+      this.defaults = defaults;
+      return this;
+    };
+
+    HttpClientConfiguration.prototype.withInterceptor = function withInterceptor(interceptor) {
+      this.interceptors.push(interceptor);
+      return this;
+    };
+
+    HttpClientConfiguration.prototype.useStandardConfiguration = function useStandardConfiguration() {
+      var standardConfig = { credentials: 'same-origin' };
+      Object.assign(this.defaults, standardConfig, this.defaults);
+      return this.rejectErrorResponses();
+    };
+
+    HttpClientConfiguration.prototype.rejectErrorResponses = function rejectErrorResponses() {
+      return this.withInterceptor({ response: rejectOnError });
+    };
+
+    return HttpClientConfiguration;
+  }();
+
+  function rejectOnError(response) {
+    if (!response.ok) {
+      throw response;
+    }
+
+    return response;
+  }
+
+  var HttpClient = exports.HttpClient = function () {
+    function HttpClient() {
+      
+
+      this.activeRequestCount = 0;
+      this.isRequesting = false;
+      this.isConfigured = false;
+      this.baseUrl = '';
+      this.defaults = null;
+      this.interceptors = [];
+
+      if (typeof fetch === 'undefined') {
+        throw new Error('HttpClient requires a Fetch API implementation, but the current environment doesn\'t support it. You may need to load a polyfill such as https://github.com/github/fetch.');
+      }
+    }
+
+    HttpClient.prototype.configure = function configure(config) {
+      var normalizedConfig = void 0;
+
+      if ((typeof config === 'undefined' ? 'undefined' : _typeof(config)) === 'object') {
+        normalizedConfig = { defaults: config };
+      } else if (typeof config === 'function') {
+        normalizedConfig = new HttpClientConfiguration();
+        normalizedConfig.baseUrl = this.baseUrl;
+        normalizedConfig.defaults = Object.assign({}, this.defaults);
+        normalizedConfig.interceptors = this.interceptors;
+
+        var c = config(normalizedConfig);
+        if (HttpClientConfiguration.prototype.isPrototypeOf(c)) {
+          normalizedConfig = c;
+        }
+      } else {
+        throw new Error('invalid config');
+      }
+
+      var defaults = normalizedConfig.defaults;
+      if (defaults && Headers.prototype.isPrototypeOf(defaults.headers)) {
+        throw new Error('Default headers must be a plain object.');
+      }
+
+      this.baseUrl = normalizedConfig.baseUrl;
+      this.defaults = defaults;
+      this.interceptors = normalizedConfig.interceptors || [];
+      this.isConfigured = true;
+
+      return this;
+    };
+
+    HttpClient.prototype.fetch = function (_fetch) {
+      function fetch(_x, _x2) {
+        return _fetch.apply(this, arguments);
+      }
+
+      fetch.toString = function () {
+        return _fetch.toString();
+      };
+
+      return fetch;
+    }(function (input, init) {
+      var _this = this;
+
+      trackRequestStart.call(this);
+
+      var request = Promise.resolve().then(function () {
+        return buildRequest.call(_this, input, init, _this.defaults);
+      });
+      var promise = processRequest(request, this.interceptors).then(function (result) {
+        var response = null;
+
+        if (Response.prototype.isPrototypeOf(result)) {
+          response = result;
+        } else if (Request.prototype.isPrototypeOf(result)) {
+          request = Promise.resolve(result);
+          response = fetch(result);
+        } else {
+          throw new Error('An invalid result was returned by the interceptor chain. Expected a Request or Response instance, but got [' + result + ']');
+        }
+
+        return request.then(function (_request) {
+          return processResponse(response, _this.interceptors, _request);
+        });
+      });
+
+      return trackRequestEndWith.call(this, promise);
     });
+
+    return HttpClient;
+  }();
+
+  var absoluteUrlRegexp = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
+
+  function trackRequestStart() {
+    this.isRequesting = !! ++this.activeRequestCount;
   }
 
-  exports.Compose = _compose.Compose;
-  exports.If = _if.If;
-  exports.With = _with.With;
-  exports.Repeat = _repeat.Repeat;
-  exports.Show = _show.Show;
-  exports.Hide = _hide.Hide;
-  exports.HTMLSanitizer = _htmlSanitizer.HTMLSanitizer;
-  exports.SanitizeHTMLValueConverter = _sanitizeHtml.SanitizeHTMLValueConverter;
-  exports.Replaceable = _replaceable.Replaceable;
-  exports.Focus = _focus.Focus;
-  exports.configure = configure;
-  exports.AttrBindingBehavior = _attrBindingBehavior.AttrBindingBehavior;
-  exports.OneTimeBindingBehavior = _bindingModeBehaviors.OneTimeBindingBehavior;
-  exports.OneWayBindingBehavior = _bindingModeBehaviors.OneWayBindingBehavior;
-  exports.TwoWayBindingBehavior = _bindingModeBehaviors.TwoWayBindingBehavior;
-  exports.ThrottleBindingBehavior = _throttleBindingBehavior.ThrottleBindingBehavior;
-  exports.DebounceBindingBehavior = _debounceBindingBehavior.DebounceBindingBehavior;
-  exports.SelfBindingBehavior = _selfBindingBehavior.SelfBindingBehavior;
-  exports.SignalBindingBehavior = _signalBindingBehavior.SignalBindingBehavior;
-  exports.BindingSignaler = _bindingSignaler.BindingSignaler;
-  exports.UpdateTriggerBindingBehavior = _updateTriggerBindingBehavior.UpdateTriggerBindingBehavior;
-  exports.AbstractRepeater = _abstractRepeater.AbstractRepeater;
-  exports.RepeatStrategyLocator = _repeatStrategyLocator.RepeatStrategyLocator;
-  exports.NullRepeatStrategy = _nullRepeatStrategy.NullRepeatStrategy;
-  exports.ArrayRepeatStrategy = _arrayRepeatStrategy.ArrayRepeatStrategy;
-  exports.MapRepeatStrategy = _mapRepeatStrategy.MapRepeatStrategy;
-  exports.SetRepeatStrategy = _setRepeatStrategy.SetRepeatStrategy;
-  exports.NumberRepeatStrategy = _numberRepeatStrategy.NumberRepeatStrategy;
-  exports.createFullOverrideContext = _repeatUtilities.createFullOverrideContext;
-  exports.updateOverrideContext = _repeatUtilities.updateOverrideContext;
-  exports.getItemsSourceExpression = _repeatUtilities.getItemsSourceExpression;
-  exports.isOneTime = _repeatUtilities.isOneTime;
-  exports.updateOneTimeBinding = _repeatUtilities.updateOneTimeBinding;
-  exports.unwrapExpression = _repeatUtilities.unwrapExpression;
-  exports.viewsRequireLifecycle = _analyzeViewFactory.viewsRequireLifecycle;
-});;define('aurelia-templating-resources', ['aurelia-templating-resources/aurelia-templating-resources'], function (main) { return main; });
-
-define('aurelia-templating-router/aurelia-templating-router',['exports', 'aurelia-pal', 'aurelia-router', './route-loader', './router-view', './route-href'], function (exports, _aureliaPal, _aureliaRouter, _routeLoader, _routerView, _routeHref) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = exports.RouteHref = exports.RouterView = exports.TemplatingRouteLoader = undefined;
-
-
-  function configure(config) {
-    config.singleton(_aureliaRouter.RouteLoader, _routeLoader.TemplatingRouteLoader).singleton(_aureliaRouter.Router, _aureliaRouter.AppRouter).globalResources(_aureliaPal.PLATFORM.moduleName('./router-view'), _aureliaPal.PLATFORM.moduleName('./route-href'));
-
-    config.container.registerAlias(_aureliaRouter.Router, _aureliaRouter.AppRouter);
+  function trackRequestEnd() {
+    this.isRequesting = !! --this.activeRequestCount;
   }
 
-  exports.TemplatingRouteLoader = _routeLoader.TemplatingRouteLoader;
-  exports.RouterView = _routerView.RouterView;
-  exports.RouteHref = _routeHref.RouteHref;
-  exports.configure = configure;
-});;define('aurelia-templating-router', ['aurelia-templating-router/aurelia-templating-router'], function (main) { return main; });
+  function trackRequestEndWith(promise) {
+    var handle = trackRequestEnd.bind(this);
+    promise.then(handle, handle);
+    return promise;
+  }
 
+  function parseHeaderValues(headers) {
+    var parsedHeaders = {};
+    for (var name in headers || {}) {
+      if (headers.hasOwnProperty(name)) {
+        parsedHeaders[name] = typeof headers[name] === 'function' ? headers[name]() : headers[name];
+      }
+    }
+    return parsedHeaders;
+  }
+
+  function buildRequest(input, init) {
+    var defaults = this.defaults || {};
+    var request = void 0;
+    var body = void 0;
+    var requestContentType = void 0;
+
+    var parsedDefaultHeaders = parseHeaderValues(defaults.headers);
+    if (Request.prototype.isPrototypeOf(input)) {
+      request = input;
+      requestContentType = new Headers(request.headers).get('Content-Type');
+    } else {
+      init || (init = {});
+      body = init.body;
+      var bodyObj = body ? { body: body } : null;
+      var requestInit = Object.assign({}, defaults, { headers: {} }, init, bodyObj);
+      requestContentType = new Headers(requestInit.headers).get('Content-Type');
+      request = new Request(getRequestUrl(this.baseUrl, input), requestInit);
+    }
+    if (!requestContentType && new Headers(parsedDefaultHeaders).has('content-type')) {
+      request.headers.set('Content-Type', new Headers(parsedDefaultHeaders).get('content-type'));
+    }
+    setDefaultHeaders(request.headers, parsedDefaultHeaders);
+    if (body && Blob.prototype.isPrototypeOf(body) && body.type) {
+      request.headers.set('Content-Type', body.type);
+    }
+    return request;
+  }
+
+  function getRequestUrl(baseUrl, url) {
+    if (absoluteUrlRegexp.test(url)) {
+      return url;
+    }
+
+    return (baseUrl || '') + url;
+  }
+
+  function setDefaultHeaders(headers, defaultHeaders) {
+    for (var name in defaultHeaders || {}) {
+      if (defaultHeaders.hasOwnProperty(name) && !headers.has(name)) {
+        headers.set(name, defaultHeaders[name]);
+      }
+    }
+  }
+
+  function processRequest(request, interceptors) {
+    return applyInterceptors(request, interceptors, 'request', 'requestError');
+  }
+
+  function processResponse(response, interceptors, request) {
+    return applyInterceptors(response, interceptors, 'response', 'responseError', request);
+  }
+
+  function applyInterceptors(input, interceptors, successName, errorName) {
+    for (var _len = arguments.length, interceptorArgs = Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
+      interceptorArgs[_key - 4] = arguments[_key];
+    }
+
+    return (interceptors || []).reduce(function (chain, interceptor) {
+      var successHandler = interceptor[successName];
+      var errorHandler = interceptor[errorName];
+
+      return chain.then(successHandler && function (value) {
+        return successHandler.call.apply(successHandler, [interceptor, value].concat(interceptorArgs));
+      } || identity, errorHandler && function (reason) {
+        return errorHandler.call.apply(errorHandler, [interceptor, reason].concat(interceptorArgs));
+      } || thrower);
+    }, Promise.resolve(input));
+  }
+
+  function identity(x) {
+    return x;
+  }
+
+  function thrower(x) {
+    throw x;
+  }
+});
 // Exports
 define('aurelia-validation/aurelia-validation',["require", "exports", "./get-target-dom-element", "./property-info", "./validate-binding-behavior", "./validate-result", "./validate-trigger", "./validation-controller", "./validation-controller-factory", "./validation-errors-custom-attribute", "./validation-renderer-custom-attribute", "./validator", "./implementation/rules", "./implementation/standard-validator", "./implementation/validation-messages", "./implementation/validation-parser", "./implementation/validation-rules", "aurelia-pal", "./validator", "./implementation/standard-validator", "./implementation/validation-parser", "./implementation/validation-rules"], function (require, exports, get_target_dom_element_1, property_info_1, validate_binding_behavior_1, validate_result_1, validate_trigger_1, validation_controller_1, validation_controller_factory_1, validation_errors_custom_attribute_1, validation_renderer_custom_attribute_1, validator_1, rules_1, standard_validator_1, validation_messages_1, validation_parser_1, validation_rules_1, aurelia_pal_1, validator_2, standard_validator_2, validation_parser_2, validation_rules_2) {
     "use strict";
@@ -29760,1153 +29673,93 @@ define('aurelia-validation/implementation/validation-rules',["require", "exports
     exports.ValidationRules = ValidationRules;
 });
 
-define('homefront/index',['require','exports','module','extend','./lib/expand','./lib/utils','./lib/flatten'],function (require, exports, module) {/* eslint-disable max-lines */
-
-'use strict';
-
-var extend      = require('extend');
-var expand      = require('./lib/expand');
-var Utils       = require('./lib/utils');
-var flatten     = require('./lib/flatten');
-var MODE_FLAT   = 'flat';
-var MODE_NESTED = 'nested';
-var MODES       = [MODE_FLAT, MODE_NESTED];
-
-/**
- * Object wrapping class.
- */
-var Homefront = function Homefront(data, mode) {
-  this.data = data || {};
-
-  this.setMode(mode);
-};
-
-var staticAccessors = { MODE_NESTED: {},MODE_FLAT: {} };
-
-/**
- * Recursively merges given sources into data.
- *
- * @param {...Object} sources One or more, or array of, objects to merge into data (left to right).
- *
- * @return {Homefront}
- */
-staticAccessors.MODE_NESTED.get = function () {
-  return MODE_NESTED;
-};
-
-/**
- * @return {string}
- */
-staticAccessors.MODE_FLAT.get = function () {
-  return MODE_FLAT;
-};
-
-Homefront.prototype.merge = function merge (sources) {
-    var this$1 = this;
-
-  sources     = Array.isArray(sources) ? sources : Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
-  var mergeData = [];
-
-  sources.forEach(function (source) {
-    if (!source) {
-      return;
-    }
-
-    if (source instanceof Homefront) {
-      source = source.data;
-    }
-
-    mergeData.push(this$1.isModeFlat() ? flatten(source) : expand(source));
-  });
-
-  extend.apply(extend, [true, this.data].concat(mergeData));
-
-  return this;
-};
-
-/**
- * Static version of merge, allowing you to merge objects together.
- *
- * @param {...Object} sources One or more, or array of, objects to merge (left to right).
- *
- * @return {{}}
- */
-Homefront.merge = function merge (sources) {
-  sources = Array.isArray(sources) ? sources : Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
-
-  return extend.apply(extend, [true].concat(sources));
-};
-
-/**
- * Sets the mode.
- *
- * @param {String} [mode] Defaults to nested.
- *
- * @returns {Homefront} Fluent interface
- *
- * @throws {Error}
- */
-Homefront.prototype.setMode = function setMode (mode) {
-  mode = mode || MODE_NESTED;
-
-  if (MODES.indexOf(mode) === -1) {
-    throw new Error(
-      ("Invalid mode supplied. Must be one of \"" + (MODES.join('" or "')) + "\"")
-    );
-  }
-
-  this.mode = mode;
-
-  return this;
-};
-
-/**
- * Gets the mode.
- *
- * @return {String}
- */
-Homefront.prototype.getMode = function getMode () {
-  return this.mode;
-};
-
-/**
- * Expands flat object to nested object.
- *
- * @return {{}}
- */
-Homefront.prototype.expand = function expand$1 () {
-  return this.isModeNested() ? this.data : expand(this.data);
-};
-
-/**
- * Flattens nested object (dot separated keys).
- *
- * @return {{}}
- */
-Homefront.prototype.flatten = function flatten$1 () {
-  return this.isModeFlat() ? this.data : flatten(this.data);
-};
-
-/**
- * Returns whether or not mode is flat.
- *
- * @return {boolean}
- */
-Homefront.prototype.isModeFlat = function isModeFlat () {
-  return this.mode === MODE_FLAT;
-};
-
-/**
- * Returns whether or not mode is nested.
- *
- * @return {boolean}
- */
-Homefront.prototype.isModeNested = function isModeNested () {
-  return this.mode === MODE_NESTED;
-};
-
-/**
- * Method allowing you to set missing keys (backwards-applied defaults) nested.
- *
- * @param {String|Array} key
- * @param {*}          defaults
- *
- * @returns {Homefront}
- */
-Homefront.prototype.defaults = function defaults (key, defaults) {
-  return this.put(key, Homefront.merge(defaults, this.fetch(key, {})));
-};
-
-/**
- * Convenience method. Calls .fetch(), and on null result calls .put() using provided toPut.
- *
- * @param {String|Array} key
- * @param {*}          toPut
- *
- * @return {*}
- */
-Homefront.prototype.fetchOrPut = function fetchOrPut (key, toPut) {
-  var wanted = this.fetch(key);
-
-  if (wanted === null) {
-    wanted = toPut;
-
-    this.put(key, toPut);
-  }
-
-  return wanted;
-};
-
-/**
- * Fetches value of given key.
- *
- * @param {String|Array} key
- * @param {*}          [defaultValue] Value to return if key was not found
- *
- * @returns {*}
- */
-Homefront.prototype.fetch = function fetch (key, defaultValue) {
-  defaultValue = typeof defaultValue === 'undefined' ? null : defaultValue;
-
-  if (typeof this.data[key] !== 'undefined') {
-    return this.data[key];
-  }
-
-  if (this.isModeFlat()) {
-    return defaultValue;
-  }
-
-  var keys  = Utils.normalizeKey(key);
-  var lastKey = keys.pop();
-  var tmp   = this.data;
-
-  for (var i = 0; i < keys.length; i += 1) {
-    if (typeof tmp[keys[i]] === 'undefined' || tmp[keys[i]] === null) {
-      return defaultValue;
-    }
-
-    tmp = tmp[keys[i]];
-  }
-
-  return typeof tmp[lastKey] === 'undefined' ? defaultValue : tmp[lastKey];
-};
-
-/**
- * Sets value for a key (creates object in path when not found).
- *
- * @param {String|Array} key  Array of key parts, or dot separated key.
- * @param {*}          value
- *
- * @returns {Homefront}
- */
-Homefront.prototype.put = function put (key, value) {
-  if (this.isModeFlat() || key.indexOf('.') === -1) {
-      this.data[key] = value;
-
-    return this;
-  }
-
-  var keys  = Utils.normalizeKey(key);
-  var lastKey = keys.pop();
-  var tmp   = this.data;
-
-  keys.forEach(function (val) {
-    if (typeof tmp[val] === 'undefined') {
-      tmp[val] = {};
-    }
-
-    tmp = tmp[val];
-  });
-
-  tmp[lastKey] = value;
-
-  return this;
-};
-
-/**
- * Removes value by key.
- *
- * @param {String} key
- *
- * @returns {Homefront}
- */
-Homefront.prototype.remove = function remove (key) {
-  if (this.isModeFlat() || key.indexOf('.') === -1) {
-    delete this.data[key];
-
-    return this;
-  }
-
-  var normalizedKey = Utils.normalizeKey(key);
-  var lastKey     = normalizedKey.pop();
-  var source      = this.fetch(normalizedKey);
-
-  if (typeof source === 'object' && source !== null) {
-    delete source[lastKey];
-  }
-
-  return this;
-};
-
-/**
- * Search and return keys and values that match given string.
- *
- * @param {String|Number} phrase
- *
- * @returns {Array}
- */
-Homefront.prototype.search = function search (phrase) {
-  var found = [];
-  var data= this.data;
-
-  if (this.isModeNested()) {
-    data = flatten(this.data);
-  }
-
-  Object.getOwnPropertyNames(data).forEach(function (key) {
-    var searchTarget = Array.isArray(data[key]) ? JSON.stringify(data[key]) : data[key];
-
-    if (searchTarget.search(phrase) > -1) {
-      found.push({key: key, value: data[key]});
-    }
-  });
-
-  return found;
-};
-
-Object.defineProperties( Homefront, staticAccessors );
-
-module.exports.flatten   = flatten;
-module.exports.expand    = expand;
-module.exports.Utils     = Utils;
-module.exports.Homefront = Homefront;
-
-});
-;define('homefront', ['homefront/index'], function (main) { return main; });
-
-define('homefront/lib/expand',['require','exports','module'],function (require, exports, module) {'use strict';
-
-/**
- * Expands flat object to nested object.
- *
- * @param {{}} source
- *
- * @return {{}}
- */
-module.exports = function expand(source) {
-  var destination = {};
-
-  Object.getOwnPropertyNames(source).forEach(function (flatKey) {
-
-    // If the key doesn't contain a dot (isn't nested), just set the value.
-    if (flatKey.indexOf('.') === -1) {
-      destination[flatKey] = source[flatKey];
-
-      return;
-    }
-
-    var tmp  = destination;         // Pointer for the nested object.
-    var keys = flatKey.split('.');  // Keys (path) for the nested object.
-    var key  = keys.pop();          // The last (deepest) key.
-
-    keys.forEach(function (value) {
-      if (typeof tmp[value] === 'undefined') {
-        tmp[value] = {};
-      }
-
-      tmp = tmp[value];
-    });
-
-    tmp[key] = source[flatKey];
-  });
-
-  return destination;
-};
-
-});
-
-define('homefront/lib/utils',['require','exports','module'],function (require, exports, module) {'use strict';
-
-var Utils = function Utils () {};
-
-Utils.normalizeKey = function normalizeKey (rest) {
-  rest         = Array.isArray(rest) ? rest : Array.prototype.slice.call(arguments);//eslint-disable-line prefer-rest-params
-  var key      = rest.shift();
-  var normalized = Array.isArray(key) ? Utils.normalizeKey(key) : key.split('.');
-
-  return rest.length === 0 ? normalized : normalized.concat(Utils.normalizeKey(rest));
-};
-
-/**
- * Check if `target` is a Plain ol' Javascript Object.
- *
- * @param {*} target
- *
- * @return {boolean}
- */
-Utils.isPojo = function isPojo (target) {
-  return !(target === null || typeof target !== 'object') && target.constructor === Object;
-};
-
-module.exports = Utils;
-
-});
-
-define('homefront/lib/flatten',['require','exports','module','./utils'],function (require, exports, module) {'use strict';
-
-var Utils = require('./utils');
-
-/**
- * Flattens nested object (dot separated keys).
- *
- * @param {{}}      source
- * @param {String}  [basePath]
- * @param {{}}      [target]
- *
- * @return {{}}
- */
-module.exports = function flatten(source, basePath, target) {
-  basePath = basePath || '';
-  target   = target || {};
-
-  Object.getOwnPropertyNames(source).forEach(function (key) {
-    if (Utils.isPojo(source[key])) {
-      flatten(source[key], basePath + key + '.', target);
-
-      return;
-    }
-
-    target[basePath + key] = source[key];
-  });
-
-  return target;
-};
-
-});
-
-
-define("extend", [],function(){});
-
-define("extend", [],function(){});
-
-define('aurelia-datatable/aurelia-datatable',['exports', 'aurelia-view-manager', './datatable', './columns-filter', './convert-manager'], function (exports, _aureliaViewManager, _datatable, _columnsFilter, _convertManager) {
+define('aurelia-templating-resources/aurelia-templating-resources',['exports', 'aurelia-pal', './compose', './if', './with', './repeat', './show', './hide', './sanitize-html', './replaceable', './focus', 'aurelia-templating', './css-resource', './html-sanitizer', './attr-binding-behavior', './binding-mode-behaviors', './throttle-binding-behavior', './debounce-binding-behavior', './self-binding-behavior', './signal-binding-behavior', './binding-signaler', './update-trigger-binding-behavior', './abstract-repeater', './repeat-strategy-locator', './html-resource-plugin', './null-repeat-strategy', './array-repeat-strategy', './map-repeat-strategy', './set-repeat-strategy', './number-repeat-strategy', './repeat-utilities', './analyze-view-factory', './aurelia-hide-style'], function (exports, _aureliaPal, _compose, _if, _with, _repeat, _show, _hide, _sanitizeHtml, _replaceable, _focus, _aureliaTemplating, _cssResource, _htmlSanitizer, _attrBindingBehavior, _bindingModeBehaviors, _throttleBindingBehavior, _debounceBindingBehavior, _selfBindingBehavior, _signalBindingBehavior, _bindingSignaler, _updateTriggerBindingBehavior, _abstractRepeater, _repeatStrategyLocator, _htmlResourcePlugin, _nullRepeatStrategy, _arrayRepeatStrategy, _mapRepeatStrategy, _setRepeatStrategy, _numberRepeatStrategy, _repeatUtilities, _analyzeViewFactory, _aureliaHideStyle) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.configure = configure;
-  function configure(aurelia) {
-    aurelia.plugin('aurelia-pager');
+  exports.viewsRequireLifecycle = exports.unwrapExpression = exports.updateOneTimeBinding = exports.isOneTime = exports.getItemsSourceExpression = exports.updateOverrideContext = exports.createFullOverrideContext = exports.NumberRepeatStrategy = exports.SetRepeatStrategy = exports.MapRepeatStrategy = exports.ArrayRepeatStrategy = exports.NullRepeatStrategy = exports.RepeatStrategyLocator = exports.AbstractRepeater = exports.UpdateTriggerBindingBehavior = exports.BindingSignaler = exports.SignalBindingBehavior = exports.SelfBindingBehavior = exports.DebounceBindingBehavior = exports.ThrottleBindingBehavior = exports.TwoWayBindingBehavior = exports.OneWayBindingBehavior = exports.OneTimeBindingBehavior = exports.AttrBindingBehavior = exports.configure = exports.Focus = exports.Replaceable = exports.SanitizeHTMLValueConverter = exports.HTMLSanitizer = exports.Hide = exports.Show = exports.Repeat = exports.With = exports.If = exports.Compose = undefined;
 
-    aurelia.container.get(_aureliaViewManager.Config).configureNamespace('spoonx/datatable', {
-      location: './{{framework}}/{{view}}.html'
-    });
 
-    aurelia.globalResources('./datatable');
-  }
-});;define('aurelia-datatable', ['aurelia-datatable/aurelia-datatable'], function (main) { return main; });
+  function configure(config) {
+    (0, _aureliaHideStyle.injectAureliaHideStyleAtHead)();
 
-define('aurelia-datatable/datatable',['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-templating', 'aurelia-view-manager', 'aurelia-orm', 'aurelia-router', 'homefront'], function (exports, _aureliaDependencyInjection, _aureliaBinding, _aureliaTemplating, _aureliaViewManager, _aureliaOrm, _aureliaRouter, _homefront) {
-  'use strict';
+    config.globalResources(_aureliaPal.PLATFORM.moduleName('./compose'), _aureliaPal.PLATFORM.moduleName('./if'), _aureliaPal.PLATFORM.moduleName('./with'), _aureliaPal.PLATFORM.moduleName('./repeat'), _aureliaPal.PLATFORM.moduleName('./show'), _aureliaPal.PLATFORM.moduleName('./hide'), _aureliaPal.PLATFORM.moduleName('./replaceable'), _aureliaPal.PLATFORM.moduleName('./sanitize-html'), _aureliaPal.PLATFORM.moduleName('./focus'), _aureliaPal.PLATFORM.moduleName('./binding-mode-behaviors'), _aureliaPal.PLATFORM.moduleName('./self-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./throttle-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./debounce-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./signal-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./update-trigger-binding-behavior'), _aureliaPal.PLATFORM.moduleName('./attr-binding-behavior'));
 
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.DataTable = undefined;
+    (0, _htmlResourcePlugin.configure)(config);
 
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  };
-
-  function _initDefineProp(target, property, descriptor, context) {
-    if (!descriptor) return;
-    Object.defineProperty(target, property, {
-      enumerable: descriptor.enumerable,
-      configurable: descriptor.configurable,
-      writable: descriptor.writable,
-      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
-    });
-  }
-
-  
-
-  var _createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
-    var desc = {};
-    Object['ke' + 'ys'](descriptor).forEach(function (key) {
-      desc[key] = descriptor[key];
-    });
-    desc.enumerable = !!desc.enumerable;
-    desc.configurable = !!desc.configurable;
-
-    if ('value' in desc || desc.initializer) {
-      desc.writable = true;
-    }
-
-    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
-      return decorator(target, property, desc) || desc;
-    }, desc);
-
-    if (context && desc.initializer !== void 0) {
-      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
-      desc.initializer = undefined;
-    }
-
-    if (desc.initializer === void 0) {
-      Object['define' + 'Property'](target, property, desc);
-      desc = null;
-    }
-
-    return desc;
-  }
-
-  function _initializerWarningHelper(descriptor, context) {
-    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
-  }
-
-  var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19, _descriptor20, _descriptor21, _descriptor22;
-
-  var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement)('datatable'), _dec2 = (0, _aureliaViewManager.resolvedView)('spoonx/datatable', 'datatable'), _dec3 = (0, _aureliaDependencyInjection.inject)(_aureliaRouter.Router, Element, _aureliaOrm.EntityManager), _dec4 = (0, _aureliaTemplating.bindable)({ defaultBindingMode: _aureliaBinding.bindingMode.twoWay }), _dec5 = (0, _aureliaTemplating.bindable)({ defaultBindingMode: _aureliaBinding.bindingMode.twoWay }), _dec6 = (0, _aureliaBinding.computedFrom)('columnLabels', 'hasVisibleActions', 'detailView'), _dec7 = (0, _aureliaBinding.computedFrom)('columns'), _dec(_class = _dec2(_class = _dec3(_class = (_class2 = function () {
-    function DataTable(router, element, entityManager) {
-      
-
-      _initDefineProp(this, 'criteria', _descriptor, this);
-
-      _initDefineProp(this, 'where', _descriptor2, this);
-
-      _initDefineProp(this, 'limit', _descriptor3, this);
-
-      _initDefineProp(this, 'columns', _descriptor4, this);
-
-      _initDefineProp(this, 'searchColumn', _descriptor5, this);
-
-      _initDefineProp(this, 'actions', _descriptor6, this);
-
-      _initDefineProp(this, 'searchable', _descriptor7, this);
-
-      _initDefineProp(this, 'sortable', _descriptor8, this);
-
-      _initDefineProp(this, 'edit', _descriptor9, this);
-
-      _initDefineProp(this, 'destroy', _descriptor10, this);
-
-      _initDefineProp(this, 'page', _descriptor11, this);
-
-      _initDefineProp(this, 'loadingIndicator', _descriptor12, this);
-
-      _initDefineProp(this, 'populate', _descriptor13, this);
-
-      _initDefineProp(this, 'detailView', _descriptor14, this);
-
-      _initDefineProp(this, 'sortNested', _descriptor15, this);
-
-      _initDefineProp(this, 'select', _descriptor16, this);
-
-      _initDefineProp(this, 'repository', _descriptor17, this);
-
-      _initDefineProp(this, 'resource', _descriptor18, this);
-
-      _initDefineProp(this, 'data', _descriptor19, this);
-
-      _initDefineProp(this, 'route', _descriptor20, this);
-
-      _initDefineProp(this, 'pages', _descriptor21, this);
-
-      _initDefineProp(this, 'footer', _descriptor22, this);
-
-      this.loading = false;
-      this.hasVisibleActions = false;
-      this.offlineMode = false;
-
-      this.router = router;
-      this.element = element;
-      this.entityManager = entityManager;
-    }
-
-    DataTable.prototype.attached = function attached() {
-      if (!this.repository && this.resource) {
-        this.repository = this.entityManager.getRepository(this.resource);
-      }
-
-      this.ready = true;
-      this.criteria.where = this.where || {};
-      this.criteria.sort = this.criteria.sort || {};
-
-      this.load();
-    };
-
-    DataTable.prototype.detached = function detached() {
-      this.ready = false;
-    };
-
-    DataTable.prototype.pageChanged = function pageChanged() {
-      if (!this.ready) {
-        return;
-      }
-
-      this.load();
-    };
-
-    DataTable.prototype.limitChanged = function limitChanged() {
-      if (!this.ready) {
-        return;
-      }
-
-      this.pager.reloadCount();
-
-      this.load();
-    };
-
-    DataTable.prototype.load = function load() {
-      var _this = this;
-
-      if (this.offlineMode || !this.repository && this.data) {
-        this.offlineMode = true;
-
-        return;
-      }
-
-      this.loading = true;
-
-      this.criteria.skip = this.page * this.limit - this.limit;
-      this.criteria.limit = this.limit;
-
-      if (!this.populate) {
-        this.criteria.populate = null;
-      } else if (typeof this.populate === 'string') {
-        this.criteria.populate = this.populate;
-      } else if (Array.isArray(this.populate)) {
-        this.criteria.populate = this.populate.join(',');
-      }
-
-      this.repository.find(this.criteria, true).then(function (result) {
-        _this.loading = false;
-        _this.data = result;
-      }).catch(function (error) {
-        _this.loading = false;
-        _this.triggerEvent('exception', { on: 'load', error: error });
-      });
-    };
-
-    DataTable.prototype.gatherData = function gatherData() {
-      var _this2 = this;
-
-      var criteria = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-      if (this.offlineMode || !this.repository && this.data) {
-        this.offlineMode = true;
-
-        return this.data;
-      }
-
-      return this.repository.find(criteria, true).catch(function (error) {
-        _this2.triggerEvent('exception', { on: 'load', error: error });
-      });
-    };
-
-    DataTable.prototype.populateEntity = function populateEntity(row) {
-      if (!this.offlineMode) {
-        return this.repository.getPopulatedEntity(row);
-      }
-    };
-
-    DataTable.prototype.doDestroy = function doDestroy(row, index) {
-      var _this3 = this;
-
-      if (typeof this.destroy === 'function') {
-        return this.destroy(row, index);
-      }
-
-      if (this.offlineMode) {
-        this.data.splice(index, 1);
-
-        return this.triggerEvent('destroyed', row);
-      }
-
-      this.populateEntity(row).destroy().then(function () {
-        _this3.load();
-        _this3.triggerEvent('destroyed', row);
-      }).catch(function (error) {
-        _this3.triggerEvent('exception', { on: 'destroy', error: error });
-      });
-    };
-
-    DataTable.prototype.doEdit = function doEdit(row, index) {
-      if (typeof this.edit === 'function') {
-        return this.edit(row, index);
-      }
-    };
-
-    DataTable.prototype.doCustomAction = function doCustomAction(action, row, index) {
-      if (!action) {
-        return false;
-      }
-
-      if (typeof action.action === 'function') {
-        return action.action(row, index);
-      }
-    };
-
-    DataTable.prototype.checkDisabled = function checkDisabled(action, row) {
-      if (!action) {
-        return true;
-      }
-
-      if (typeof action.disabled === 'function') {
-        return action.disabled(row);
-      }
-
-      return false;
-    };
-
-    DataTable.prototype.checkVisibility = function checkVisibility(action, row) {
-      if (!action) {
-        return false;
-      }
-
-      if (typeof action.visible !== 'function') {
-        this.hasVisibleActions = true;
-
-        return true;
-      }
-
-      var isVisible = action.visible(row);
-
-      if (isVisible) {
-        this.hasVisibleActions = true;
-      }
-
-      return isVisible;
-    };
-
-    DataTable.prototype.showActions = function showActions() {
-      var show = this.destroy !== null || this.edit !== null || this.actions.length > 0;
-
-      this.hasVisibleActions = !!show;
-
-      return show;
-    };
-
-    DataTable.prototype.doSort = function doSort(columnLabel) {
-      var _criteria$sort;
-
-      if (this.offlineMode) {
-        return;
-      }
-
-      var column = columnLabel.column;
-
-      if (this.sortable === null || !this.isSortable(column) && !this.sortNested) {
-        return;
-      }
-
-      this.criteria.sort = (_criteria$sort = {}, _criteria$sort[column] = this.criteria.sort[column] === 'asc' ? 'desc' : 'asc', _criteria$sort);
-
-      this.load();
-    };
-
-    DataTable.prototype.searchColumnChanged = function searchColumnChanged(newValue, oldValue) {
-      if (!this.ready) {
-        return;
-      }
-
-      delete this.criteria.where[oldValue];
-
-      return this.doSearch();
-    };
-
-    DataTable.prototype.doSearch = function doSearch() {
-      if (this.offlineMode) {
-        return;
-      }
-
-      if (!this.ready) {
-        return;
-      }
-
-      if (_typeof(this.criteria.where[this.searchColumn]) === 'object') {
-        this.criteria.where[this.searchColumn].contains = this.search;
-      } else {
-        this.criteria.where[this.searchColumn] = { contains: this.search };
-      }
-
-      if (!this.ready) {
-        return;
-      }
-
-      this.pager.reloadCount();
-
-      this.load();
-    };
-
-    DataTable.prototype.reload = function reload() {
-      this.pager.reloadCount();
-
-      if (this.page === 1) {
-        this.load();
-      }
-
-      this.page = 1;
-    };
-
-    DataTable.prototype.triggerEvent = function triggerEvent(event) {
-      var payload = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      payload.bubbles = true;
-
-      return this.element.dispatchEvent(new CustomEvent(event, payload));
-    };
-
-    DataTable.prototype.selected = function selected(row, columnOptions) {
-      var _this4 = this;
-
-      if (columnOptions.route) {
-        var params = {};
-
-        if (columnOptions.route.params) {
-          Object.keys(columnOptions.route.params).forEach(function (param) {
-            var property = columnOptions.route.params[param];
-
-            params[param] = _this4.displayValue(row, property);
-          });
-        }
-
-        return this.router.navigateToRoute(columnOptions.route.name, params);
-      }
-
-      if (this.route) {
-        return this.router.navigateToRoute(this.route, { id: row.id });
-      }
-
-      if (this.select) {
-        return this.select(row);
-      }
-    };
-
-    DataTable.prototype.isSortable = function isSortable(column) {
-      if (column.indexOf('.') > 0) {
-        return false;
-      }
-
-      if (!this.populate) {
-        return true;
-      }
-
-      if (typeof this.populate !== 'string') {
-        return this.populate.indexOf(column) === -1;
-      }
-
-      return this.populate.replace(' ', '').split(',').indexOf(column) === -1;
-    };
-
-    DataTable.prototype.displayValue = function displayValue(row, propertyName) {
-      if ((typeof row === 'undefined' ? 'undefined' : _typeof(row)) !== 'object' || row === null) {
-        return '';
-      }
-
-      var flattened = new _homefront.Homefront(row, _homefront.Homefront.MODE_NESTED);
-
-      flattened.flatten();
-
-      return flattened.fetch(propertyName, '');
-    };
-
-    DataTable.prototype.collapseRow = function collapseRow(row) {
-      row._collapsed = !row._collapsed;
-    };
-
-    _createClass(DataTable, [{
-      key: 'colspan',
-      get: function get() {
-        return this.columnLabels.length + (this.hasVisibleActions ? 1 : 0) + (this.detailView ? 1 : 0);
-      }
-    }, {
-      key: 'columnLabels',
-      get: function get() {
-        var _this5 = this;
-
-        function clean(str) {
-          return str.replace(/^'?\s*|\s*'$/g, '');
-        }
-
-        function ucfirst(str) {
-          return str[0].toUpperCase() + str.substr(1);
-        }
-
-        if (Array.isArray(this.columns)) {
-          return this.columns.map(function (column) {
-            return {
-              nested: !_this5.isSortable(column.property),
-              column: column.property,
-              label: ucfirst(clean(column.label || column.property)),
-              route: column.route || false,
-              converter: column.valueConverters || false
-            };
-          });
-        }
-
-        var labelsRaw = this.columns.split(',');
-        var columnsArray = [];
-        var labels = [];
-
-        labelsRaw.forEach(function (label) {
-          if (!label) {
-            return;
-          }
-
-          var converter = label.split(' | ');
-          var aliased = converter[0].split(' as ');
-          var cleanedColumn = clean(aliased[0]);
-
-          if (columnsArray.indexOf(cleanedColumn) === -1) {
-            columnsArray.push(cleanedColumn);
-          }
-
-          labels.push({
-            nested: !_this5.isSortable(cleanedColumn),
-            column: cleanedColumn,
-            label: ucfirst(clean(aliased[1] || aliased[0])),
-            converter: converter.length > 1 ? converter.slice(1).join(' | ') : false
-          });
-        });
-
-        return labels;
-      }
-    }]);
-
-    return DataTable;
-  }(), (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'criteria', [_dec4], {
-    enumerable: true,
-    initializer: function initializer() {
-      return {};
-    }
-  }), _descriptor2 = _applyDecoratedDescriptor(_class2.prototype, 'where', [_dec5], {
-    enumerable: true,
-    initializer: function initializer() {
-      return {};
-    }
-  }), _descriptor3 = _applyDecoratedDescriptor(_class2.prototype, 'limit', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return 30;
-    }
-  }), _descriptor4 = _applyDecoratedDescriptor(_class2.prototype, 'columns', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return '';
-    }
-  }), _descriptor5 = _applyDecoratedDescriptor(_class2.prototype, 'searchColumn', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return 'name';
-    }
-  }), _descriptor6 = _applyDecoratedDescriptor(_class2.prototype, 'actions', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return [];
-    }
-  }), _descriptor7 = _applyDecoratedDescriptor(_class2.prototype, 'searchable', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return null;
-    }
-  }), _descriptor8 = _applyDecoratedDescriptor(_class2.prototype, 'sortable', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return null;
-    }
-  }), _descriptor9 = _applyDecoratedDescriptor(_class2.prototype, 'edit', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return null;
-    }
-  }), _descriptor10 = _applyDecoratedDescriptor(_class2.prototype, 'destroy', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return null;
-    }
-  }), _descriptor11 = _applyDecoratedDescriptor(_class2.prototype, 'page', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return 1;
-    }
-  }), _descriptor12 = _applyDecoratedDescriptor(_class2.prototype, 'loadingIndicator', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return '<center>Loading...</center>';
-    }
-  }), _descriptor13 = _applyDecoratedDescriptor(_class2.prototype, 'populate', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return false;
-    }
-  }), _descriptor14 = _applyDecoratedDescriptor(_class2.prototype, 'detailView', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return false;
-    }
-  }), _descriptor15 = _applyDecoratedDescriptor(_class2.prototype, 'sortNested', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: function initializer() {
-      return false;
-    }
-  }), _descriptor16 = _applyDecoratedDescriptor(_class2.prototype, 'select', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor17 = _applyDecoratedDescriptor(_class2.prototype, 'repository', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor18 = _applyDecoratedDescriptor(_class2.prototype, 'resource', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor19 = _applyDecoratedDescriptor(_class2.prototype, 'data', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor20 = _applyDecoratedDescriptor(_class2.prototype, 'route', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor21 = _applyDecoratedDescriptor(_class2.prototype, 'pages', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _descriptor22 = _applyDecoratedDescriptor(_class2.prototype, 'footer', [_aureliaTemplating.bindable], {
-    enumerable: true,
-    initializer: null
-  }), _applyDecoratedDescriptor(_class2.prototype, 'colspan', [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, 'colspan'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'columnLabels', [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, 'columnLabels'), _class2.prototype)), _class2)) || _class) || _class) || _class);
-});
-define('aurelia-datatable/columns-filter',['exports'], function (exports) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  
-
-  var ColumnsFilterValueConverter = exports.ColumnsFilterValueConverter = function () {
-    function ColumnsFilterValueConverter() {
-      
-    }
-
-    ColumnsFilterValueConverter.prototype.toView = function toView(array) {
-      return array.filter(function (item) {
-        return item.column.indexOf('.') === -1;
-      });
-    };
-
-    return ColumnsFilterValueConverter;
-  }();
-});
-define('aurelia-datatable/convert-manager',['exports', 'aurelia-dependency-injection', 'aurelia-templating', 'aurelia-logging', 'typer'], function (exports, _aureliaDependencyInjection, _aureliaTemplating, _aureliaLogging, _typer) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.ConvertManagerValueConverter = undefined;
-
-  var _typer2 = _interopRequireDefault(_typer);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  
-
-  var _dec, _class;
-
-  var ConvertManagerValueConverter = exports.ConvertManagerValueConverter = (_dec = (0, _aureliaDependencyInjection.inject)(_aureliaTemplating.ViewResources), _dec(_class = function () {
-    function ConvertManagerValueConverter(viewResources) {
-      
-
-      this.viewResources = viewResources;
-      this.logger = (0, _aureliaLogging.getLogger)('aurelia-datatable');
-    }
-
-    ConvertManagerValueConverter.prototype.runConverter = function runConverter(value, converter, convertParams, rowData) {
-      var valueConverter = this.viewResources.getValueConverter(converter);
-
-      if (valueConverter) {
-        return valueConverter.toView(value, convertParams, rowData);
-      }
-
-      this.logger.error('No ValueConverter named "' + converter + '" was found!');
-
-      return value;
-    };
-
-    ConvertManagerValueConverter.prototype.toView = function toView(value, converters, rowData) {
-      if (!converters) {
-        return value;
-      }
-
-      if (typeof converters === 'string') {
-        converters = converters.split(' | ');
-      }
-
-      for (var _iterator = converters, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+    var viewEngine = config.container.get(_aureliaTemplating.ViewEngine);
+    var styleResourcePlugin = {
+      fetch: function fetch(address) {
         var _ref;
 
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
-        }
-
-        var converter = _ref;
-
-        var index = converter.indexOf(':');
-
-        if (index < 0) {
-          value = this.runConverter(value, converter, null, rowData);
-
-          continue;
-        }
-
-        var name = converter.slice(0, index);
-        var param = this.parseParams(converter.slice(index + 1).trim());
-
-        value = this.runConverter(value, name, param, rowData);
+        return _ref = {}, _ref[address] = (0, _cssResource._createCSSResource)(address), _ref;
       }
-
-      return value;
     };
+    ['.css', '.less', '.sass', '.scss', '.styl'].forEach(function (ext) {
+      return viewEngine.addResourcePlugin(ext, styleResourcePlugin);
+    });
+  }
 
-    ConvertManagerValueConverter.prototype.parseParams = function parseParams(str) {
-      if (!str) {
-        return null;
-      }
+  exports.Compose = _compose.Compose;
+  exports.If = _if.If;
+  exports.With = _with.With;
+  exports.Repeat = _repeat.Repeat;
+  exports.Show = _show.Show;
+  exports.Hide = _hide.Hide;
+  exports.HTMLSanitizer = _htmlSanitizer.HTMLSanitizer;
+  exports.SanitizeHTMLValueConverter = _sanitizeHtml.SanitizeHTMLValueConverter;
+  exports.Replaceable = _replaceable.Replaceable;
+  exports.Focus = _focus.Focus;
+  exports.configure = configure;
+  exports.AttrBindingBehavior = _attrBindingBehavior.AttrBindingBehavior;
+  exports.OneTimeBindingBehavior = _bindingModeBehaviors.OneTimeBindingBehavior;
+  exports.OneWayBindingBehavior = _bindingModeBehaviors.OneWayBindingBehavior;
+  exports.TwoWayBindingBehavior = _bindingModeBehaviors.TwoWayBindingBehavior;
+  exports.ThrottleBindingBehavior = _throttleBindingBehavior.ThrottleBindingBehavior;
+  exports.DebounceBindingBehavior = _debounceBindingBehavior.DebounceBindingBehavior;
+  exports.SelfBindingBehavior = _selfBindingBehavior.SelfBindingBehavior;
+  exports.SignalBindingBehavior = _signalBindingBehavior.SignalBindingBehavior;
+  exports.BindingSignaler = _bindingSignaler.BindingSignaler;
+  exports.UpdateTriggerBindingBehavior = _updateTriggerBindingBehavior.UpdateTriggerBindingBehavior;
+  exports.AbstractRepeater = _abstractRepeater.AbstractRepeater;
+  exports.RepeatStrategyLocator = _repeatStrategyLocator.RepeatStrategyLocator;
+  exports.NullRepeatStrategy = _nullRepeatStrategy.NullRepeatStrategy;
+  exports.ArrayRepeatStrategy = _arrayRepeatStrategy.ArrayRepeatStrategy;
+  exports.MapRepeatStrategy = _mapRepeatStrategy.MapRepeatStrategy;
+  exports.SetRepeatStrategy = _setRepeatStrategy.SetRepeatStrategy;
+  exports.NumberRepeatStrategy = _numberRepeatStrategy.NumberRepeatStrategy;
+  exports.createFullOverrideContext = _repeatUtilities.createFullOverrideContext;
+  exports.updateOverrideContext = _repeatUtilities.updateOverrideContext;
+  exports.getItemsSourceExpression = _repeatUtilities.getItemsSourceExpression;
+  exports.isOneTime = _repeatUtilities.isOneTime;
+  exports.updateOneTimeBinding = _repeatUtilities.updateOneTimeBinding;
+  exports.unwrapExpression = _repeatUtilities.unwrapExpression;
+  exports.viewsRequireLifecycle = _analyzeViewFactory.viewsRequireLifecycle;
+});;define('aurelia-templating-resources', ['aurelia-templating-resources/aurelia-templating-resources'], function (main) { return main; });
 
-      if (_typer2.default.detect(str) === 'string' && str[0] !== '{') {
-        return str.substr(1, str.length - 2);
-      }
+define('aurelia-templating-router/aurelia-templating-router',['exports', 'aurelia-pal', 'aurelia-router', './route-loader', './router-view', './route-href'], function (exports, _aureliaPal, _aureliaRouter, _routeLoader, _routerView, _routeHref) {
+  'use strict';
 
-      return _typer2.default.cast(str);
-    };
-
-    return ConvertManagerValueConverter;
-  }()) || _class);
-});
-
-define("aurelia-view-manager", [],function(){});
-
-define("aurelia-view-manager", [],function(){});
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = exports.RouteHref = exports.RouterView = exports.TemplatingRouteLoader = undefined;
 
 
-define("aurelia-orm", [],function(){});
+  function configure(config) {
+    config.singleton(_aureliaRouter.RouteLoader, _routeLoader.TemplatingRouteLoader).singleton(_aureliaRouter.Router, _aureliaRouter.AppRouter).globalResources(_aureliaPal.PLATFORM.moduleName('./router-view'), _aureliaPal.PLATFORM.moduleName('./route-href'));
 
-define("aurelia-orm", [],function(){});
+    config.container.registerAlias(_aureliaRouter.Router, _aureliaRouter.AppRouter);
+  }
 
+  exports.TemplatingRouteLoader = _routeLoader.TemplatingRouteLoader;
+  exports.RouterView = _routerView.RouterView;
+  exports.RouteHref = _routeHref.RouteHref;
+  exports.configure = configure;
+});;define('aurelia-templating-router', ['aurelia-templating-router/aurelia-templating-router'], function (main) { return main; });
 
-define("typer", [],function(){});
-
-define("typer", [],function(){});
-
-define('text!aurelia-datatable/bootstrap/datatable.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"../columns-filter\"></require>\n  <require from=\"../convert-manager\"></require>\n\n  <!-- Search bar -->\n  <div if.bind=\"searchable !== null && !offlineMode\" class=\"row\">\n    <div class=\"col-xs-2\">\n      <select value.bind=\"searchColumn\" class=\"form-control\" id=\"columnSelect\">\n        <option\n          model.bind=\"columnLabel.column\"\n          repeat.for=\"columnLabel of columnLabels | columnsFilter\"\n          t=\"${columnLabel.label}\"\n        >${columnLabel.label}</option>\n      </select>\n    </div>\n\n    <div class=\"col-xs-10\">\n      <input\n        class=\"form-control\"\n        type=\"text\"\n        id=\"search\"\n        t=\"[placeholder]Search\"\n        placeholder=\"Search\"\n        value.bind=\"search\"\n        keyup.delegate=\"doSearch() & debounce:500\">\n    </div>\n    <br/>\n  </div>\n\n  <table class=\"table table-striped table-bordered table-hover\">\n    <thead>\n      <tr>\n        <th if.bind=\"detailView\" style=\"width: 50px;\"></th>\n\n        <!-- Labels -->\n        <th click.delegate=\"doSort(columnLabel)\" repeat.for=\"columnLabel of columnLabels\">\n          <!-- Just show the label -->\n          <span if.bind=\"sortable === null || offlineMode || (columnLabel.nested && !sortNested)\" t=\"${columnLabel.label}\">${columnLabel.label}</span>\n\n          <!-- Show label and make it sortable (click) -->\n          <a if.bind=\"sortable !== null && !offlineMode && (!columnLabel.nested || sortNested)\">\n            <span t=\"${columnLabel.label}\">${columnLabel.label}</span>\n            <i class=\"fa fa-${criteria.sort[columnLabel.column] ? (criteria.sort[columnLabel.column] === 'desc' ? 'caret-down' : 'caret-up') : 'sort'}\">\n            </i>\n          </a>\n        </th>\n\n        <!-- Actions -->\n        <th show.bind=\"showActions() && hasVisibleActions\" t=\"Actions\">Actions</th>\n      </tr>\n    </thead>\n    <tbody>\n\n      <tr if.bind=\"loadingIndicator && loading\">\n        <td colspan.bind=\"colspan\" innerhtml.bind=\"loadingIndicator\"></td>\n      </tr>\n\n      <template containerless repeat.for=\"row of data\">\n        <tr if.bind=\"!loading\">\n          <td style=\"text-align: center;\" if.bind=\"detailView\" click.delegate=\"collapseRow(row)\"><i class=\"fa fa-${row._collapsed ? 'chevron-down' : 'chevron-right'}\"></i></td>\n\n          <!-- Columns -->\n          <td repeat.for=\"columnLabel of columnLabels\">\n            <span if.bind=\"!columnLabel.route && !route && !select\" innerhtml.bind=\"displayValue(row, columnLabel.column) | convertManager: columnLabel.converter : row\"></span>\n            <a if.bind=\"route || select || columnLabel.route\" click.delegate=\"selected(row, columnLabel)\" innerhtml.bind=\"displayValue(row, columnLabel.column) | convertManager: columnLabel.converter : row\"></a>\n          </td>\n\n          <!-- Actions -->\n          <td style=\"white-space: nowrap; width: 1px;\" show.bind=\"showActions() && hasVisibleActions\">\n            <button if.bind=\"edit !== null\" class=\"btn btn-sm btn-white\" click.delegate=\"doEdit(row, $index)\">\n              <i class=\"fa fa-pencil\"></i>\n            </button>\n\n            <button if.bind=\"destroy !== null\" class=\"btn btn-sm btn-danger\" click.delegate=\"doDestroy(row, $index)\">\n              <i class=\"fa fa-trash\"></i>\n            </button>\n\n            <button repeat.for=\"action of actions\" if.bind=\"checkVisibility(action, row)\" t=\"[title]${action.title}\" title.bind=\"action.title || ''\" disabled.bind=\"checkDisabled(action, row)\" class=\"btn btn-sm btn-${action.type || 'default'}\" click.trigger=\"doCustomAction(action, row, $parent.$index)\">\n              <i if.bind=\"action.icon\" class=\"fa fa-${action.icon}\"></i>\n              <span if.bind=\"!action.icon && action.title\" t=\"${action.title}\">${action.title}</span>\n            </button>\n          </td>\n        </tr>\n\n        <!-- Needed for table-striped -->\n        <tr if.bind=\"detailView && row._collapsed\" style=\"display: none;\"></tr>\n\n        <tr if.bind=\"detailView && row._collapsed\">\n          <td colspan.bind=\"colspan\" style=\"padding: 0;margin: 0;\">\n            <compose view-model.bind=\"detailView\" model.bind=\"row\"></compose>\n          </td>\n        </tr>\n      </template>\n    </tbody>\n    <tfoot if.bind=\"footer\" innerhtml.bind=\"footer\"></tfoot>\n  </table>\n\n  <div if.bind=\"!offlineMode\" show.bind=\"pages > 1\">\n    <pager\n      resource.bind=\"repository\"\n      criteria.bind=\"criteria.where\"\n      page.bind=\"page\"\n      pages.two-way=\"pages\"\n      view-model.ref=\"pager\"\n      limit.bind=\"limit\"\n    ></pager>\n  </div>\n</template>\n"; });
 define('aurelia-testing/aurelia-testing',['exports', './compile-spy', './view-spy', './component-tester', './wait'], function (exports, _compileSpy, _viewSpy, _componentTester, _wait) {
   'use strict';
 
@@ -31259,4 +30112,4 @@ define('aurelia-testing/wait',['exports'], function (exports) {
     }, options);
   }
 });
-function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"..\\node_modules\\aurelia-binding\\dist\\amd\\aurelia-binding","aurelia-bootstrapper":"..\\node_modules\\aurelia-bootstrapper\\dist\\amd\\aurelia-bootstrapper","aurelia-dependency-injection":"..\\node_modules\\aurelia-dependency-injection\\dist\\amd\\aurelia-dependency-injection","aurelia-event-aggregator":"..\\node_modules\\aurelia-event-aggregator\\dist\\amd\\aurelia-event-aggregator","aurelia-fetch-client":"..\\node_modules\\aurelia-fetch-client\\dist\\amd\\aurelia-fetch-client","aurelia-framework":"..\\node_modules\\aurelia-framework\\dist\\amd\\aurelia-framework","aurelia-history":"..\\node_modules\\aurelia-history\\dist\\amd\\aurelia-history","aurelia-history-browser":"..\\node_modules\\aurelia-history-browser\\dist\\amd\\aurelia-history-browser","aurelia-http-client":"..\\node_modules\\aurelia-http-client\\dist\\amd\\aurelia-http-client","aurelia-loader":"..\\node_modules\\aurelia-loader\\dist\\amd\\aurelia-loader","aurelia-loader-default":"..\\node_modules\\aurelia-loader-default\\dist\\amd\\aurelia-loader-default","aurelia-logging":"..\\node_modules\\aurelia-logging\\dist\\amd\\aurelia-logging","aurelia-logging-console":"..\\node_modules\\aurelia-logging-console\\dist\\amd\\aurelia-logging-console","aurelia-metadata":"..\\node_modules\\aurelia-metadata\\dist\\amd\\aurelia-metadata","aurelia-pal":"..\\node_modules\\aurelia-pal\\dist\\amd\\aurelia-pal","aurelia-pal-browser":"..\\node_modules\\aurelia-pal-browser\\dist\\amd\\aurelia-pal-browser","aurelia-path":"..\\node_modules\\aurelia-path\\dist\\amd\\aurelia-path","aurelia-polyfills":"..\\node_modules\\aurelia-polyfills\\dist\\amd\\aurelia-polyfills","aurelia-route-recognizer":"..\\node_modules\\aurelia-route-recognizer\\dist\\amd\\aurelia-route-recognizer","aurelia-router":"..\\node_modules\\aurelia-router\\dist\\amd\\aurelia-router","aurelia-task-queue":"..\\node_modules\\aurelia-task-queue\\dist\\amd\\aurelia-task-queue","aurelia-templating":"..\\node_modules\\aurelia-templating\\dist\\amd\\aurelia-templating","aurelia-templating-binding":"..\\node_modules\\aurelia-templating-binding\\dist\\amd\\aurelia-templating-binding","text":"..\\node_modules\\text\\text","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"},{"name":"aurelia-validation","location":"../node_modules/aurelia-validation/dist/amd","main":"aurelia-validation"},{"name":"homefront","location":"../node_modules/homefront/dist/","main":"index"},{"name":"aurelia-datatable","location":"../node_modules/aurelia-datatable/dist/amd","main":"aurelia-datatable"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","authorization-step","edit-account","environment","login","logout","main","management","not-found","signup","tweet","welcome-screen","x","administration/index","administration/main","models/message","models/toolkit","models/user","resources/index","services/broadcast-gateway","services/user-gateway","validation/bootstrap-form-validation-renderer","validation/index","validation/rules","administration/components/admin-menu","administration/components/cleanup-content","administration/components/cleanup","administration/components/populate","administration/components/statistics","broadcasts/components/vip-editor","broadcasts/components/vip","resources/attributes/submit-task","resources/elements/account-detail","resources/elements/list-editor","resources/elements/user-creation","resources/value-converters/filter-by","resources/value-converters/group-by","resources/value-converters/order-by","administration/components/statistics/summary","broadcasts/components/broadcast/broadcast","broadcasts/components/history/history","mwa","css/mwa","nav-bar-main","resources/elements/blurb","resources/elements/group-list","resources/elements/login-data","resources/elements/submit-button","administration/components/cleanup/displayMessages","administration/components/cleanup/taskSelection","administration/components/cleanup/userSearch","administration/components/statistics/period","administration/components/statistics/results","broadcasts/components/history/displayMessages","broadcasts/components/history/userSelection"]}})}
+function _aureliaConfigureModuleLoader(){requirejs.config({"baseUrl":"src/","paths":{"aurelia-binding":"..\\node_modules\\aurelia-binding\\dist\\amd\\aurelia-binding","aurelia-event-aggregator":"..\\node_modules\\aurelia-event-aggregator\\dist\\amd\\aurelia-event-aggregator","aurelia-dependency-injection":"..\\node_modules\\aurelia-dependency-injection\\dist\\amd\\aurelia-dependency-injection","aurelia-history":"..\\node_modules\\aurelia-history\\dist\\amd\\aurelia-history","aurelia-bootstrapper":"..\\node_modules\\aurelia-bootstrapper\\dist\\amd\\aurelia-bootstrapper","aurelia-history-browser":"..\\node_modules\\aurelia-history-browser\\dist\\amd\\aurelia-history-browser","aurelia-framework":"..\\node_modules\\aurelia-framework\\dist\\amd\\aurelia-framework","aurelia-loader":"..\\node_modules\\aurelia-loader\\dist\\amd\\aurelia-loader","aurelia-metadata":"..\\node_modules\\aurelia-metadata\\dist\\amd\\aurelia-metadata","aurelia-logging-console":"..\\node_modules\\aurelia-logging-console\\dist\\amd\\aurelia-logging-console","aurelia-loader-default":"..\\node_modules\\aurelia-loader-default\\dist\\amd\\aurelia-loader-default","aurelia-http-client":"..\\node_modules\\aurelia-http-client\\dist\\amd\\aurelia-http-client","aurelia-logging":"..\\node_modules\\aurelia-logging\\dist\\amd\\aurelia-logging","aurelia-pal":"..\\node_modules\\aurelia-pal\\dist\\amd\\aurelia-pal","aurelia-pal-browser":"..\\node_modules\\aurelia-pal-browser\\dist\\amd\\aurelia-pal-browser","aurelia-path":"..\\node_modules\\aurelia-path\\dist\\amd\\aurelia-path","aurelia-polyfills":"..\\node_modules\\aurelia-polyfills\\dist\\amd\\aurelia-polyfills","aurelia-router":"..\\node_modules\\aurelia-router\\dist\\amd\\aurelia-router","aurelia-task-queue":"..\\node_modules\\aurelia-task-queue\\dist\\amd\\aurelia-task-queue","text":"..\\node_modules\\text\\text","aurelia-templating":"..\\node_modules\\aurelia-templating\\dist\\amd\\aurelia-templating","aurelia-route-recognizer":"..\\node_modules\\aurelia-route-recognizer\\dist\\amd\\aurelia-route-recognizer","aurelia-templating-binding":"..\\node_modules\\aurelia-templating-binding\\dist\\amd\\aurelia-templating-binding","aurelia-fetch-client":"..\\node_modules\\aurelia-fetch-client\\dist\\amd\\aurelia-fetch-client","app-bundle":"../scripts/app-bundle"},"packages":[{"name":"aurelia-templating-resources","location":"../node_modules/aurelia-templating-resources/dist/amd","main":"aurelia-templating-resources"},{"name":"aurelia-validation","location":"../node_modules/aurelia-validation/dist/amd","main":"aurelia-validation"},{"name":"aurelia-testing","location":"../node_modules/aurelia-testing/dist/amd","main":"aurelia-testing"},{"name":"aurelia-templating-router","location":"../node_modules/aurelia-templating-router/dist/amd","main":"aurelia-templating-router"}],"stubModules":["text"],"shim":{},"bundles":{"app-bundle":["app","authorization-step","edit-account","environment","login","logout","main","management","not-found","signup","tweet","welcome-screen","x","administration/index","administration/main","models/message","models/toolkit","models/user","resources/index","services/broadcast-gateway","services/user-gateway","validation/bootstrap-form-validation-renderer","validation/index","validation/rules","administration/components/admin-menu","administration/components/cleanup-content","administration/components/cleanup","administration/components/populate","administration/components/statistics","broadcasts/components/vip-editor","broadcasts/components/vip","resources/attributes/submit-task","resources/elements/account-detail","resources/elements/list-editor","resources/elements/user-creation","resources/value-converters/filter-by","resources/value-converters/group-by","resources/value-converters/order-by","administration/components/statistics/summary","broadcasts/components/broadcast/broadcast","broadcasts/components/history/history","mwa","css/mwa","nav-bar-main","resources/elements/blurb","resources/elements/group-list","resources/elements/login-data","resources/elements/submit-button","administration/components/cleanup/displayMessages","administration/components/cleanup/taskSelection","administration/components/cleanup/userSearch","administration/components/statistics/period","administration/components/statistics/results","broadcasts/components/history/displayMessages","broadcasts/components/history/userSelection"]}})}

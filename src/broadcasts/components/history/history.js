@@ -23,10 +23,11 @@ export class History {
         var self = this;
 
         this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
+            self.tweets = [];
             console.log("Event handler for messages-downloaded");
             console.log(e);
             e.messages.forEach(function(element) {
-                tweets.push(element);
+                self.tweets.push(element);
             }, this);
             
             self.isBusy = false;

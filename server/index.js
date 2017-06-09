@@ -274,7 +274,7 @@ server.register(require('inert'), function (err) {
     //_________TWEETS____________   
     //addTweet
     server.route({
-        method: 'PUSH',
+        method: 'POST',
         path: '/TweetAdd/{UidMessage*2}/{Picture?}',
         handler: function (request, reply) {
             const tweetParts = request.params.UidMessage.split('/');

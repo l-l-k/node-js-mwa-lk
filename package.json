@@ -1,28 +1,25 @@
 {
-  "name": "mwa",
+  "name": "",
   "description": "An Aurelia client application.",
   "version": "0.1.0",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/"
+    "type": "???",
+    "url": "???"
   },
   "license": "MIT",
-  "author": "Leonard Klausmann",
   "dependencies": {
     "aurelia-animator-css": "^1.0.1",
     "aurelia-bootstrapper": "^2.1.0",
-    "aurelia-cli": "^0.27.0",
-    "aurelia-datatable": "^0.8.1",
+    "aurelia-dialog": "^1.0.0-rc.1.0.3",
     "aurelia-fetch-client": "^1.1.2",
     "aurelia-http-client": "^1.1.1",
     "aurelia-validation": "^1.0.0",
     "bluebird": "^3.4.1",
-    "bootstrap": "^3.3.7",
-    "font-awesome": "^4.7.0",
-    "hapi": "^16.1.1",
+    "fetch-client": "0.0.1",
     "hapi-cors-headers": "^1.0.0",
     "inert": "^4.2.0",
     "nes": "^6.4.2",
+    "pg": "^6.2.4",
     "requirejs": "^2.3.2",
     "text": "github:requirejs/text#latest"
   },
@@ -62,9 +59,5 @@
     "karma-chrome-launcher": "^1.0.1",
     "karma-jasmine": "^1.0.2",
     "karma-babel-preprocessor": "^6.0.1"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node App.js"
   }
 }

@@ -26,13 +26,16 @@
         <table id="userRelatedTweets">
             <thead>
                 <tr>
-                    <th>Day</th>
-                    <th>Time</th>
+                    <th>Date</th>
+                    
                     <th>Message</th>
                 </tr>
             </thead>
             <tbody>
-
+<tr repeat.for="tweet of tweets">
+  <td innerhtml.bind ='tweet.timestamp' />
+<td innerhtml.bind='tweet.message' />
+    </tr>
             </tbody>
         </table>
 

@@ -886,13 +886,13 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
         BroadcastGateway.prototype.addMessage = function addMessage(text, image) {
             var _this = this;
 
-            this.httpClient.push('/TweetAdd/' + this.user.id + '/' + text + '/' + image).then(function (res) {
+            this.httpClient.post('/TweetAdd/' + this.user.id + '/' + text + '/' + image).then(function (res) {
                 try {
                     var success = Boolean(res.content);
                     console.log("content:" + res.content + " - success:" + success);
                     console.log("Raise Event message-sent ");
                     if (success) {
-                        _this.ea.publish('message-sent', { sucess: sucess });
+                        _this.ea.publish('message-sent', { success: success });
                     }
                 } catch (error) {
                     console.log(error);
@@ -2096,7 +2096,6 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
                 return;
             };
 
-            this.isBusy = true;
             console.log("Send message");
             if (this.isValidMessage()) {
                 this.message.image = this.imageUrl;
@@ -2127,7 +2126,7 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', 'aurelia-view-manager', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _aureliaViewManager, _broadcastGateway, _user) {
+define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2161,10 +2160,11 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
             var self = this;
 
             this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
+                self.tweets = [];
                 console.log("Event handler for messages-downloaded");
                 console.log(e);
                 e.messages.forEach(function (element) {
-                    tweets.push(element);
+                    self.tweets.push(element);
                 }, this);
 
                 self.isBusy = false;
@@ -2242,7 +2242,7 @@ define('text!administration/components/statistics/period.html', ['module'], func
 define('text!administration/components/statistics/results.html', ['module'], function(module) { module.exports = "<template><table id=\"admStatisticsTable\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
-define('text!broadcasts/components/history/displayMessages.html', ['module'], function(module) { module.exports = "<template><datatable columns=\"name as 'Name' , timestamp as 'Time',message as 'Message'\" data.bind=\"tweets\"></datatable></template>"; });
-define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><datatable columns=\"name as 'Name' , timestamp as 'Time',message as 'Message'\" data.bind=\"tweets\"></datatable></fieldset></section></template>"; });
+define('text!broadcasts/components/history/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
+define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><table id=\"userRelatedTweets\"><thead><tr><th>Date</th><th>Message</th></tr></thead><tbody><tr repeat.for=\"tweet of tweets\"><td innerhtml.bind=\"tweet.timestamp\"><td innerhtml.bind=\"tweet.message\"></tr></tbody></table></fieldset></section></template>"; });
 define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.nickname\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

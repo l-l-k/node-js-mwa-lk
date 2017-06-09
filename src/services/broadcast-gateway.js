@@ -72,14 +72,14 @@ export class BroadcastGateway {
 
     addMessage(text, image) {
 
-        this.httpClient.push('/TweetAdd/' + this.user.id + '/' + text + '/' + image)
+        this.httpClient.post('/TweetAdd/' + this.user.id + '/' + text + '/' + image)
             .then(res => {
                 try {
                     var success = Boolean(res.content);
                     console.log("content:" + res.content + " - success:" + success);
                     console.log("Raise Event message-sent ");
                     if (success) {
-                        this.ea.publish('message-sent', { sucess });
+                        this.ea.publish('message-sent', { success });
                     }
            
                 } catch (error) {
