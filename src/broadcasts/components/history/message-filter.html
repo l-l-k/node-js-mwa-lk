@@ -6,6 +6,13 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="column1of2" style="background-color:lavender;">
+                            <label><input type="checkbox" checked.bind="motherboard">  Motherboard</label>
+                            <label><input type="checkbox" checked.bind="cpu"> CPU</label>
+                            <label><input type="checkbox" checked.bind="memory"> Memory</label> 
+                            motherboard = ${motherboard}<br/>                           
+                             cpu = ${cpu}<br/> 
+                             memory = ${memory}<br/>
+
                             <label class="radio columnIndent">
                                 <input type="radio" id="user" name="filter" value.bind="msgFilter.showNoMessages" checked.bind="showNoMessages" >None
                                 </label>

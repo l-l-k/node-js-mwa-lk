@@ -1,6 +1,12 @@
 <template>
     <section class="container">
         <h1>Add a new user</h1>
-            <compose view-model="./../../resources/elements/user-creation"></compose>
+        <form class="form-horizontal" validation-renderer="bootstrap-form" submit-task.call="tryAddUser()">
+            <!--<compose view-model="./../../resources/elements/user-creation"></compose>-->
+            <compose view-model="./../../resources/elements/account-detail" model.bind="newUser"></compose>
+            <br></br>
+            <submit-button> Create Account</submit-button>
+            <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+        </form>
     </section>
 </template>

@@ -1,0 +1,17 @@
+<template>
+    <!-- Statistic / Summary of user accounts -->
+    <section class="container">
+        <fieldset id="statistics" class="visible">
+            <form >
+                <div>
+                    <label for="startDate" class="dayInputLabel">From : </label>
+                    <input type="date" value.bind="firstDay" class="dayInputField" placeholder="2000-12-30" maxlength="10" required />
+                    <span class="help-block dayInputHelp">First day of time span </span>
+                    <label for="endDate" class="dayInputLabel">To :  </label>
+                    <input type="date" value.bind="lastDay" name="endDate" class="dayInputField" placeholder="2000-12-31" maxlength="10" required />
+                    <span class="help-block dayInputHelp">Last day of time span </span>
+                </div>
+            </form>
+        </fieldset>
+    </section>
+</template>

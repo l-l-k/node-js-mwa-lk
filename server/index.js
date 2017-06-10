@@ -15,10 +15,10 @@ server.ext('onPreResponse', corsHeaders);
 // server.route(require('./routesapi'));
 
 var pg = require("pg");
-var conString = "postgres://asqxhbjfrvowud:a77c4272ba2680644502a2038c337c0fa97630f526a9a41592ec5620c0984697@ec2-54-221-217-158.compute-1.amazonaws.com:5432/d9qfa07k8iog8e";
 var response;
-var conStringRemote = "postgres://asqxhbjfrvowud:a77c4272ba2680644502a2038c337c0fa97630f526a9a41592ec5620c0984697@ec2-54-221-217-158.compute-1.amazonaws.com:5432/d9qfa07k8iog8e";
+var conStringRemote = "postgres://einffmmzcpnloz:0416bdcd643770778b02b750e71b27a02c6d7d8e6d878c90f51010ffe73731d8@ec2-23-21-169-238.compute-1.amazonaws.com:5432/d23t23s03bovmj";
 var conStringLocal = "pg://Karlheinz:k@localhost:5432/mwa2";
+var conString = conStringLocal;
 // DATABASE_URL in .env
 
 server.register(Nes, function (err) {

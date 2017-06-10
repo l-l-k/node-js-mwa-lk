@@ -1,44 +1,83 @@
 <template>
     <!-- Statistic / Summary of user accounts -->
     <section class="container">
-   <fieldset>
-       <legend>History</legend>
-        <form class="form-horizontal" validation-renderer="bootstrap-form">
-            <compose view="./userSelection.html"></compose>
-            <div class="row">
-                <div class="col-sm-9">
-                    <submit-button click.delegate="retrieveMessages()">
-                        <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve Messages</submit-button>
-                    <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
-                </div>
-                <div class="col-sm-2">
-                    <submit-button click.delegate="removeMessages()">
-                        <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete selected messages</submit-button>
-                </div>
-                <div class="col-sm-2">
-                    <submit-button click.delegate="removeMessages()">
-                        <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete all my messages</submit-button>
-                </div>
-            </div>
-        </form>
-        <br></br>
-            <!--<datatable columns="name as 'Name' , timestamp as 'Time',message as 'Message'" data.bind="tweets"> </datatable>-->
-        <table id="userRelatedTweets">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    
-                    <th>Message</th>
-                </tr>
-            </thead>
-            <tbody>
-<tr repeat.for="tweet of tweets">
-  <td innerhtml.bind ='tweet.timestamp' />
-<td innerhtml.bind='tweet.message' />
-    </tr>
-            </tbody>
-        </table>
+        <fieldset>
+            <legend>History</legend>
+            <form class="form-horizontal" validation-renderer="bootstrap-form">
+                <!--<compose view-model="./message-filter" model.bind="senderFilter" ></compose>-->
+                <!--<compose view="./message-filter.html"></compose>-->
 
-    </fieldset>
-        </section>
+                <form class="form-group">
+                    <h4>Define filter</h4>
+                    <div class="container-fluid">
+                        <div class="xxrow">
+                            <div class="column1of2">
+                                <button type="submit" class="btn btn-primary " click.delegate="cleanupTable()">
+                                    <span class="glyphicon glyphicon-search"></span> Clear table</button>
+                                <br></br>
+
+                                <label for="o1">
+                                <input type="checkbox" id="o1"checked.bind="showMyTweets">My tweets</input>
+                            <label>
+                            <label for ="o1">
+                                <input type="checkbox" id="o2" checked.bind="showTweetsOfActiveVips">Include selected VIPs</input>
+                                </label>
+                                <label for="o3">
+                                <input type="checkbox" id="o3" name="o3"checked.bind="showTweetsOfSpecialUser">Tweets of :
+                            <label>
+                                <input id="username" type="text" name="username" class="columnIndent" placeholder="Type in a user's name ..." value.bind="nameOfSpecialUser"
+                                    style="margin-left:22px;"></input>
+                            </div>
+
+                                <div class="column1of2 columnIndent" style="background-color:lavenderblush;">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" checked.bind="useRerestrictedTimeRange" >Restrict evaluation range</label>
+                            </div>
+                            <!--<label for="period">
+                                <input type="checkbox" id="period" value.bind="useRerestrictedTimeRange" click.delegate="timeRangeUsageChanged($event)">Restrict evaluation range</input>
+                            <label>-->
+                            <br></br>
+                            <compose view="./../../../resources/elements/period.html"></compose>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </form>
+
+                <div class="row">
+                    <div class="col-sm-9">
+                        <submit-button click.delegate="retrieveMessages()">
+                            <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve Messages</submit-button>
+                        <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
+                    </div>
+                    <div class="col-sm-2">
+                        <submit-button click.delegate="removeMessages()">
+                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete selected messages</submit-button>
+                    </div>
+                    <div class="col-sm-2">
+                        <submit-button click.delegate="removeMessages()">
+                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete all my messages</submit-button>
+                    </div>
+                </div>
+            </form>
+            <br></br>
+            <!--<datatable columns="name as 'Name' , timestamp as 'Time',message as 'Message'" data.bind="tweets"> </datatable>-->
+            <table id="userRelatedTweets">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr repeat.for="tweet of receivedTweets">
+                        <td innerhtml.bind='tweet.timestamp' />
+                        <td innerhtml.bind='tweet.message' />
+                    </tr>
+                </tbody>
+            </table>
+
+        </fieldset>
+    </section>
 </template>

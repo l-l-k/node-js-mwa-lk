@@ -106,6 +106,10 @@ export class BroadcastGateway {
             });
     }
 
+    getSomeMessages(persons, firstDay, lastDay) {
+        // Input: array, date, date
+    }
+
     removeMessages(useriD) {
         // TODO 
         this.httpClient.post('/TweetsRemove/' + userID)

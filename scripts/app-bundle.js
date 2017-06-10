@@ -458,7 +458,7 @@ define('signup',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './
         }
 
         Signup.prototype.activate = function activate() {
-            console.log("Signup activted");
+            console.log("Signup activated");
             var self = this;
             this.subscription = this.ea.subscribe('user-detected', function (e) {
                 console.log("Event raised");
@@ -479,7 +479,7 @@ define('signup',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './
                 console.log("Event 2 raised");
                 console.log(e);
 
-                self.SUrouter.navigateToRoute('login');
+                self.router.navigateToRoute('login');
             });
         };
 
@@ -645,6 +645,75 @@ define('administration/main',['exports', 'aurelia-framework'], function (exports
 
         return Administration;
     }()) || _class);
+});
+define('models/broadcast-filter',["exports"], function (exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var BroadcastFilter = exports.BroadcastFilter = function () {
+        BroadcastFilter.fromObject = function fromObject(src) {
+            var filter = Object.assign(new BroadcastFilter(), src);
+            return filter;
+        };
+
+        function BroadcastFilter() {
+            _classCallCheck(this, BroadcastFilter);
+
+            this.isBusy = false;
+
+            this.persons = new Array();
+            this.showNoMessages = false;
+            this.showMyMessages = true;
+            this.showTweetsOfSpecialUser = false;
+            this.nameOfSpecialUser = "";
+            this.showTweetsOfActiveVips = false;
+
+            console.log("Filter created : ");
+        }
+
+        BroadcastFilter.prototype.activate = function activate() {
+            console.log("Filter activated");
+
+            var self = this;
+
+            this.subscription2 = this.ea.subscribe('user-detected', function (e) {
+                console.log("Event handler for messages-detected");
+                console.log(e);
+                var existingUser = e.existingUser;
+                if (existingUser.mail != "") {
+                    console.log("Request messages for " + existingUser.nickname);
+                    self.persons.push(existingUser.id);
+                    self.broadcastGateway.getsomeMessages(persons, self.firstday, self.lastDay);
+                } else {
+                    console.log("User does not exist");
+                }
+
+                self.isBusy = false;
+            });
+
+            this.subscription3 = this.ea.subscribe('messages-removed', function (e) {
+                console.log("Event handler for messages-deletion");
+                self.isBusy = false;
+            });
+        };
+
+        BroadcastFilter.prototype.deactivate = function deactivate() {
+            this.subscription1.dispose();
+            this.subscription2.dispose();
+            this.subscription3.dispose();
+        };
+
+        return BroadcastFilter;
+    }();
 });
 define('models/message',['exports', 'aurelia-validation'], function (exports, _aureliaValidation) {
     'use strict';
@@ -918,6 +987,8 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             });
         };
 
+        BroadcastGateway.prototype.getSomeMessages = function getSomeMessages(persons, firstDay, lastDay) {};
+
         BroadcastGateway.prototype.removeMessages = function removeMessages(useriD) {
             var _this3 = this;
 
@@ -985,8 +1056,8 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
                 try {
                     var success = Boolean(res.content);
                     console.log("content:" + res.content + " - success:" + success);
-                    console.log("Raise Event 2 " + user);
-                    if (success) _this.ea.publish('user-added', { user: user });
+                    if (success) console.log("Raise Event user-added " + user);
+                    _this.ea.publish('user-added', { user: user });
                 } catch (error) {
                     console.log(error);
                 }
@@ -994,32 +1065,34 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
         };
 
         UserGateway.prototype.remove = function remove(user) {
+            var _this2 = this;
+
             var success = true;
             this.httpClient.post('/AccountRemove/' + user.id + '/' + user.mail.toLowerCase() + '/' + user.nickname + '/' + user.password).then(function (res) {
                 success = Boolean(res.content);
+                _this2.ea.publish('user-deleted', { success: success });
             });
-            return success;
         };
 
         UserGateway.prototype.update = function update(currentUser, modifiedUser) {
-            var _this2 = this;
+            var _this3 = this;
 
             this.httpClient.post('/AccountEdit/' + currentUser.id + '/' + modifiedUser.mail.toLowerCase() + '/' + modifiedUser.nickname + '/' + modifiedUser.password).then(function () {
-                _this2.ea.publish('user-updated', { modifiedUser: modifiedUser });
+                _this3.ea.publish('user-updated', { modifiedUser: modifiedUser });
             });
         };
 
         UserGateway.prototype.CheckNameAndMail = function CheckNameAndMail(mail, username) {
-            var _this3 = this;
+            var _this4 = this;
 
             this.httpClient.get('/MailNameCheck/' + mail + '/' + username).then(function (res) {
                 var content = JSON.parse(res.content);
-                _this3.ea.publish('user-mailNameCheck', { content: content });
+                _this4.ea.publish('user-mailNameCheck', { content: content });
             });
         };
 
         UserGateway.prototype.verify = function verify(user) {
-            var _this4 = this;
+            var _this5 = this;
 
             var existingUser = new _user.User();
             console.log('/Login/' + user.mail.toLowerCase() + '/' + user.password);
@@ -1029,8 +1102,8 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
                     console.log("content:" + cont);
 
                     console.log("Raise Event verify " + cont);
-                    _this4.transferContentToUser(cont, existingUser);
-                    _this4.ea.publish('login-check', { existingUser: existingUser });
+                    _this5.transferContentToUser(cont, existingUser);
+                    _this5.ea.publish('login-check', { existingUser: existingUser });
                 } catch (error) {
                     console.log(error);
                 }
@@ -1038,14 +1111,15 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
         };
 
         UserGateway.prototype.getByMailAddress = function getByMailAddress(mailAddress) {
-            var _this5 = this;
+            var _this6 = this;
 
             var existingUser = new _user.User();
 
             this.httpClient.get('/UserGetByMail/' + mailAddress.toLowerCase()).then(function (res) {
                 try {
-                    _this5.transferContentToUser(res.content, existingUser);
-                    _this5.ea.publish('user-detected', { existingUser: existingUser });
+                    _this6.transferContentToUser(res.content, existingUser);
+                    console.log("Raise Event user-detected " + existingUser);
+                    _this6.ea.publish('user-detected', { existingUser: existingUser });
                 } catch (error) {
                     console.log(error);
                 }
@@ -1053,14 +1127,14 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
         };
 
         UserGateway.prototype.getByName = function getByName(username) {
-            var _this6 = this;
+            var _this7 = this;
 
             var existingUser = new _user.User();
 
             this.httpClient.get('/UserGetByName/' + username).then(function (res) {
                 try {
-                    _this6.transferContentToUser(res.content, existingUser);
-                    _this6.ea.publish('user-detected', { existingUser: existingUser });
+                    _this7.transferContentToUser(res.content, existingUser);
+                    _this7.ea.publish('user-detected', { existingUser: existingUser });
                 } catch (error) {
                     console.log(error);
                 }
@@ -1105,11 +1179,11 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
         };
 
         UserGateway.prototype.isAdmin = function isAdmin(userID) {
-            var _this7 = this;
+            var _this8 = this;
 
             this.httpClient.get('/AdminCheck/' + userID).then(function (res) {
                 try {
-                    _this7.ea.publish('admin-check', { res: res });
+                    _this8.ea.publish('admin-check', { res: res });
                 } catch (error) {
                     console.log(error);
                 }
@@ -1117,12 +1191,12 @@ define('services/user-gateway',['exports', 'aurelia-framework', 'aurelia-event-a
         };
 
         UserGateway.prototype.getVIPs = function getVIPs(userID) {
-            var _this8 = this;
+            var _this9 = this;
 
             this.httpClient.get('/FollowerGetAR/' + userID).then(function (res) {
                 var x = JSON.parse(res.content);
                 try {
-                    _this8.ea.publish('vips-incoming', { x: x });
+                    _this9.ea.publish('vips-incoming', { x: x });
                     console.log(res);
                 } catch (error) {
                     console.log(error);
@@ -1351,19 +1425,92 @@ define('administration/components/admin-menu',['exports', 'aurelia-framework', '
     var _dec, _class;
 
     var AdminMenu = exports.AdminMenu = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
-        function AdminMenu(router, eventAggregator, userGateway, user) {
+        function AdminMenu(eventAggregator, userGateway, user) {
             _classCallCheck(this, AdminMenu);
 
-            this.router = router;
+            this.task = "";
+            this.validationFailed = false;
+
             this.ea = eventAggregator;
             this.userGateway = userGateway;
             this.user = user;
+            this.obsoleteUser = new _user.User();
+            this.obsoleteUser.mail = "user@to.delete";
+            this.obsoleteUser.nickname = "";
+            this.newUser = new _user.User();
+            this.newUser.mail = "";
+            this.newUser.nickname = "";
+            this.newUser.password = "";
         }
 
-        AdminMenu.prototype.tryAddUser = function tryAddUser() {};
+        AdminMenu.prototype.activate = function activate() {
+            console.log("Adm menu activated");
+
+            var self = this;
+
+            this.subscription1 = this.ea.subscribe('user-detected', function (e) {
+                var existingUser = e.existingUser;
+                if (existingUser.mail != "") {
+                    console.log("User exists");
+                    if (self.task = "AddUser") {
+                        self.userGateway.add(self.newUser);
+                    }
+                    if (self.task = "DeleteUser") {
+                        self.userGateway.remove(existingUser);
+                    }
+                } else {
+                    console.log("User does not exist");
+                }
+            });
+
+            this.subscription2 = this.ea.subscribe('user-deleted', function (e) {
+                var success = e;
+                if (success) {
+                    console.log("User deleted");
+                } else {
+                    console.log("Deeleting user failed");
+                }
+            });
+
+            this.subscription3 = this.ea.subscribe('user-added', function (e) {
+                var success = e;
+                if (success) {
+                    console.log("User added");
+                } else {
+                    console.log("Adding user failed");
+                }
+            });
+        };
+
+        AdminMenu.prototype.deactivate = function deactivate() {
+            this.subscription1.dispose();
+            this.subscription2.dispose();
+            this.subscription3.dispose();
+        };
+
+        AdminMenu.prototype.tryAddUser = function tryAddUser() {
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.nickname.length == 0 || this.newUser.password.length == 0;
+            if (this.validationFailed) {
+                console.log("Input-Validation failed");
+
+                return;
+            }
+            this.task = "AddUser";
+        };
 
         AdminMenu.prototype.tryDeleteUser = function tryDeleteUser() {
-            if (confirm('Do you want to delete this user and all of his broadcasts?')) {}
+            this.task = "DeleteUser";
+            if (confirm('Do you want to delete this user and all of his broadcasts?')) {
+                if (this.obsoleteUser.mail.length > 0) {
+                    this.userGateway.getByMailAddress(this.newUser.mail);
+                    return;
+                }
+
+                if (this.obsoleteUser.nickname.length > 0) {
+                    this.userGateway.getByName(this.newUser.mail);
+                    return;
+                }
+            }
         };
 
         return AdminMenu;
@@ -1432,12 +1579,13 @@ define('administration/components/cleanup',['exports', 'aurelia-framework', 'aur
         return Cleanup;
     }()) || _class);
 });
-define('administration/components/populate',["exports"], function (exports) {
-    "use strict";
+define('administration/components/populate',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _userGateway, _user) {
+    'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    exports.AddUser = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -1445,9 +1593,73 @@ define('administration/components/populate',["exports"], function (exports) {
         }
     }
 
-    var AddUser = exports.AddUser = function AddUser() {
-        _classCallCheck(this, AddUser);
-    };
+    var _dec, _class;
+
+    var AddUser = exports.AddUser = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function AddUser(eventAggregator, userGateway, user) {
+            _classCallCheck(this, AddUser);
+
+            this.isBusy = false;
+            this.validationFailed = false;
+            this.addressExists = false;
+            this.nameExists = false;
+            this.isValidPassword = true;
+
+            this.ea = eventAggregator;
+            this.userGateway = userGateway;
+            this.user = user;
+            this.newUser = new _user.User();
+            this.newUser.mail = "";
+            this.newUser.nickname = "";
+            this.newUser.password = "";
+        }
+
+        AddUser.prototype.activate = function activate() {
+            console.log("Adm menu activated");
+
+            var self = this;
+
+            this.subscription1 = this.ea.subscribe('user-detected', function (e) {
+                var existingUser = e.existingUser;
+
+                self.addressExists = existingUser.mail != "";
+                self.nameExists = existingUser.nickname != "";
+
+                if (!self.addressExists && !self.nameExists) {
+                    console.log("User doesn't exist, add him");
+                    self.userGateway.add(self.newUser);
+                } else {
+                    console.log("User already exists");
+                }
+            });
+
+            this.subscription2 = this.ea.subscribe('user-added', function (e) {
+                var success = e;
+                if (success) {
+                    console.log("User added");
+                } else {
+                    console.log("Adding user failed");
+                }
+            });
+        };
+
+        AddUser.prototype.deactivate = function deactivate() {
+            this.subscription1.dispose();
+            this.subscription2.dispose();
+        };
+
+        AddUser.prototype.tryAddUser = function tryAddUser() {
+            this.validationFailed = this.newUser.mail.length == 0 || this.newUser.nickname.length == 0 || this.newUser.password.length == 0;
+            if (this.validationFailed) {
+                console.log("Input-Validation failed");
+
+                return;
+            }
+            this.userGateway.getByMailAddress(this.newUser.mail);
+        };
+
+        return AddUser;
+    }()) || _class);
 });
 define('administration/components/statistics',['exports', 'aurelia-framework', 'aurelia-validation', './../../services/user-gateway', './../../models/user'], function (exports, _aureliaFramework, _aureliaValidation, _userGateway, _user) {
     'use strict';
@@ -2126,7 +2338,7 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../models/user'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _user) {
+define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../services/user-gateway', './../../../models/user', './../../../models/broadcast-filter'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _userGateway, _user, _broadcastFilter) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2142,35 +2354,65 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
 
     var _dec, _class;
 
-    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _broadcastGateway.BroadcastGateway, _user.User), _dec(_class = function () {
-        function History(eventAggregator, broadcastGateway, user) {
+    var History = exports.History = (_dec = (0, _aureliaFramework.inject)(_aureliaEventAggregator.EventAggregator, _broadcastGateway.BroadcastGateway, _userGateway.UserGateway, _user.User), _dec(_class = function () {
+        function History(eventAggregator, broadcastGateway, userGateway, user) {
             _classCallCheck(this, History);
 
             this.isBusy = false;
             this.vipName = "";
+            this.receivedTweets = [];
+            this.timeRange = [{ firstDay: null }, { lastDay: null }];
             this.isVeryImportant = false;
-            this.tweets = [];
 
             this.ea = eventAggregator;
-            this.user = user;
             this.broadcastGateway = broadcastGateway;
+            this.userGateway = userGateway;
+            this.user = user;
+            this.senderFilter = new _broadcastFilter.BroadcastFilter();
+
+            this.showNoMessages = false;
+            this.showMyMessages = true;
+            this.showTweetsOfSpecialUser = false;
+            this.nameOfSpecialUser = "";
+            this.showTweetsOfActiveVips = false;
+
+            this.useRerestrictedTimeRange = true;
+            this.firstDay = null;
+            this.lastDay = null;
         }
 
         History.prototype.activate = function activate() {
             var self = this;
+            this.useRerestrictedTimeRange = true;
 
             this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
-                self.tweets = [];
+                self.receivedTweets = [];
                 console.log("Event handler for messages-downloaded");
                 console.log(e);
                 e.messages.forEach(function (element) {
-                    self.tweets.push(element);
+                    self.receivedTweets.push(element);
                 }, this);
 
                 self.isBusy = false;
             });
 
-            this.subscription2 = this.ea.subscribe('messages-removed', function (e) {
+            this.subscription2 = this.ea.subscribe('user-detected', function (e) {
+                console.log("Event handler for messages-detected");
+                console.log(e);
+                var existingUser = e.existingUser;
+                if (existingUser.mail != "") {
+                    console.log("Add " + existingUser.nickname + " to list");
+                    self.persons.push(existingUser.id);
+                    console.log("Request messages for " + persons);
+                    self.broadcastGateway.getSomeMessages(persons, self.timeRange.firstDay, self.timeRange.lastDay);
+                } else {
+                    console.log("User does not exist");
+                }
+
+                self.isBusy = false;
+            });
+
+            this.subscription3 = this.ea.subscribe('messages-removed', function (e) {
                 console.log("Event handler for messages-deletion");
                 self.isBusy = false;
             });
@@ -2179,19 +2421,58 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
         History.prototype.deactivate = function deactivate() {
             this.subscription1.dispose();
             this.subscription2.dispose();
+            this.subscription3.dispose();
+        };
+
+        History.prototype.xshowTweetsOfActiveVipsChanged = function xshowTweetsOfActiveVipsChanged(e) {
+            this.showTweetsOfActiveVips = e.currentTarget.activeElement.checked;
+            console.log(this.showTweetsOfActiveVips);
+        };
+
+        History.prototype.timeRangeUsageChanged = function timeRangeUsageChanged(e) {
+            this.useRerestrictedTimeRange = e.currentTarget.activeElement.checked;
+            console.log(this.showTweetsOfActiveVips);
+        };
+
+        History.prototype.cleanupTable = function cleanupTable() {
+            this.receivedTweets = [];
         };
 
         History.prototype.retrieveMessages = function retrieveMessages() {
-            if (this.isBusy) {
+            if (this.isBusy) {};
+
+            var persons = new Array();
+            this.cleanupTable();
+
+            this.timeRange.firstDay = new Date(2017, 1, 1, 0, 0, 0, 0);
+            this.timeRange.lastDay = now();
+            if (this.useRerestrictedTimeRange) {
+                if (this.firstDay != null) {
+                    this.timeRange.firstDay = this.firstDay;
+                }
+                if (this.lastDay != null) {
+                    this.timeRange.lastDay = this.lastDay;
+                }
+            }
+
+            if (this.showTweetsOfActiveVips) {
+                this.user.vips.forEach(function (element) {
+                    persons.push(element);
+                }, this);
+            };
+
+            if (this.showMyMessages) {
+                persons.push(this.user.id);
+            };
+
+            if (this.showTweetsOfSpecialUser) {
+                this.userGateway.getByName(this.nameOfSpecialUser);
                 return;
             };
 
-            var persons = new Array();
-            persons.push(this.user.id);
-
             this.isBusy = true;
             console.log("Request messages");
-            this.broadcastGateway.getMessages(persons);
+            this.broadcastGateway.getSomeMessages(persons, this.timeRange.firstDay, this.timeRange.lastDay);
         };
 
         History.prototype.removeMessages = function removeMessages() {
@@ -2207,12 +2488,358 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
         return History;
     }()) || _class);
 });
+define('broadcasts/components/history/message-filter',["exports"], function (exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var MessageFilter = exports.MessageFilter = function () {
+        function MessageFilter() {
+            _classCallCheck(this, MessageFilter);
+        }
+
+        MessageFilter.prototype.activate = function activate(msgFilter) {
+            this.msgFilter = history.senderFilter;
+        };
+
+        return MessageFilter;
+    }();
+});
+define('broadcasts/components/history/tweetTable',[], function () {
+    "use strict";
+
+    function tweetTable(dataTable) {
+        var activeTable = dataTable;
+        var tableType = "small";
+        var selectionRange = [-1, -1];
+        var sorting = [];
+        sorting[0] = "descending";
+        sorting[1] = "descending";
+        sorting[2] = "descending";
+
+        function createTableHeader(columns) {
+            var header = document.createElement("thead");
+            var row = document.createElement("tr");
+            var col, content;
+
+            for (var i = 0; i < columns.length; i++) {
+                col = document.createElement("th");
+                content = document.createTextNode(columns[i]);
+                col.appendChild(content);
+                row.appendChild(col);
+            }
+
+            header.appendChild(row);
+            return header;
+        }
+
+        function populateTable(tweetsToDisplay, indexOfFirstTweetProperty, amountOfColumns) {
+            var body = document.createElement("tbody");
+            var row, col, content;
+            var tweetData;
+            var user = userRecord;
+
+            for (var rowIndex = 0; rowIndex < tweetsToDisplay.length; rowIndex++) {
+                row = document.createElement("tr");
+                setRowColor(row, rowIndex);
+
+                tweetData = tweetsToDisplay[rowIndex];
+
+                for (var colIndex = indexOfFirstTweetProperty; colIndex < amountOfColumns; colIndex++) {
+                    col = document.createElement("td");
+                    switch (colIndex) {
+                        case 0:
+                            content = document.createTextNode(tweetData.userID);
+                            break;
+                        case 1:
+                            content = document.createTextNode(tweetData.day);
+                            break;
+                        case 2:
+                            content = document.createTextNode(tweetData.time);
+                            break;
+                        case 3:
+                            content = document.createTextNode(tweetData.message);
+                            break;
+                        case 4:
+                            content = document.createElement('IMG');
+                            if (tweetData.attachment != null && tweetData.attachment != "") {
+                                content.setAttribute("src", tweetData.attachment);
+                                content.setAttribute("height", "auto");
+                                content.setAttribute("width", "100px");
+                                content.setAttribute("alt", "Attached Image");
+                            }
+                            break;
+                    }
+                    col.appendChild(content);
+                    row.appendChild(col);
+                }
+
+                body.appendChild(row);
+            }
+            return body;
+        }
+
+        function setRowColor(row, index) {
+            if (mwaToolset.isEven(index)) {
+                row.setAttribute("class", "even");
+            } else {
+                row.removeAttribute("class");
+            }
+        }
+
+        function selectFromTo(range, rows) {
+            var firstIndex = range[0] - 1;
+            var lastIndex = range[1] - 1;
+
+            if (firstIndex > lastIndex) {
+                firstIndex = range[1] - 1;
+                lastIndex = range[0] - 1;
+            }
+
+            for (i = 0; i < rows.length; i++) {
+                switch (true) {
+                    case i < firstIndex:
+                        rows[i].classList.toggle('selected', false);
+                        break;
+                    case i > lastIndex:
+                        rows[i].classList.toggle('selected', false);
+                        break;
+                    default:
+                        rows[i].classList.toggle('selected', true);
+                        break;
+                }
+            }
+        }
+
+        function deselectAll() {
+            var region = activeTable.getElementsByTagName("TBODY")[0];
+            var rows = region.getElementsByTagName("tr");
+
+            for (i = 0; i < rows.length; i++) {
+                rows[i].classList.toggle('selected', false);
+            }
+        }
+
+        function deleteSelectedRows(userID) {
+            if (activeTable == null) {
+                alert("No items selected");
+            } else {
+                var selectedRows = getSelectedRows(activeTable);
+                var selectedItems = getSelectedItems(selectedRows, userID);
+                if (storageWriter.deleteSelectedTweets(userID, selectedItems)) {
+                    var tweets = storageReader.getSubsetOfTweetsByID(userID);
+                    updateContent(tweets);
+                }
+            }
+        }
+
+        function getSelectedRows(table) {
+            var region = table.getElementsByTagName("TBODY")[0];
+            var selectedRows = region.getElementsByClassName('selected');
+            return selectedRows;
+        }
+
+        function getSelectedItems(selectedRows, userID) {
+            var selectedItems = [];
+            var dayIndex = 0;
+            if (tableType != 'small') {
+                dayIndex = 1;
+            }
+            var timeIndex = dayIndex + 1;
+            var day, time;
+
+            for (i = 0; i < selectedRows.length; i++) {
+                day = selectedRows[i].children[dayIndex].innerText;
+                time = selectedRows[i].children[timeIndex].innerText;
+                selectedItems.push(tweetCreator.createTweet(userID, day, time, "", ""));
+            }
+
+            return selectedItems;
+        }
+
+        function updateContent(subsetOfTweets) {
+            var header, body;
+            var columns = [];
+
+            try {
+                activeTable.innerHTML = "";
+
+                if (tableType == "small") {
+                    columns = ["Day", "Time", "Message", "Attachment"];
+                    header = createTableHeader(columns);
+                    body = populateTable(subsetOfTweets, 1, columns.length + 1);
+                } else {
+                    columns = ["Author", "Day", "Time", "Message", "Attachment"];
+                    header = createTableHeader(columns);
+                    body = populateTable(subsetOfTweets, 0, columns.length);
+                }
+
+                activeTable.appendChild(header);
+                activeTable.appendChild(body);
+
+                mwaToolset.resetSelectionRange();
+            } catch (e) {
+                var err = e.name + ' ' + e.message;
+                alert(err);
+                success = false;
+            } finally {}
+        }
+
+        function sortTextData(columnIndex) {
+            var region = activeTable.getElementsByTagName("TBODY")[0];
+            var rows = region.getElementsByTagName("tr");
+            var item1;
+            var item2;
+            var swap = false;
+
+            for (var i = 0; i < rows.length - 1; i++) {
+                for (var j = 0; j < rows.length - (i + 1); j++) {
+
+                    item1 = rows.item(j).getElementsByTagName('td').item(columnIndex).innerHTML;
+                    item2 = rows.item(j + 1).getElementsByTagName('td').item(columnIndex).innerHTML;
+
+                    if (sorting[columnIndex] == "ascending") {
+                        swap = item1 > item2;
+                    } else {
+                        swap = item1 < item2;
+                    }
+                    if (swap) {
+                        region.insertBefore(rows.item(j + 1), rows.item(j));
+                    }
+                }
+            }
+
+            for (var i = 0; i < rows.length - 1; i++) {
+                setRowColor(rows[i], i);
+            }
+        }
+
+        function toggleSorting(columnIndex) {
+            if (sorting[columnIndex] == "descending") {
+                sorting[columnIndex] = "ascending";
+            } else {
+                sorting[columnIndex] = "descending";
+            }
+        }
+
+
+        var tableObject = {
+
+            setTableType: function setTableType(typeOfTable) {
+                tableType = typeOfTable;
+            },
+
+            updateTable: function updateTable(subsetOfTweets) {
+                updateContent(subsetOfTweets);
+            },
+
+            findTweets: function findTweets(e) {
+                var activeTable = e.currentTarget;
+                var selectedColumn = e.target;
+                var currentRow = e.target.parentNode;
+                var nameOfRegion = e.target.parentNode.parentNode.nodeName;
+                var selectedRows = [];
+                var startIndex = selectionRange[0];
+
+                switch (nameOfRegion) {
+                    case 'THEAD':
+                        var upperBound = 3;
+                        if (tableType = "small") {
+                            upperBound = 2;
+                        };
+
+                        if (selectedColumn.cellIndex <= upperBound) {
+                            toggleSorting(selectedColumn.cellIndex);
+                            sortTextData(selectedColumn.cellIndex);
+                        }
+                        break;
+
+                    case 'TBODY':
+                        selectedRows = getSelectedRows(activeTable);
+
+                        if (selectionRange[0] < 0) {
+                            if (selectedRows.length > 0) {
+                                deselectAll();
+                            }
+                            currentRow.classList.toggle('selected');
+                            selectionRange[0] = currentRow.rowIndex;
+                        } else {
+                            switch (true) {
+                                case e.ctrlKey:
+                                    if (e.ctrlKey) {
+                                        currentRow.classList.toggle('selected');
+                                    }
+                                    break;
+
+                                case e.shiftKey && startIndex >= 0:
+                                    if (e.shiftKey && startIndex >= 0) {
+                                        if (currentRow.rowIndex == startIndex) {
+                                            currentRow.classList.toggle('selected');
+                                        } else {
+                                            selectionRange[1] = currentRow.rowIndex;
+                                            var region = activeTable.getElementsByTagName("TBODY")[0];
+                                            var allRows = region.getElementsByTagName("tr");
+                                            selectFromTo(selectionRange, allRows);
+                                        }
+                                        mwaToolset.resetSelectionRange();
+                                    }
+                                    break;
+                                case true:
+                                    if (selectedRows.length > 0) {
+                                        deselectAll();
+                                        mwaToolset.resetSelectionRange();
+                                    }
+                                    currentRow.classList.toggle('selected');
+                                    selectionRange[0] = currentRow.rowIndex;
+                                    break;
+                            }
+                        }
+                }
+            },
+
+            deleteAllTweets: function deleteAllTweets(userID) {
+                if (storageWriter.deleteUserTweets(userID)) {
+                    var tweets = storageReader.getSubsetOfTweetsByID(userID);
+                    updateContent(tweets);
+                }
+            },
+
+            deleteSelectedTweets: function deleteSelectedTweets(userID) {
+
+                if (activeTable == null) {
+                    alert("No items selected");
+                    return;
+                }
+                var selectedRows = getSelectedRows(activeTable);
+                if (selectedRows.length == 0) {
+                    alert("No items selected");
+                    return;
+                }
+
+                var selectedItems = getSelectedItems(selectedRows, userID);
+                if (storageWriter.deleteSelectedTweets(userID, selectedItems)) {
+                    var tweets = storageReader.getSubsetOfTweetsByID(userID);
+                    updateContent(tweets);
+                }
+            }
+        };
+        return tableObject;
+    }
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"app.css\"></require><compose view=\"nav-bar-main.html\"></compose><div class=\"page-host\"><router-view></router-view></div></template>"; });
 define('text!app.css', ['module'], function(module) { module.exports = ".page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}"; });
 define('text!edit-account.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Edit your account data</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"applyChanges()\"><compose view-model=\"./resources/elements/account-detail\" model.bind=\"temporaryUser\"></compose><br><br><submit-button>Update Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 600px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera {\r\n    position: 280px  center; \r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 300px; \r\n    height: auto;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!login.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Login</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"performLogin()\"><compose view=\"./resources/elements/login-data.html\"></compose><br><br><submit-button>Login</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
-define('text!css/mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n.inputHelp {\r\n    width: 470px;\r\n    text-align: left;\r\n    padding-left: 130px;\r\n}\r\n\r\n.column1of2{\r\nfloat: left;\r\nwidth:290px;\r\nmargin:10px;\r\nbackground-color:lavender;\r\n}\r\n\r\n.column2of2{\r\nfloat: left;\r\nwidth:280px;\r\nmargin:10px;\r\nbackground-color:lavenderblush;\r\n}\r\n\r\n.columnIndent{\r\n    padding-left:20px;\r\n}\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 290px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera, .camera {\r\n    position:  280px  center; \r\n    margin-left: 170px;\r\n}\r\n.camera {\r\n    position:  20px  center; \r\n    margin-left: 20px;\r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 280px; \r\n    height: auto;\r\n    max-width: 100%;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
+define('text!css/mwa.css', ['module'], function(module) { module.exports = "body {\r\n\t\t\t\tfont-family:  Arial, Verdana, sans-serif;\r\n\t\t\t\tcolor: #111111;}\r\n.visible {\r\n  visibility: visible;}\r\n\r\n.hidden {\r\n    display: none;\r\n}\r\n\r\nform {\r\n    display: inline-block;\r\n    margin-left: 10px;\r\n}\r\n\r\n\r\ndivv {\r\n  border-bottom: 0px solid #efefef;\r\n  margin: 10px;\r\n  padding-bottom: 0px;\r\n  width: 600px;\r\n}\r\n\r\n.memo {\r\n    border-bottom: 0px solid #efefef;\r\n    margin: 10px;\r\n    padding-bottom: 10px;\r\n    width: 600px;\r\n}\r\n\r\nlegend {\r\n    background-color: #efefef;\r\n    border: 1px solid #dcdcdc;\r\n    border-radius: 10px;\r\n    padding:10px 20px;\r\n    text-align: left;\r\n    margin: 10px;\r\n    width: 600px;\r\n}\r\n\r\n.inputLabel {\r\n    float: left;\r\n    width: 120px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.inputField {\r\n    width: 270px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n.dayInputLabel {\r\n    float: left;\r\n    width: 70px;\r\n    text-align: right;\r\n    padding-right: 10px;\r\n}\r\n\r\n.dayInputField{\r\n    width: 100px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n    background-color: #fffbf0;\r\n\tborder: 1px solid #e7c157;\r\n}\r\n\r\n.dayInputHelp{\r\n    width: 250px;\r\n    text-align: left;\r\n    padding-left: 70px;\r\n}\r\n\r\n.inputHelp {\r\n    width: 470px;\r\n    text-align: left;\r\n    padding-left: 130px;\r\n}\r\n\r\n.column1of2{\r\nfloat: left;\r\nwidth:290px;\r\nmargin:10px;\r\n/*background-color:lavender;*/\r\n}\r\n\r\n.column2of2{\r\nfloat: left;\r\nwidth:280px;\r\nmargin:10px;\r\n/*background-color:lavenderblush;*/\r\n}\r\n\r\n.columnIndent{\r\n    padding-left:20px;\r\n}\r\n\r\n.submit {\r\n    text-align: right;\r\n    margin-left: 130px;\r\n}\r\n.submitNotification {\r\n    text-align: left;\r\n    margin-left: 130px;\r\n}\r\n\r\n/* warnings */\r\n.warning {\r\n    background-image: url('../img/caution.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\n/* hints */\r\n.info {\r\n    background-image: url('../img/information.svg');\r\n    background-repeat: no-repeat;\r\n    background-position: 100px top;\r\n    background-size: 20px 20px;\r\n    padding-left: 125px; \r\n}\r\n\r\nfieldset[value]:disabled {\r\n    color: whitesmoke;\r\n}\r\n\r\n\r\n/*  ------------  tweet section  ------------  */\r\n/* bird section  */\r\n.bird {\r\n    background-image: url(\"../img/bird.png\");\r\n    background-repeat: no-repeat;\r\n    background-size: 200px auto;\r\n    width: 300px; \r\n    height: auto;\r\n    float: middle;\r\n    margin-right: 10px;\r\n    text-align: right top;\r\n}\r\n#nameOfCurrentUser {\r\n\t/*border: 3px dashed #F00;*/\r\n\theight: 180px;\r\n\tpadding: 10px;\r\n\tposition: relative;\r\n    left: 180px;\r\n\ttop: 0;\r\n\twidth: 320px;\r\n}\r\n\r\n\r\n/* message in textaerea */\r\n.tweet {\r\n    font-size: 120%;\r\n    width: 290px;\r\n}\r\n/* hint referring to textaerea */\r\n#charCounter {font-size: 80%;}\r\n#charCounter.warn b, #charCounter.error b {\r\n  border-radius: 16px;\r\n  padding-top: 4px;\r\n  width: 32px;\r\n  height: 28px;\r\n  display: inline-block;\r\n  font-weight: normal;\r\n  text-align: center;\r\n}\r\n.warn b {color: #ffff66; background-color: #333;}\r\n.error b {color: #ff9966; background-color: #000;}\r\n\r\n/* attached image */\r\n#camera, .camera {\r\n    position:  280px  center; \r\n    margin-left: 170px;\r\n}\r\n.camera {\r\n    position:  20px  center; \r\n    margin-left: 20px;\r\n}\r\n\r\n.attachedImage .preview {\r\n    width: 280px; \r\n    height: auto;\r\n    max-width: 100%;\r\n    border: 1px solid #000;\r\n}\r\n\r\n.tweetDefinition {\r\n    width: 600px;\r\n    text-align: left;\r\n    padding-left: 10px;\r\n}\r\n\r\n.postTweet {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.filterTweets  {\r\n    border: none;\r\n    width: 600px;\r\n    text-align: left;\r\n}\r\n\r\n.vipField {\r\n    border: none;\r\n    margin-left: 45px;\r\n    width: 555px;\r\n    text-align: left;\r\n}\r\n\r\n/* Character Counter */\r\n#charactersLeft {\r\n  color: #fff;\r\n  font-size: 24px;}\r\n#lastKey {\r\n  color: #fff;\r\n  margin-top: 10px;}\r\n\r\n.filtercheckbox {\r\n    margin-left: 20px;\r\n}\r\n.filterInput{\r\n    margin-left: 35px;\r\n}\r\n.radio1 {\r\n    float: none;\r\n    margin-left: 35px;\r\n    font-size: 70%;\r\n}\r\n\r\n.radio11 {\r\n    float: none;\r\n    margin-left: 120px;\r\n    font-size: 80%;\r\n}\r\n\r\n/* ------------ data table ------------ */\r\nfieldset.tweetsTable fieldset.admTweetsTable {\r\n    border: none;\r\n}\r\ntable {\r\n    width: 600px;\r\n}\r\n\r\nth, td {\r\n    padding: 7px 10px 10px 10px;\r\n}\r\nth {\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.1em;\r\n    font-size: 90%;\r\n    border-bottom: 2px solid #111111;\r\n    border-top: 1px solid #999;\r\n    text-align: left;\r\n}\r\ntd {\r\n    font-size: 70%;\r\n}\r\ntr.even {\r\n    background-color: #efefef;\r\n}\r\ntd.summary {\r\n    text-transform: uppercase;\r\n    font-size: 90%;\r\n    border-top: 2px solid #111111;\r\n    border-bottom: 1px solid #999;\r\n}\r\ntr:hover {\r\n    background-color: #c3e6e5;\r\n}\r\ntr.selected {\r\n    background-color: #acbad9;\r\n    color: #FFF;\r\n}\r\ntr.even.selected {\r\n    background-color: #acbad1;\r\n    color: #FFF;\r\n}\r\n\r\n/* ------------ footer ------------ */\r\nfooter {\r\n    font-size: 80%;\r\n    background-color: mediumaquamarine;\r\n}\r\n\r\n.contact {\r\n    padding-top: 10px;\r\n}"; });
 define('text!logout.html', ['module'], function(module) { module.exports = "<template><h1>Thank you for using Postillion - Bye for now!</h1></template>"; });
 define('text!management.html', ['module'], function(module) { module.exports = "<template><h1>Management</h1></template>"; });
 define('text!nav-bar-main.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse\"><span class=\"sr-only\">Toggle Navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-home\"></i> <span>${router.title}</span></a></div><div class=\"collapse navbar-collapse\" id=\"skeleton-navigation-navbar-collapse\"><ul class=\"nav navbar-nav\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#skeleton-navigation-navbar-collapse.in\" href.bind=\"row.href\">${row.title}</a></li></ul><ul class=\"nav navbar-nav navbar-right\"><li class=\"loader\" if.bind=\"router.isNavigating\"><i class=\"fa fa-spinner fa-spin fa-2x\"></i></li></ul></div></nav></template>"; });
@@ -2224,15 +2851,16 @@ define('text!x.html', ['module'], function(module) { module.exports = "<template
 define('text!administration/components/admin-menu.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Admin's Toolkit</h1><div class=\"row\"><div class=\"col-sm-2\"><a route-href=\"route: populate\" class=\"btn btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add User</a></div><div class=\"col-sm-2\"><a route-href=\"route: cleanup\" class=\"btn btn-primary\"><i class=\"fa fa-trash-o\"></i> Cleanup</a></div><div class=\"col-sm-2\"><a route-href=\"route: statistics\" class=\"btn btn-primary\"><i class=\"fa fa-pencil-square-o\"></i> Statistics</a></div></div></section></template>"; });
 define('text!administration/components/cleanup-content.html', ['module'], function(module) { module.exports = "<template><h1>Cleanup Content</h1></template>"; });
 define('text!administration/components/cleanup.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><section class=\"container\"><h1>Cleanup user or related items</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./cleanup/userSearch.html\" view-model.bind=\"{ user:temporaryUser }\"></compose><submit-button click.delegate=\"activateUser()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i>Activate user</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div><label class=\"col-sm-4 checkbox-inline\"><input type=\"checkbox\" checked.bind=\"displayMessages\">Show messages</label><compose view=\"./cleanup/taskSelection.html\"></compose><submit-button click.delegate=\"processTask()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected data</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div><br><br><compose view=\"./cleanup/displayMessages.html\"></compose></form></section></template>"; });
-define('text!administration/components/populate.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Add a new user</h1><compose view-model=\"./../../resources/elements/user-creation\"></compose></section></template>"; });
+define('text!administration/components/populate.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><h1>Add a new user</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"tryAddUser()\"><compose view-model=\"./../../resources/elements/account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!administration/components/statistics.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><section class=\"container\"><h1>Statistics</h1><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view-model=\"./statistics/summary\"></compose></form></section></template>"; });
 define('text!broadcasts/components/vip-editor.html', ['module'], function(module) { module.exports = "<template><div class=\"form-group\" repeat.for=\"item of items\"><template with.bind=\"item\"><template replaceable part=\"item\"><div class=\"col-sm-2 col-sm-offset-1\"><template replaceable part=\"label\"></template></div><div class=\"col-sm-8\"><template replaceable part=\"value\">${$this}</template></div><div class=\"col-sm-1\"><template replaceable part=\"remove-btn\"><button type=\"button\" class=\"btn btn-danger\" title=\"Remove\" click.delegate=\"items.splice($index, 1)\"><i class=\"fa fa-times\"></i></button></template></div></template></template></div><div class=\"form-group\" show.bind=\"addItem\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"button\" class=\"btn btn-primary\" click.delegate=\"addItem()\"><slot name=\"add-button-content\"><i class=\"fa fa-plus-square-o\"></i><slot name=\"add-button-label\">Add</slot></slot></button></div></div></template>"; });
-define('text!broadcasts/components/vip.html', ['module'], function(module) { module.exports = "<template><fieldset><legend>Important persons to follow</legend><form><list-editor items.bind=\"contact.socialProfiles\" add-item.call=\"contact.addSocialProfile()\"><template replace-part=\"label\"><select value.bind=\"type & validate\" class=\"form-control\"><option value=\"GitHub\">GitHub</option><option value=\"Twitter\">Twitter</option></select></template><template replace-part=\"value\"><input type=\"text\" class=\"form-control\" placeholder=\"Username\" value.bind=\"username & validate\"></template><span slot=\"add-button-label\">Add an important person</span></list-editor><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"addVip(name, status)\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Add or Change important person</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeVip(name)\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Forget person</submit-button></div></div></form><br><br></fieldset></template>"; });
+define('text!broadcasts/components/vip.html', ['module'], function(module) { module.exports = "<template><fieldset><legend>Important persons to follow</legend><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"addVip(name, status)\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Add or Change important person</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeVip(name)\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Forget person</submit-button></div></div></form><br><br></fieldset></template>"; });
 define('text!resources/elements/account-detail.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset disabled.bind=\"isBusy\"><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in a valid mail address ...\" required value.bind=\"user.mail\"><div show.bind=\"addressExists\">Address already exists.</div><br><br><label for=\"username\" class=\"inputLabel\">Username :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField\" minlength=\"2\" placeholder=\"Type in a name ...\" required value.bind=\"user.nickname\"><div show.bind=\"nameExists\">Name already exists. Please choose another.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in a password ...\" minlength=\"1\" maxlength=\"100\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Please choose a more complex password</div></div></form></fieldset></template>"; });
 define('text!resources/elements/blurb.html', ['module'], function(module) { module.exports = "<template><fieldset><legend class=\"note\"><h3>A Modern Web Application & Services using Node.js</h3><h3>Implemented as <abbr title=\"Single Page Application\">SPA</abbr>, based on Aurelia, Hapi and Heroku</h3><h3>Course - de Leastar</h3><h3><abbr title=\"Ostbayerische Technische Hochschule\">OTH</abbr> Regensburg, <abbr title=\"Medizinische Informatik\">IM</abbr> WiSe 16/17</h3></legend></fieldset></template>"; });
 define('text!resources/elements/group-list.html', ['module'], function(module) { module.exports = "<template bindable=\"items, groupBy, orderBy\"><div repeat.for=\"group of items | groupBy:groupBy | orderBy:'key'\" class=\"panel panel-default\"><div class=\"panel-heading\">${group.key}</div><ul class=\"list-group\"><li repeat.for=\"item of group.items | orderBy:orderBy\" class=\"list-group-item\"><template with.bind=\"item\"><template replaceable part=\"item\">${$this}</template></template></li></ul></div></template>"; });
 define('text!resources/elements/list-editor.html', ['module'], function(module) { module.exports = "<template><div class=\"form-group\" repeat.for=\"item of items\"><template with.bind=\"item\"><template replaceable part=\"item\"><div class=\"col-sm-2 col-sm-offset-1\"><template replaceable part=\"label\"></template></div><div class=\"col-sm-8\"><template replaceable part=\"value\">${$this}</template></div><div class=\"col-sm-1\"><template replaceable part=\"remove-btn\"><button type=\"button\" class=\"btn btn-danger\" title=\"Remove\" click.delegate=\"items.splice($index, 1)\"><i class=\"fa fa-times\"></i></button></template></div></template></template></div><div class=\"form-group\" show.bind=\"addItem\"><div class=\"col-sm-9 col-sm-offset-3\"><button type=\"button\" class=\"btn btn-primary\" click.delegate=\"addItem()\"><slot name=\"add-button-content\"><i class=\"fa fa-plus-square-o\"></i><slot name=\"add-button-label\">Add</slot></slot></button></div></div></template>"; });
 define('text!resources/elements/login-data.html', ['module'], function(module) { module.exports = "<template><require from=\"./../../css/mwa.css\"></require><fieldset><form><div><br><br><label for=\"mailAddress\" class=\"inputLabel\">Login-Name :</label><input id=\"mailAddress\" type=\"email\" name=\"mailAddress\" class=\"inputField\" placeholder=\"Type in your mail address ...\" required value.bind=\"user.mail\"><div hide.bind=\"addressExists\">Address unknown.</div><br><br><label for=\"password\" class=\"inputLabel\">Password :</label><input type=\"password\" name=\"password\" class=\"inputField\" placeholder=\"Type in your password ...\" required value.bind=\"user.password\"><div hide.bind=\"isValidPassword\">Invalid Password. Try again ...</div></div></form></fieldset></template>"; });
+define('text!resources/elements/period.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset id=\"statistics\" class=\"visible\"><form><div><label for=\"startDate\" class=\"dayInputLabel\">From :</label><input type=\"date\" value.bind=\"firstDay\" class=\"dayInputField\" placeholder=\"2000-12-30\" maxlength=\"10\" required> <span class=\"help-block dayInputHelp\">First day of time span</span><label for=\"endDate\" class=\"dayInputLabel\">To :</label><input type=\"date\" value.bind=\"lastDay\" name=\"endDate\" class=\"dayInputField\" placeholder=\"2000-12-31\" maxlength=\"10\" required> <span class=\"help-block dayInputHelp\">Last day of time span</span></div></form></fieldset></section></template>"; });
 define('text!resources/elements/submit-button.html', ['module'], function(module) { module.exports = "<template bindable=\"disabled\"><button type=\"submit\" ref=\"button\" disabled.bind=\"disabled\" class=\"btn btn-success\"><span hide.bind=\"button.form.isSubmitTaskExecuting\"><slot name=\"icon\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i></slot></span><i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\" show.bind=\"button.form.isSubmitTaskExecuting\"></i><slot>Submit</slot></button></template>"; });
 define('text!resources/elements/user-creation.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\" submit-task.call=\"addUser()\"><compose view-model=\"./account-detail\" model.bind=\"newUser\"></compose><br><br><submit-button>Create Account</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></form></section></template>"; });
 define('text!administration/components/cleanup/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
@@ -2243,6 +2871,6 @@ define('text!administration/components/statistics/results.html', ['module'], fun
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
 define('text!broadcasts/components/history/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
-define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><compose view=\"./userSelection.html\"></compose><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><table id=\"userRelatedTweets\"><thead><tr><th>Date</th><th>Message</th></tr></thead><tbody><tr repeat.for=\"tweet of tweets\"><td innerhtml.bind=\"tweet.timestamp\"><td innerhtml.bind=\"tweet.message\"></tr></tbody></table></fieldset></section></template>"; });
-define('text!broadcasts/components/history/userSelection.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"optradio\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"optradio\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"optradio\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"inputField columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"user.nickname\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" checked.bind=\"includeVips\">Include seleted VIPs</label></div></div></div></form></fieldset></section></template>"; });
+define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"xxrow\"><div class=\"column1of2\"><button type=\"submit\" class=\"btn btn-primary\" click.delegate=\"cleanupTable()\"><span class=\"glyphicon glyphicon-search\"></span> Clear table</button><br><br><label for=\"o1\"><input type=\"checkbox\" id=\"o1\" checked.bind=\"showMyTweets\">My tweets<label><label for=\"o1\"><input type=\"checkbox\" id=\"o2\" checked.bind=\"showTweetsOfActiveVips\">Include selected VIPs</label><label for=\"o3\"><input type=\"checkbox\" id=\"o3\" name=\"o3\" checked.bind=\"showTweetsOfSpecialUser\">Tweets of :<label><input id=\"username\" type=\"text\" name=\"username\" class=\"columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"nameOfSpecialUser\" style=\"margin-left:22px\"></label></label></label></label></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><div class=\"checkbox\"><label><input type=\"checkbox\" checked.bind=\"useRerestrictedTimeRange\">Restrict evaluation range</label></div><br><br><compose view=\"./../../../resources/elements/period.html\"></compose></div></div></div></form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><table id=\"userRelatedTweets\"><thead><tr><th>Date</th><th>Message</th></tr></thead><tbody><tr repeat.for=\"tweet of receivedTweets\"><td innerhtml.bind=\"tweet.timestamp\"><td innerhtml.bind=\"tweet.message\"></tr></tbody></table></fieldset></section></template>"; });
+define('text!broadcasts/components/history/message-filter.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label><input type=\"checkbox\" checked.bind=\"motherboard\"> Motherboard</label><label><input type=\"checkbox\" checked.bind=\"cpu\"> CPU</label><label><input type=\"checkbox\" checked.bind=\"memory\"> Memory</label>motherboard = ${motherboard}<br>cpu = ${cpu}<br>memory = ${memory}<br><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"filter\" value.bind=\"msgFilter.showNoMessages\" checked.bind=\"showNoMessages\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"filter\" value.bind=\"showMyTweets\" checked.bind=\"showMyTweets\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"filter\" value.bind=\"msgFilter.showTweetsOfSpecialUser\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"nameOfSpecialUser\" style=\"margin-left:22px\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" value.bind=\"showTweetsOfActiveVips\" click.delegate=\"selectionChanged($event)\">Include selected VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

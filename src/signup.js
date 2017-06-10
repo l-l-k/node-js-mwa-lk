@@ -4,7 +4,7 @@ import { UserGateway } from './services/user-gateway';
 import { User } from './models/user';
 import { Router } from 'aurelia-router';
 
-@inject(Router,EventAggregator, UserGateway, User)
+@inject(Router, EventAggregator, UserGateway, User)
 export class Signup {
     constructor(router, eventAggregator, userGateway, user) {
         this.router = router;
@@ -18,20 +18,20 @@ export class Signup {
     }
 
     activate() {
-        console.log("Signup activted");
+        console.log("Signup activated");
         var self = this;
         this.subscription = this.ea.subscribe('user-detected', function (e) {
             console.log("Event raised");
             console.log(e);
-            
+
             var existingUser = e.existingUser;
             // display hints if registration fails
-            self.addressExists = existingUser.mail != ""; 
+            self.addressExists = existingUser.mail != "";
             self.nameExists = existingUser.nickname != "";
 
             if (!self.addressExists && !self.nameExists) {
                 console.log("Add user");
-        self.userGateway.add(self.newUser);
+                self.userGateway.add(self.newUser);
             }
         });
 
@@ -39,7 +39,7 @@ export class Signup {
             console.log("Event 2 raised");
             console.log(e);
             //this.user = e.existingUser;          
-            self.SUrouter.navigateToRoute('login');
+            self.router.navigateToRoute('login');
         });
 
     }
@@ -65,7 +65,7 @@ export class Signup {
     }
 
 
-    performSignup() {       
+    performSignup() {
         var msg = "Signup  " + this.newUser.toString();
         console.log(msg);
 
@@ -79,7 +79,7 @@ export class Signup {
             //  alert(msg);
             return;
         }
-      
+
         //  var txt = this.userGateway.testLocalHerokuDB();
         this.userGateway.getByMailAddress(this.newUser.mail);
 

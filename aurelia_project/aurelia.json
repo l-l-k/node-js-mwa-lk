@@ -1,5 +1,5 @@
 {
-  "name": ".",
+  "name": "mwa",
   "type": "project:application",
   "platform": {
     "id": "web",
@@ -94,7 +94,10 @@
         "prepend": [
           "node_modules/bluebird/js/browser/bluebird.core.js",
           "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird.js",
-          "node_modules/requirejs/require.js"
+          "node_modules/requirejs/require.js",
+          "node_modules/jquery/dist/jquery.min.js",
+          "node_modules/bootstrap/dist/js/bootstrap.min.js",
+          "scripts/require.js"
         ],
         "dependencies": [
           "aurelia-binding",

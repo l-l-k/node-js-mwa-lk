@@ -52,6 +52,28 @@ legend {
     background-color: #fffbf0;
 	border: 1px solid #e7c157;
 }
+
+.dayInputLabel {
+    float: left;
+    width: 70px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.dayInputField{
+    width: 100px;
+    text-align: left;
+    padding-left: 10px;
+    background-color: #fffbf0;
+	border: 1px solid #e7c157;
+}
+
+.dayInputHelp{
+    width: 250px;
+    text-align: left;
+    padding-left: 70px;
+}
+
 .inputHelp {
     width: 470px;
     text-align: left;
@@ -62,14 +84,14 @@ legend {
 float: left;
 width:290px;
 margin:10px;
-background-color:lavender;
+/*background-color:lavender;*/
 }
 
 .column2of2{
 float: left;
 width:280px;
 margin:10px;
-background-color:lavenderblush;
+/*background-color:lavenderblush;*/
 }
 
 .columnIndent{
@@ -200,6 +222,12 @@ fieldset[value]:disabled {
   color: #fff;
   margin-top: 10px;}
 
+.filtercheckbox {
+    margin-left: 20px;
+}
+.filterInput{
+    margin-left: 35px;
+}
 .radio1 {
     float: none;
     margin-left: 35px;
