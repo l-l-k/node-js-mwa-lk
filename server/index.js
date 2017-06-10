@@ -322,6 +322,25 @@ server.register(require('inert'), function (err) {
             client.end();
         }
     });
+    server.route({
+        method: 'POST',
+        path: '/TweetsRemoveAll/{uid}',
+        handler: function (request, reply, done) {
+        pg.connect(conString, function onConnect(err, client, done) {
+                //Err - This means something went wrong connecting to the database.
+            var qs = "DELETE FROM tweets WHERE uid ='" + request.params.uid + "'";
+                console.log("Remove all tweets : " + qs);
+                try {
+                    client.query(qs);
+                    done();
+                    reply("true");
+                } catch (error) {
+                    reply("false");
+                }
+            });
+        }
+    });
+
 
     //getTweets
     server.route({

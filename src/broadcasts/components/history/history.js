@@ -134,12 +134,14 @@ export class History {
 
     removeMessages() {
         if (this.isBusy) {
-            return;
+            //return;
         };
 
         this.isBusy = true;
-        console.log("Request message-deletion");
-        this.broadcastGateway.removeMessages(this.user.id);
+        if (this.user.id.length > 0) {
+            console.log("Request message-deletion");
+            this.broadcastGateway.removeMessages(this.user.id);
+        }
     }
 
 }

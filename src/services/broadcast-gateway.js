@@ -125,9 +125,9 @@ export class BroadcastGateway {
         }, this);
    }
 
-    removeMessages(useriD) {
+    removeMessages(userID) {
         // TODO 
-        this.httpClient.post('/TweetsRemove/' + userID)
+        this.httpClient.post('/TweetsRemoveAll/' + userID)
             .then(res => {
                 try {
                     var success = Boolean(res.content);
@@ -142,6 +142,6 @@ export class BroadcastGateway {
                 }
             });
     }
-
+ 
 
 }
