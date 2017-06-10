@@ -6,6 +6,11 @@
     "type": "???",
     "url": "???"
   },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node App.js"
+  },
+  "author": "Leonard Klausmann",
   "license": "MIT",
   "dependencies": {
     "aurelia-animator-css": "^1.0.1",
