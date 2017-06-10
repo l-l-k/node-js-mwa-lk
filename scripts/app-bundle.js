@@ -692,7 +692,7 @@ define('models/broadcast-filter',["exports"], function (exports) {
                 if (existingUser.mail != "") {
                     console.log("Request messages for " + existingUser.nickname);
                     self.persons.push(existingUser.id);
-                    self.broadcastGateway.getsomeMessages(persons, self.firstday, self.lastDay);
+                    self.broadcastGateway.getSomeMessages(persons, self.firstday, self.lastDay);
                 } else {
                     console.log("User does not exist");
                 }
@@ -792,6 +792,34 @@ define('models/toolkit',['exports'], function (exports) {
         Toolkit.prototype.getTime = function getTime() {
             var now = new Date();
             return now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        };
+
+        Toolkit.prototype.getDay = function getDay(datum) {
+            var month = ("0" + datum.getMonth()).slice(-2);
+            var day = ("0" + datum.getDate()).slice(-2);
+            return datum.getFullYear() + "-" + month + "-" + day;
+        };
+
+        Toolkit.prototype.getTimestamp = function getTimestamp(datum) {
+            var timestamp = datum.getUTCFullYear() + '-' + ('00' + (datum.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + datum.getUTCDate()).slice(-2) + ' ' + ('00' + datum.getUTCHours()).slice(-2) + ':' + ('00' + datum.getUTCMinutes()).slice(-2) + ':' + ('00' + datum.getUTCSeconds()).slice(-2);
+            return timestamp;
+        };
+
+        Toolkit.prototype.getTimestampOfFirstDay = function getTimestampOfFirstDay(datum) {
+            var timestamp = datum.getUTCFullYear() + '-' + ('00' + (datum.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + datum.getUTCDate()).slice(-2) + ' ' + '00' + ':' + '00' + ':' + '00';
+            return timestamp;
+        };
+
+        Toolkit.prototype.getTimestampOfLastDay = function getTimestampOfLastDay(datum) {
+            var timestamp = datum.getUTCFullYear() + '-' + ('00' + (datum.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + datum.getUTCDate()).slice(-2) + ' ' + '23' + ':' + '59' + ':' + '59';
+            return timestamp;
+        };
+
+        Toolkit.prototype.setToday = function setToday(today) {
+            var now = new Date();
+            var month = now.getMonth() + 1;
+            var day = now.getDate();
+            today = new Date(now.getFullYear(), month, day, 0, 0, 0, 0);
         };
 
         Toolkit.prototype.isEven = function isEven(number) {
@@ -969,7 +997,7 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             });
         };
 
-        BroadcastGateway.prototype.getMessages = function getMessages(persons) {
+        BroadcastGateway.prototype.getMessages = function getMessages(person) {
             var _this2 = this;
 
             var currentUser = persons[0];
@@ -987,10 +1015,27 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
             });
         };
 
-        BroadcastGateway.prototype.getSomeMessages = function getSomeMessages(persons, firstDay, lastDay) {};
+        BroadcastGateway.prototype.getSomeMessages = function getSomeMessages(persons, firstDay, lastDay) {
+            persons.forEach(function (element) {
+                var _this3 = this;
+
+                this.httpClient.get('/TweetGet/' + element + '/' + firstDay + '/' + lastDay).then(function (res) {
+                    try {
+                        var messages = [];
+                        if (!(res.content == "" || res.content == "[]")) {
+                            messages = JSON.parse(res.content);
+                        }
+                        console.log("content:" + res.content);
+                        _this3.ea.publish('messages-downloaded', { messages: messages });
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            }, this);
+        };
 
         BroadcastGateway.prototype.removeMessages = function removeMessages(useriD) {
-            var _this3 = this;
+            var _this4 = this;
 
             this.httpClient.post('/TweetsRemove/' + userID).then(function (res) {
                 try {
@@ -998,7 +1043,7 @@ define('services/broadcast-gateway',['exports', 'aurelia-framework', 'aurelia-ht
                     console.log("content:" + res.content + " - success:" + success);
                     console.log("Raise Event message-removed ");
                     if (success) {
-                        _this3.ea.publish('message-removed', { sucess: sucess });
+                        _this4.ea.publish('message-removed', { sucess: sucess });
                     }
                 } catch (error) {
                     console.log(error);
@@ -2338,7 +2383,7 @@ define('broadcasts/components/broadcast/broadcast',['exports', 'aurelia-framewor
         return Broadcast;
     }(), (_applyDecoratedDescriptor(_class2.prototype, 'computedImageUrl', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'computedImageUrl'), _class2.prototype)), _class2)) || _class);
 });
-define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../services/user-gateway', './../../../models/user', './../../../models/broadcast-filter'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _userGateway, _user, _broadcastFilter) {
+define('broadcasts/components/history/history',['exports', 'aurelia-framework', 'aurelia-event-aggregator', './../../../services/broadcast-gateway', './../../../services/user-gateway', './../../../models/user', './../../../models/broadcast-filter', './../../../models/toolkit'], function (exports, _aureliaFramework, _aureliaEventAggregator, _broadcastGateway, _userGateway, _user, _broadcastFilter, _toolkit) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2360,15 +2405,16 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
 
             this.isBusy = false;
             this.vipName = "";
-            this.receivedTweets = [];
-            this.timeRange = [{ firstDay: null }, { lastDay: null }];
             this.isVeryImportant = false;
+            this.receivedTweets = [];
+            this.timeRange = [{ firstDay: "" }, { lastDay: "" }];
 
             this.ea = eventAggregator;
             this.broadcastGateway = broadcastGateway;
             this.userGateway = userGateway;
             this.user = user;
             this.senderFilter = new _broadcastFilter.BroadcastFilter();
+            this.toolkit = new _toolkit.Toolkit();
 
             this.showNoMessages = false;
             this.showMyMessages = true;
@@ -2386,7 +2432,6 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
             this.useRerestrictedTimeRange = true;
 
             this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
-                self.receivedTweets = [];
                 console.log("Event handler for messages-downloaded");
                 console.log(e);
                 e.messages.forEach(function (element) {
@@ -2424,16 +2469,6 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
             this.subscription3.dispose();
         };
 
-        History.prototype.xshowTweetsOfActiveVipsChanged = function xshowTweetsOfActiveVipsChanged(e) {
-            this.showTweetsOfActiveVips = e.currentTarget.activeElement.checked;
-            console.log(this.showTweetsOfActiveVips);
-        };
-
-        History.prototype.timeRangeUsageChanged = function timeRangeUsageChanged(e) {
-            this.useRerestrictedTimeRange = e.currentTarget.activeElement.checked;
-            console.log(this.showTweetsOfActiveVips);
-        };
-
         History.prototype.cleanupTable = function cleanupTable() {
             this.receivedTweets = [];
         };
@@ -2444,14 +2479,18 @@ define('broadcasts/components/history/history',['exports', 'aurelia-framework', 
             var persons = new Array();
             this.cleanupTable();
 
-            this.timeRange.firstDay = new Date(2017, 1, 1, 0, 0, 0, 0);
-            this.timeRange.lastDay = now();
+            var d1 = new Date(2017, 1, 1);
+            var d2 = new Date();
+            this.timeRange.firstDay = this.toolkit.getTimestampOfFirstDay(d1);
+            this.timeRange.lastDay = this.toolkit.getTimestampOfLastDay(d2);
             if (this.useRerestrictedTimeRange) {
                 if (this.firstDay != null) {
-                    this.timeRange.firstDay = this.firstDay;
+                    var d3 = new Date(this.firstDay);
+                    this.timeRange.firstDay = this.toolkit.getTimestampOfFirstDay(d3);
                 }
                 if (this.lastDay != null) {
-                    this.timeRange.lastDay = this.lastDay;
+                    var d4 = new Date(this.lastDay);
+                    this.timeRange.lastDay = this.toolkit.getTimestampOfLastDay(d4);
                 }
             }
 
@@ -2871,6 +2910,6 @@ define('text!administration/components/statistics/results.html', ['module'], fun
 define('text!administration/components/statistics/summary.html', ['module'], function(module) { module.exports = "<template><fieldset id=\"statistics\" class=\"visible\"><legend>Amount of messages per user</legend><compose view=\"./period.html\"></compose><form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveSummary()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve summary</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"emptyGrid()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Empty results view</submit-button></div></div></form><br><br><compose view=\"./results.html\"></compose></fieldset></template>"; });
 define('text!broadcasts/components/broadcast/broadcast.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>New message</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><div class=\"container-fluid row\"><div class=\"column1of2\"><textarea class=\"form-control tweet\" value.bind=\"message.text\" placeholder=\"Type in your message ...\" maxlength=\"140\" rows=\"6\"> </textarea><span id=\"charCounter\"></span><br><br><button type=\"button\" id=\"xcamera\" class=\"btn btn-default camera\" click.delegate=\"detachImage()\"><span class=\"glyphicon glyphicon-remove\"></span> Detach image</button><br><br><label for=\"picture\"><span class=\"glyphicon glyphicon-paperclip camera\"></span> Attach image :</label><input type=\"file\" id=\"picture\" name=\"picture\" class=\"camera\" accept=\"image/*\" files.bind=\"selectedFiles\" change.delegate=\"updatePreview()\"></div><div class=\"column2of2\"><img id=\"preview\" src.bind=\"computedImageUrl\" class=\"img-responsive preview\" alt=\"Photo\" width=\"280\"></div></div><div class=\"col-sm-9\"><submit-button click.delegate=\"sendMessage()\"><i slot=\"icon\" class=\"fa fa-send\" aria-hidden=\"true\"></i> Send Message</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></form></fieldset></section></template>"; });
 define('text!broadcasts/components/history/displayMessages.html', ['module'], function(module) { module.exports = "<template><table id=\"userRelatedTweets\"><thead><tr><th>Day</th><th>Time</th><th>Message</th></tr></thead><tbody></tbody></table></template>"; });
-define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"xxrow\"><div class=\"column1of2\"><button type=\"submit\" class=\"btn btn-primary\" click.delegate=\"cleanupTable()\"><span class=\"glyphicon glyphicon-search\"></span> Clear table</button><br><br><label for=\"o1\"><input type=\"checkbox\" id=\"o1\" checked.bind=\"showMyTweets\">My tweets<label><label for=\"o1\"><input type=\"checkbox\" id=\"o2\" checked.bind=\"showTweetsOfActiveVips\">Include selected VIPs</label><label for=\"o3\"><input type=\"checkbox\" id=\"o3\" name=\"o3\" checked.bind=\"showTweetsOfSpecialUser\">Tweets of :<label><input id=\"username\" type=\"text\" name=\"username\" class=\"columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"nameOfSpecialUser\" style=\"margin-left:22px\"></label></label></label></label></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><div class=\"checkbox\"><label><input type=\"checkbox\" checked.bind=\"useRerestrictedTimeRange\">Restrict evaluation range</label></div><br><br><compose view=\"./../../../resources/elements/period.html\"></compose></div></div></div></form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></form><br><br><table id=\"userRelatedTweets\"><thead><tr><th>Date</th><th>Message</th></tr></thead><tbody><tr repeat.for=\"tweet of receivedTweets\"><td innerhtml.bind=\"tweet.timestamp\"><td innerhtml.bind=\"tweet.message\"></tr></tbody></table></fieldset></section></template>"; });
+define('text!broadcasts/components/history/history.html', ['module'], function(module) { module.exports = "<template><section class=\"container\"><fieldset><legend>History</legend><form class=\"form-horizontal\" validation-renderer=\"bootstrap-form\"><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"xxrow\"><div class=\"column1of2\"><button type=\"submit\" class=\"btn btn-primary\" click.delegate=\"cleanupTable()\"><span class=\"glyphicon glyphicon-search\"></span> Clear table</button><br><br><label for=\"o1\"><input type=\"checkbox\" id=\"o1\" checked.bind=\"showMyTweets\">My tweets<label><label for=\"o1\"><input type=\"checkbox\" id=\"o2\" checked.bind=\"showTweetsOfActiveVips\">Include selected VIPs</label><label for=\"o3\"><input type=\"checkbox\" id=\"o3\" name=\"o3\" checked.bind=\"showTweetsOfSpecialUser\">Tweets of :<label><input id=\"username\" type=\"text\" name=\"username\" class=\"columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"nameOfSpecialUser\" style=\"margin-left:22px\"></label></label></label></label></div><div class=\"column1of2 columnIndent\"><div class=\"checkbox\"><label><input type=\"checkbox\" checked.bind=\"useRerestrictedTimeRange\">Restrict evaluation range</label></div><compose view=\"./../../../resources/elements/period.html\"></compose></div></div></div></form><div class=\"row\"><div class=\"col-sm-9\"><submit-button click.delegate=\"retrieveMessages()\"><i slot=\"icon\" class=\"fa fa-search\" aria-hidden=\"true\"></i> Retrieve Messages</submit-button><div show.bind=\"validationFailed\" class=\"submitNotification\">Mission impossible. Check your input, please.</div></div></div></form><br><br><table id=\"userRelatedTweets\"><thead><tr><th>Date</th><th>Message</th></tr></thead><tbody><tr repeat.for=\"tweet of receivedTweets\"><td innerhtml.bind=\"tweet.timestamp\"><td innerhtml.bind=\"tweet.message\"></tr></tbody></table><br><br><div class=\"row\"><div class=\"col-sm-2\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete selected messages</submit-button></div><div class=\"col-sm-4\"><submit-button click.delegate=\"removeMessages()\"><i slot=\"icon\" class=\"fa fa-trash\" aria-hidden=\"true\"></i> Delete all my messages</submit-button></div></div></fieldset></section></template>"; });
 define('text!broadcasts/components/history/message-filter.html', ['module'], function(module) { module.exports = "<template><section><fieldset><form class=\"form-group\"><h4>Define filter</h4><div class=\"container-fluid\"><div class=\"row\"><div class=\"column1of2\" style=\"background-color:#e6e6fa\"><label><input type=\"checkbox\" checked.bind=\"motherboard\"> Motherboard</label><label><input type=\"checkbox\" checked.bind=\"cpu\"> CPU</label><label><input type=\"checkbox\" checked.bind=\"memory\"> Memory</label>motherboard = ${motherboard}<br>cpu = ${cpu}<br>memory = ${memory}<br><label class=\"radio columnIndent\"><input type=\"radio\" id=\"user\" name=\"filter\" value.bind=\"msgFilter.showNoMessages\" checked.bind=\"showNoMessages\">None</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"allMessages\" name=\"filter\" value.bind=\"showMyTweets\" checked.bind=\"showMyTweets\">My tweets</label><label class=\"radio columnIndent\"><input type=\"radio\" id=\"someMessages\" name=\"filter\" value.bind=\"msgFilter.showTweetsOfSpecialUser\">Tweets of :</label><input id=\"username\" type=\"text\" name=\"username\" class=\"columnIndent\" placeholder=\"Type in a user's name ...\" value.bind=\"nameOfSpecialUser\" style=\"margin-left:22px\"></div><div class=\"column1of2 columnIndent\" style=\"background-color:#fff0f5\"><label class=\"checkbox\"><input type=\"checkbox\" value.bind=\"showTweetsOfActiveVips\" click.delegate=\"selectionChanged($event)\">Include selected VIPs</label></div></div></div></form></fieldset></section></template>"; });
 //# sourceMappingURL=app-bundle.js.map

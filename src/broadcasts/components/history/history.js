@@ -5,17 +5,19 @@ import { BroadcastGateway } from './../../../services/broadcast-gateway';
 import { UserGateway } from './../../../services/user-gateway';
 import { User } from './../../../models/user';
 import { BroadcastFilter } from './../../../models/broadcast-filter';
+import { Toolkit } from './../../../models/toolkit';
 
 @inject(EventAggregator, BroadcastGateway, UserGateway, User)
 export class History {
 
     isBusy = false;
     vipName = "";
+    isVeryImportant = false; // vipStatus
 
     receivedTweets = [];
     timeRange = [
-        { firstDay: null },
-        { lastDay: null }
+        { firstDay: "" },
+        { lastDay: "" }
     ];
 
     constructor(eventAggregator, broadcastGateway, userGateway, user) {
@@ -24,6 +26,7 @@ export class History {
         this.userGateway = userGateway;
         this.user = user;
         this.senderFilter = new BroadcastFilter();
+        this.toolkit = new Toolkit();
 
         this.showNoMessages = false;
         this.showMyMessages = true;
@@ -36,19 +39,11 @@ export class History {
         this.lastDay = null;
     }
 
-    isVeryImportant = false; // vipStatus
-    // showNoMessages = false;
-    // showMyMessages = true;
-    // showTweetsOfSpecialUser = false;
-    // nameOfSpecialUser = "";
-    // showTweetsOfActiveVips = false;    
-
     activate() {
         var self = this;
         this.useRerestrictedTimeRange = true;
 
         this.subscription1 = this.ea.subscribe('messages-downloaded', function (e) {
-            self.receivedTweets = [];
             console.log("Event handler for messages-downloaded");
             console.log(e);
             e.messages.forEach(function (element) {
@@ -87,16 +82,6 @@ export class History {
         this.subscription3.dispose();
     }
 
-    xshowTweetsOfActiveVipsChanged(e) {
-        this.showTweetsOfActiveVips = e.currentTarget.activeElement.checked;
-        console.log(this.showTweetsOfActiveVips);
-    }
-
-    timeRangeUsageChanged(e) {
-        this.useRerestrictedTimeRange = e.currentTarget.activeElement.checked;
-        console.log(this.showTweetsOfActiveVips);
-    }
-
     cleanupTable() {
         this.receivedTweets = [];
     }
@@ -110,14 +95,18 @@ export class History {
         var persons = new Array();
         this.cleanupTable();
 
-        this.timeRange.firstDay = new Date(2017, 1, 1, 0, 0, 0, 0);
-        this.timeRange.lastDay = now();
+        var d1 = new Date(2017, 1, 1);
+        var d2 = new Date();
+        this.timeRange.firstDay = this.toolkit.getTimestampOfFirstDay(d1);
+        this.timeRange.lastDay = this.toolkit.getTimestampOfLastDay(d2);
         if (this.useRerestrictedTimeRange) {
             if (this.firstDay != null) {
-                this.timeRange.firstDay = this.firstDay;
+                var d3 = new Date(this.firstDay);
+                this.timeRange.firstDay = this.toolkit.getTimestampOfFirstDay(d3);
             }
             if (this.lastDay != null) {
-                this.timeRange.lastDay = this.lastDay;
+                var d4 = new Date(this.lastDay);
+                this.timeRange.lastDay = this.toolkit.getTimestampOfLastDay(d4);
             }
         }
 

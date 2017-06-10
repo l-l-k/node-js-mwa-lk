@@ -30,7 +30,7 @@ export class BroadcastFilter {
             if (existingUser.mail != "") {
                 console.log("Request messages for " + existingUser.nickname);
                 self.persons.push(existingUser.id);
-                self.broadcastGateway.getsomeMessages(persons, self.firstday, self.lastDay);
+                self.broadcastGateway.getSomeMessages(persons, self.firstday, self.lastDay);
             } else {
                 console.log("User does not exist");
             }

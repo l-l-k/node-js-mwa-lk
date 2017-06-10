@@ -306,10 +306,11 @@ server.register(require('inert'), function (err) {
         path: '/TweetRemove/{idTime*2}',
         handler: function (request, reply, done) {
             const tweetIdentifier = request.params.idTime.split('/');
+            var datum = new Date(tweetIdentifier[1]);
             var result;
             var client = new pg.Client(conString);
             client.connect();
-            var qs = "DELETE FROM tweets WHERE uid =" + tweetIdentifier[0] + " AND timestamp =" + tweetIdentifier[1] + ")";
+            var qs = "DELETE FROM tweets WHERE uid =" + tweetIdentifier[0] + " AND timestamp =" + datum + ")";
             try {
                 var insert = client.query(qs, tweetIdentifier);
                 console.log(insert);
@@ -325,16 +326,15 @@ server.register(require('inert'), function (err) {
     //getTweets
     server.route({
         method: 'GET',
-        path: '/TweetGetVIP/{uid}',//startEnd*3}',
+        path: '/TweetGetVIP/{uid}',
         handler: function (request, reply) {
-            const queryParts = request.params.uid;//.split('/');
-            var result=[];
-            var result_vip=[];
+            var result = [];
+            var result_vip = [];
             var client = new pg.Client(conString);
             client.connect();
             var qs = '';
             // getting all active vips
-            qs = "SELECT vip FROM followers WHERE uid ='" + queryParts/*[0]*/ + "' AND active = 'true'";
+            qs = "SELECT vip FROM followers WHERE uid ='" + uid + "' AND active = 'true'";
             console.log(qs);
 
             var query_vip = client.query(qs)
@@ -347,36 +347,40 @@ server.register(require('inert'), function (err) {
                     console.log(res);
                 })
                 .then(() => client.end())
-            
-                    console.log("resultvip: "+result_vip);
-                    // getting all tweets of the vips in between the given timespan          
-                    result_vip.forEach(function (element) {
-                        qs = "SELECT * FROM tweets WHERE uid ='" + element + "'";//+ " AND timestamp > " + queryParts[1] + " AND timepstampe < " + queryParts[2] + ")";
-                        console.log(qs);
-                        var query_tweets = client.query(qs)
-                            .then(res => {
-                                console.log(res);
-                                res.rows.forEach(function (element) {   
-                                    console.log(element);
-                                    result.push(element);
-                                }, this);
-                               
-                            })
-                            .then(() => client.end());
-                    }, this);
-                    console.log(result);
-                    reply(JSON.stringify(result));
-               
+
+            console.log("resultvip: " + result_vip);
+            // getting all tweets of the vips in between the given timespan          
+            result_vip.forEach(function (element) {
+                qs = "SELECT * FROM tweets WHERE uid ='" + element + "'";//+ " AND timestamp > " + queryParts[1] + " AND timepstampe < " + queryParts[2] + ")";
+                console.log(qs);
+                var query_tweets = client.query(qs)
+                    .then(res => {
+                        console.log(res);
+                        res.rows.forEach(function (element) {
+                            console.log(element);
+                            result.push(element);
+                        }, this);
+
+                    })
+                    .then(() => client.end());
+            }, this);
+            console.log(result);
+            reply(JSON.stringify(result));
+
         }
     });
 
     //getTweets
     server.route({
         method: 'GET',
-        path: '/TweetGet/{uid}',
+        path: '/TweetGet/{uidStartEnd*3}',
         handler: function (request, reply) {
-            var qs = "SELECT * FROM tweets WHERE uid='" + request.params.uid + "'";
-            console.log("Query: " + qs);
+            const params = request.params.uidStartEnd.split('/');
+            //  var qs = "SELECT * FROM tweets WHERE uid='" + request.params.uid + "'";
+            var firstDay = params[1];
+            var lastDay = params[2];
+            qs = "SELECT * FROM tweets WHERE uid ='" + params[0] + "'" + " AND timestamp >= '" + firstDay + "' AND timestamp <= '" + lastDay + "'";
+            console.log("Tweet-Query: " + qs);
             var client = new pg.Client(conString);
             client.connect();
             // getting all tweets
@@ -385,7 +389,7 @@ server.register(require('inert'), function (err) {
                 .then(() => client.end());
         }
     });
-    
+
 
     //__________FOLLOWERS_____________
     // get all related followers 

@@ -5,7 +5,7 @@ import { EventAggregator } from 'aurelia-event-aggregator';
 import { User } from './../models/user';
 import environment from './../environment';
 
-@inject(EventAggregator,HttpClient, UserGateway, User)
+@inject(EventAggregator, HttpClient, UserGateway, User)
 export class BroadcastGateway {
 
     broadcasts = [];
@@ -81,22 +81,40 @@ export class BroadcastGateway {
                     if (success) {
                         this.ea.publish('message-sent', { success });
                     }
-           
+
                 } catch (error) {
                     console.log(error);
                 }
             });
     }
 
-    getMessages(persons) {
+    getMessages(person) {
         // TODO  
         var currentUser = persons[0]; // ids
-        this.httpClient.get('/TweetGet/' + currentUser)
+            this.httpClient.get('/TweetGet/' + currentUser)
+                .then(res => {
+                    try {
+                        var messages = [];
+                        if (!(res.content == "" || res.content == "[]"))
+                        { messages = JSON.parse(res.content); }
+                        console.log("content:" + res.content);
+                        this.ea.publish('messages-downloaded', { messages });
+
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+    }
+
+    getSomeMessages(persons, firstDay, lastDay) {
+        // Input: array, date-string, date-string
+        persons.forEach(function (element) {
+            this.httpClient.get('/TweetGet/' + element + '/' + firstDay + '/' +  lastDay)
             .then(res => {
                 try {
-                    var messages=[];
+                    var messages = [];
                     if (!(res.content == "" || res.content == "[]"))
-                    {  messages = JSON.parse(res.content); }
+                    { messages = JSON.parse(res.content); }
                     console.log("content:" + res.content);
                     this.ea.publish('messages-downloaded', { messages });
 
@@ -104,11 +122,8 @@ export class BroadcastGateway {
                     console.log(error);
                 }
             });
-    }
-
-    getSomeMessages(persons, firstDay, lastDay) {
-        // Input: array, date, date
-    }
+        }, this);
+   }
 
     removeMessages(useriD) {
         // TODO 
@@ -121,7 +136,7 @@ export class BroadcastGateway {
                     if (success) {
                         this.ea.publish('message-removed', { sucess });
                     }
-           
+
                 } catch (error) {
                     console.log(error);
                 }

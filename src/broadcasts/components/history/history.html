@@ -29,14 +29,11 @@
                                     style="margin-left:22px;"></input>
                             </div>
 
-                                <div class="column1of2 columnIndent" style="background-color:lavenderblush;">
+                                <div class="column1of2 columnIndent" >
                                     <div class="checkbox">
                                         <label><input type="checkbox" checked.bind="useRerestrictedTimeRange" >Restrict evaluation range</label>
                             </div>
-                            <!--<label for="period">
-                                <input type="checkbox" id="period" value.bind="useRerestrictedTimeRange" click.delegate="timeRangeUsageChanged($event)">Restrict evaluation range</input>
-                            <label>-->
-                            <br></br>
+                            <!--<br></br>-->
                             <compose view="./../../../resources/elements/period.html"></compose>
                         </div>
                     </div>
@@ -50,14 +47,6 @@
                             <i slot="icon" class=" fa fa-search" aria-hidden="true"></i> Retrieve Messages</submit-button>
                         <div show.bind="validationFailed" class="submitNotification">Mission impossible. Check your input, please.</div>
                     </div>
-                    <div class="col-sm-2">
-                        <submit-button click.delegate="removeMessages()">
-                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete selected messages</submit-button>
-                    </div>
-                    <div class="col-sm-2">
-                        <submit-button click.delegate="removeMessages()">
-                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete all my messages</submit-button>
-                    </div>
                 </div>
             </form>
             <br></br>
@@ -66,18 +55,27 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-
                         <th>Message</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr repeat.for="tweet of receivedTweets">
                         <td innerhtml.bind='tweet.timestamp' />
-                        <td innerhtml.bind='tweet.message' />
+                       <td innerhtml.bind='tweet.message' />
                     </tr>
                 </tbody>
             </table>
-
-        </fieldset>
+            <br></br>
+            <div class="row">
+                    <div class="col-sm-2">
+                        <submit-button click.delegate="removeMessages()">
+                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete selected messages</submit-button>
+                    </div>
+                    <div class="col-sm-4">
+                        <submit-button click.delegate="removeMessages()">
+                            <i slot="icon" class=" fa fa-trash" aria-hidden="true"></i> Delete all my messages</submit-button>
+                    </div>
+                    </div>
+       </fieldset>
     </section>
 </template>
